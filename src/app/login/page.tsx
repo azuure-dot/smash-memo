@@ -1,30 +1,28 @@
+import { AuthShell } from "@/components/auth-shell";
 import { LoginForm } from "./login-form";
 
 export const metadata = { title: "Sign in" };
 
+const NOTICES: Record<string, string> = {
+  deleted: "Your account and all your notes have been deleted.",
+  "reset-expired": "That reset link is invalid or has expired. Request a new one.",
+};
+
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; notice?: string }>;
 }) {
-  const { next } = await searchParams;
+  const { next, notice } = await searchParams;
 
   return (
-    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-5 py-12">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 size-[36rem] -translate-x-1/2 rounded-full bg-brand opacity-15 blur-3xl"
-      />
-      <div className="relative w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 grid size-12 place-items-center rounded-2xl bg-brand text-lg font-bold text-white">
-            SN
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Smash Notes</h1>
-          <p className="mt-1 text-sm text-muted">Matchup notes for Ultimate &amp; Melee, on every device.</p>
-        </div>
-        <LoginForm next={next ?? "/"} />
-      </div>
-    </main>
+    <AuthShell title="Smash Notes" subtitle="Matchup notes for Ultimate & Melee, on every device.">
+      {notice && NOTICES[notice] && (
+        <p className="mb-4 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
+          {NOTICES[notice]}
+        </p>
+      )}
+      <LoginForm next={next ?? "/"} />
+    </AuthShell>
   );
 }

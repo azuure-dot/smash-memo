@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { cn } from "@/lib/cn";
 import { authenticate, type AuthState } from "./actions";
@@ -44,7 +45,14 @@ export function LoginForm({ next }: { next: string }) {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-medium text-muted">Password</span>
+          <span className="mb-1 flex items-center justify-between text-xs font-medium text-muted">
+            Password
+            {mode === "signin" && (
+              <Link href="/forgot-password" className="font-normal text-brand-to hover:underline">
+                Forgot password?
+              </Link>
+            )}
+          </span>
           <input
             name="password"
             type="password"
