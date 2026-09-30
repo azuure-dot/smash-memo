@@ -1,4 +1,4 @@
-import { DEFAULT_LAYOUT, STAGE_LAYOUTS } from "@/lib/game-data";
+import { DEFAULT_LAYOUT, STAGE_LAYOUTS, stageFloorPaths } from "@/lib/game-data";
 
 /**
  * Small, original stage silhouette (floor + platforms) drawn from abstract layout data.
@@ -6,17 +6,13 @@ import { DEFAULT_LAYOUT, STAGE_LAYOUTS } from "@/lib/game-data";
  */
 export function StageGlyph({ name, className }: { name: string; className?: string }) {
   const layout = STAGE_LAYOUTS[name] ?? DEFAULT_LAYOUT;
-  const [x, w] = layout.main;
-  const floorY = 30;
 
   return (
     <svg viewBox="0 0 100 44" className={className} aria-hidden fill="currentColor">
       <g transform={layout.tilt ? `rotate(${layout.tilt} 50 30)` : undefined}>
-        {/* floor: a slab that tapers toward the bottom */}
-        <path
-          d={`M${x} ${floorY} h${w} l-${w * 0.12} 9 h-${w * 0.76} z`}
-          opacity={0.9}
-        />
+        {stageFloorPaths(layout).map((d, i) => (
+          <path key={i} d={d} opacity={0.9} />
+        ))}
         {layout.platforms?.map(([px, py, pw], i) => (
           <rect key={i} x={px} y={py} width={pw} height={2.2} rx={1.1} opacity={0.75} />
         ))}
