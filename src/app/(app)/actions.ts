@@ -1,0 +1,55 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { canonicalCharacter } from "@/lib/game-data";
+import { createClient } from "@/lib/supabase/server";
+import type { Game } from "@/lib/types";
+
+export type CreateMatchupState = { error?: string };
+
+/** Creates "[My Character] vs [Opponent]" (or reuses an existing one) and opens it. */
+export async function createMatchup(
+  _prev: CreateMatchupState,
+  formData: FormData,
+): Promise<CreateMatchupState> {
+  const game = formData.get("game");
+  if (game !== "ultimate" && game !== "melee") return { error: "Pick a game." };
+
+  const mine = canonicalCharacter(game as Game, String(formData.get("my_character") ?? ""));
+  const opp = canonicalCharacter(game as Game, String(formData.get("opponent_character") ?? ""));
+  if (!mine || !opp) return { error: "Choose both characters." };
+  if (mine.length > 60 || opp.length > 60) return { error: "Character names are too long." };
+
+  const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("matchups")
+    .select("id")
+    .eq("game", game)
+    .eq("my_character", mine)
+    .eq("opponent_character", opp)
+    .maybeSingle();
+
+  let id: string | undefined = existing?.id;
+
+  if (!id) {
+    const { data, error } = await supabase
+      .from("matchups")
+      .insert({ game, my_character: mine, opponent_character: opp })
+      .select("id")
+      .single();
+    if (error || !data) return { error: error?.message ?? "Couldn't create the matchup." };
+    id = data.id;
+  }
+
+  revalidatePath("/");
+  redirect(`/matchups/${id}`);
+}
+
+export async function deleteMatchup(id: string) {
+  const supabase = await createClient();
+  await supabase.from("matchups").delete().eq("id", id);
+  revalidatePath("/");
+  redirect("/");
+}
