@@ -22,7 +22,7 @@ export function AuthShell({
             href="/"
             className="mx-auto mb-4 grid size-12 place-items-center rounded-2xl bg-brand text-lg font-bold text-white"
           >
-            SN
+            SM
           </Link>
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}

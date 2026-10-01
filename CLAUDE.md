@@ -1,4 +1,4 @@
-# Passation — Smash Notes
+# Passation — Smash Mémo
 
 Document de reprise du projet pour Claude Code. À lire en entier avant toute modification.
 
@@ -8,10 +8,10 @@ Document de reprise du projet pour Claude Code. À lire en entier avant toute mo
 
 ## 1. Le projet en bref
 
-**Smash Notes** est une web app (PWA installable) pour prendre des notes de matchups sur **Super Smash Bros. Ultimate** et **Melee**. Chaque utilisateur a un compte, et ses notes sont synchronisées sur tous ses appareils.
+**Smash Mémo** (anciennement « Smash Notes », renommée le 2026-10-01 car une autre app porte ce nom) est une web app (PWA installable) pour prendre des notes de matchups sur **Super Smash Bros. Ultimate** et **Melee**. Chaque utilisateur a un compte, et ses notes sont synchronisées sur tous ses appareils.
 
-- **Repo :** GitHub `smash-notes` (compte du propriétaire), branche `main`.
-- **Hébergement :** Vercel (projet `smash-notes`, équipe « azuure-dot », plan Hobby). Chaque push sur `main` déclenche un redéploiement.
+- **Repo :** GitHub `smash-memo` (compte du propriétaire, ex-`smash-notes`), branche `main`.
+- **Hébergement :** Vercel (projet `smash-memo`, ex-`smash-notes`, équipe « azuure-dot », plan Hobby). Chaque push sur `main` déclenche un redéploiement.
 - **Backend :** Supabase (Postgres + Auth + RLS), plan gratuit.
 
 ## 2. Le propriétaire et la façon de travailler avec lui
@@ -20,7 +20,7 @@ Document de reprise du projet pour Claude Code. À lire en entier avant toute mo
 - **L'interface de l'app doit rester entièrement en anglais** (exigence du cahier des charges).
 - Il est **débutant** en développement web. Donne des étapes numérotées, concrètes, sans sauter d'étape.
 - Il est sous **Windows, avec PowerShell**. Donne les commandes PowerShell (`del` et non `rm`, chemins avec `\`). La politique d'exécution des scripts a déjà été réglée (`RemoteSigned`).
-- Piège déjà rencontré : il lance les commandes `npm` hors du dossier du projet. Rappelle-lui de faire `cd smash-notes` d'abord.
+- Piège déjà rencontré : il lance les commandes `npm` hors du dossier du projet. Rappelle-lui de faire `cd smash-notes` d'abord (le dossier local garde l'ancien nom).
 - Il valide les visuels sur des aperçus. Pour un changement graphique, montre un rendu avant de livrer si possible.
 - Pour mettre en ligne :
   ```powershell

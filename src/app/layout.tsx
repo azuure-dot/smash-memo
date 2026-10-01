@@ -6,10 +6,10 @@ import "./globals.css";
 const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: { default: "Smash Notes", template: "%s · Smash Notes" },
+  title: { default: "Smash Mémo", template: "%s · Smash Mémo" },
   description: "Matchup notes for Super Smash Bros. Ultimate and Melee, synced across your devices.",
-  applicationName: "Smash Notes",
-  appleWebApp: { capable: true, title: "Smash Notes", statusBarStyle: "black-translucent" },
+  applicationName: "Smash Mémo",
+  appleWebApp: { capable: true, title: "Smash Mémo", statusBarStyle: "black-translucent" },
   formatDetection: { telephone: false },
 };
 

@@ -1,11 +1,11 @@
-/* Smash Notes service worker
+/* Smash Mémo service worker
  * - Precaches an offline fallback page.
  * - Cache-first for hashed build assets and icons.
  * - Network-first for page navigations, falling back to the last cached copy, then /offline.
  * - Never touches cross-origin requests (Supabase API/auth always go to the network).
  * Bump VERSION whenever you change this file's caching logic.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC_CACHE = `sn-static-${VERSION}`;
 const PAGE_CACHE = `sn-pages-${VERSION}`;
 const OFFLINE_URL = "/offline";

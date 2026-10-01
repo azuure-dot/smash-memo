@@ -1,4 +1,4 @@
--- Smash Notes — initial schema
+-- Smash Mémo — initial schema
 -- Run in the Supabase SQL editor, or with `supabase db push` if you use the CLI.
 -- Users live in Supabase's built-in auth.users table; every row below is owned by one user.
 

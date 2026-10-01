@@ -17,7 +17,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl px-5 pb-20 pt-[calc(env(safe-area-inset-top)+2rem)]">
       <Link href="/" className="mb-8 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-fg">
-        <ArrowLeft className="size-4" /> Smash Notes
+        <ArrowLeft className="size-4" /> Smash Mémo
       </Link>
 
       <h1 className="text-3xl font-semibold tracking-tight">
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
             <li>No administrator key is ever sent to your browser.</li>
           </ul>
           <p>
-            Smash Notes is a small independent project and has not been professionally audited. Please don&apos;t use
+            Smash Mémo is a small independent project and has not been professionally audited. Please don&apos;t use
             it to store sensitive personal information.
           </p>
         </Section>
