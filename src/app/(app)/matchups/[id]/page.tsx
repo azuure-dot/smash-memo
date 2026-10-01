@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { ArrowLeft } from "lucide-react";
 import { DeleteMatchupButton } from "@/components/matchup/delete-matchup-button";
 import { NoteEditor } from "@/components/matchup/note-editor";
@@ -14,15 +15,17 @@ type Props = { params: Promise<{ id: string }> };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Shared by generateMetadata and the page: one query per request instead of two. */
+const getMatchup = cache(async (id: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase.from("matchups").select("*").eq("id", id).maybeSingle();
+  return data as Matchup | null;
+});
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   if (!UUID.test(id)) return {};
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("matchups")
-    .select("my_character, opponent_character")
-    .eq("id", id)
-    .maybeSingle();
+  const data = await getMatchup(id);
   return data ? { title: `${data.my_character} vs ${data.opponent_character}` } : {};
 }
 
@@ -31,8 +34,8 @@ export default async function MatchupPage({ params }: Props) {
   if (!UUID.test(id)) notFound();
 
   const supabase = await createClient();
-  const [matchupRes, stagesRes, notesRes] = await Promise.all([
-    supabase.from("matchups").select("*").eq("id", id).maybeSingle(),
+  const [matchup, stagesRes, notesRes] = await Promise.all([
+    getMatchup(id),
     supabase
       .from("matchup_stages")
       .select("id, matchup_id, name, status, is_custom, position")
@@ -45,7 +48,6 @@ export default async function MatchupPage({ params }: Props) {
       .order("created_at"),
   ]);
 
-  const matchup = matchupRes.data as Matchup | null;
   if (!matchup) notFound();
 
   return (

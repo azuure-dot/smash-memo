@@ -25,10 +25,10 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Do not add code between createServerClient and getUser(): it keeps the session fresh.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Do not add code between createServerClient and getClaims(): it keeps the session fresh.
+  // getClaims() verifies the JWT locally (asymmetric signing keys), avoiding a call to Supabase Auth on every request.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));

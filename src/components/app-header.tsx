@@ -5,9 +5,9 @@ import { SignOutButton } from "./sign-out-button";
 
 export async function AppHeader() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() reads the already-verified session token: no extra network round trip.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-bg/80 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
