@@ -12,6 +12,7 @@ Document de reprise du projet pour Claude Code. À lire en entier avant toute mo
 
 - **Repo :** GitHub `smash-memo` (compte du propriétaire, ex-`smash-notes`), branche `main`.
 - **Hébergement :** Vercel (projet `smash-memo`, ex-`smash-notes`, équipe « azuure-dot », plan Hobby). Chaque push sur `main` déclenche un redéploiement.
+- **URL de production :** https://smash-memo.vercel.app (l'ancienne `smash-notes-pi.vercel.app` redirige vers elle).
 - **Backend :** Supabase (Postgres + Auth + RLS), plan gratuit.
 
 ## 2. Le propriétaire et la façon de travailler avec lui
