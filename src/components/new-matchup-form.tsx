@@ -3,16 +3,15 @@
 import { ArrowLeftRight, Plus, X } from "lucide-react";
 import { useActionState, useState } from "react";
 import { createMatchup, type CreateMatchupState } from "@/app/(app)/actions";
-import { cn } from "@/lib/cn";
-import { CHARACTER_EXAMPLES, CHARACTERS, GAME_LABELS, GAMES } from "@/lib/game-data";
+import { CHARACTER_EXAMPLES, CHARACTERS, GAME_LABELS } from "@/lib/game-data";
 import type { Game } from "@/lib/types";
 
 const inputClass =
   "w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition placeholder:text-muted/60 focus:border-brand-from";
 
-export function NewMatchupForm({ defaultOpen = false }: { defaultOpen?: boolean }) {
+/** The game comes from the dashboard's global game selector: the form only asks for the two characters. */
+export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
-  const [game, setGame] = useState<Game>("ultimate");
   const [mine, setMine] = useState("");
   const [opp, setOpp] = useState("");
   const [state, formAction, pending] = useActionState<CreateMatchupState, FormData>(createMatchup, {});
@@ -23,7 +22,7 @@ export function NewMatchupForm({ defaultOpen = false }: { defaultOpen?: boolean 
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-from/20 transition hover:brightness-110"
       >
-        <Plus className="size-4" /> New matchup
+        <Plus className="size-4" /> New {GAME_LABELS[game]} matchup
       </button>
     );
   }
@@ -31,7 +30,9 @@ export function NewMatchupForm({ defaultOpen = false }: { defaultOpen?: boolean 
   return (
     <form action={formAction} className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-semibold">New matchup</h2>
+        <h2 className="font-semibold">
+          New <span className="text-brand">{GAME_LABELS[game]}</span> matchup
+        </h2>
         <button
           type="button"
           onClick={() => setOpen(false)}
@@ -43,23 +44,6 @@ export function NewMatchupForm({ defaultOpen = false }: { defaultOpen?: boolean 
       </div>
 
       <input type="hidden" name="game" value={game} />
-      <div className="mb-4 inline-grid grid-cols-3 gap-1 rounded-xl bg-surface-2 p-1 text-sm" role="radiogroup" aria-label="Game">
-        {GAMES.map((g) => (
-          <button
-            key={g}
-            type="button"
-            role="radio"
-            aria-checked={game === g}
-            onClick={() => setGame(g)}
-            className={cn(
-              "rounded-lg px-3 py-1.5 font-medium transition sm:px-4",
-              game === g ? "bg-bg text-fg shadow" : "text-muted hover:text-fg",
-            )}
-          >
-            {GAME_LABELS[g]}
-          </button>
-        ))}
-      </div>
 
       <div className="grid items-end gap-3 sm:grid-cols-[1fr_auto_1fr]">
         <label className="block">

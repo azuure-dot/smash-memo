@@ -10,7 +10,7 @@ import { NoteEditor } from "@/components/matchup/note-editor";
 import { QuickNotes } from "@/components/matchup/quick-notes";
 import { SharedNoteActions } from "@/components/matchup/shared-note-actions";
 import { StageSelector } from "@/components/matchup/stage-selector";
-import { GAME_LABELS } from "@/lib/game-data";
+import { dashboardHref, DEFAULT_GAME, GAME_LABELS } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { SharedMatchup } from "@/lib/types";
 
@@ -55,7 +55,7 @@ export default async function SharedMatchupPage({ params }: Props) {
           <div>
             {signedIn && (
               <Link
-                href="/"
+                href={`${dashboardHref(matchup.game)}${matchup.game === DEFAULT_GAME ? "?" : "&"}tab=saved`}
                 className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-fg"
               >
                 <ArrowLeft className="size-4" /> Matchups

@@ -144,6 +144,15 @@ export default function PrivacyPage() {
           <p>If you are in the EU, you also have the right to lodge a complaint with your data protection authority.</p>
         </Section>
 
+        <Section title="Trademarks">
+          <p>
+            Smash Memo is an independent fan-made tool. It is not affiliated with, endorsed or sponsored by Nintendo,
+            HAL Laboratory, Sora Ltd. or Aether Studios. Super Smash Bros. Ultimate, Super Smash Bros. Melee and
+            Rivals of Aether II, and their logos, are trademarks of their respective owners and are only used to
+            identify which game a note is about.
+          </p>
+        </Section>
+
         <Section title="Changes">
           <p>If this page changes in a meaningful way, the date at the top will be updated.</p>
         </Section>

@@ -80,6 +80,17 @@ async function openGraph(out) {
   console.log("wrote", out);
 }
 
+/** Game logos for the dashboard selector: trimmed, resized for retina, WebP with transparency. */
+async function gameLogo(game) {
+  const out = `public/games/${game}.webp`;
+  const trimmed = await sharp(`brand/games/${game}.png`).trim({ threshold: 1 }).png().toBuffer();
+  await sharp(trimmed).resize({ height: 144, kernel: "lanczos3" }).webp({ quality: 90, alphaQuality: 100 }).toFile(out);
+  const meta = await sharp(out).metadata();
+  console.log("wrote", out, `${meta.width}x${meta.height}`);
+}
+
+for (const game of ["ultimate", "melee", "roa2"]) await gameLogo(game);
+
 await square(64, "src/app/icon.png", { rounded: true }); // browser tab
 await square(180, "src/app/apple-icon.png", { rounded: false }); // iOS home screen (iOS rounds it)
 await square(192, "public/icons/icon-192.png", { rounded: true });

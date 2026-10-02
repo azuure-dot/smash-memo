@@ -55,7 +55,8 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 - **Tokens :** `bg` `#0a0910`, `surface` `#121019`, `surface-2` `#1a1723`, `line` `#262232`, `fg` `#ecebf3`, `muted` `#8a8499`.
 - **Statuts de stage :** Prefer = **bleu**, Avoid = **rouge**, Neutral = gris.
 - Police Geist. Coins arrondis `rounded-xl` / `rounded-2xl`. Respect des safe-area iOS.
-- Pas de visuels officiels Nintendo (droits d'auteur). Les stages sont des silhouettes abstraites dessinées en SVG (voir §7).
+- Visuels officiels : **seuls les logos des jeux** sont utilisés, sur demande explicite du propriétaire (2026-10-02), dans le sélecteur de jeu du dashboard, avec une mention « Trademarks / not affiliated » sur la page Privacy. Pas d'autres visuels officiels (personnages, stages…) : les stages restent des silhouettes abstraites dessinées en SVG (voir §7).
+  - Logos sources dans `brand/games/{ultimate,melee,roa2}.png`, versions optimisées dans `public/games/*.webp` (générées par `scripts/make-icons.mjs`), dimensions dans `GAME_LOGOS` (`src/lib/game-data.ts`).
 - **Logos** (fournis par le propriétaire le 2026-10-02, Small remplacé par une version recentrée le même jour ; originaux dans `brand/`) :
   - **Small** (`brand/logo-small-source.webp`, carré, dégradé `#a851fe` → `#ff67fe` + stylo « SM ») : icône d'onglet, icônes PWA et raccourci mobile. Coins arrondis pour `icon.png` et les icônes « any » ; carré plein pour `apple-icon.png` ; marge de sécurité de 80 % pour `maskable-512.png`.
   - **Long** (`brand/logo-long-source.png`, « SMASH MEMO » + stylo sur fond noir) : rendu transparent dans `public/brand/logo-long.png`, affiché via le composant `BrandLogo` (headers, pages de connexion / mot de passe, Privacy) et dans l'image d'aperçu des liens `src/app/opengraph-image.png`.
@@ -65,8 +66,8 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 1. **Auth :** inscription et connexion par email + mot de passe (`/login`), déconnexion, garde des routes privées dans `src/proxy.ts`.
 2. **Mot de passe oublié :** `/forgot-password` envoie l'email ; le lien passe par `/auth/callback?next=/reset-password` puis arrive sur `/reset-password`.
-3. **Dashboard** (`/`) : onglets **My Notes** / **Saved Notes** + filtre All / Ultimate / Melee, tous gérés côté client (`src/components/matchup-list.tsx`, état reflété dans l'URL `?tab=saved&game=melee`). Badges Shared / Copy / Saved.
-4. **Création de matchup :** choix du jeu, « My character » vs « Opponent » avec autocomplétion des rosters et bouton d'échange. Redirige directement vers la note. Si le matchup existe déjà pour ce jeu, ouvre le plus récent (les doublons sont autorisés depuis 0003, à cause de la duplication).
+3. **Dashboard** (`/`) : un **sélecteur de jeu global** (`game-selector.tsx`, 3 cartes avec les logos et le nombre de notes) sous le titre définit le jeu actif pour toute la page. Pas d'option « All ». Le composant client `dashboard.tsx` lit le jeu et l'onglet dans l'URL (`?game=melee&tab=saved`, Ultimate par défaut, sans paramètre) via `useSearchParams` et les met à jour avec `history.replaceState`, sans aller-retour serveur (toutes les notes sont chargées une fois puis filtrées). Onglets **My Notes** / **Saved Notes** (`matchup-list.tsx`) filtrés sur le jeu actif. Badges Shared / Copy / Saved. Les liens retour (page note, vue partagée → `tab=saved`, suppression) ramènent au jeu de la note via `dashboardHref(game)`.
+4. **Création de matchup :** le jeu est celui du sélecteur global (pas de choix dans le formulaire, titre « New <Jeu> matchup ») ; « My character » vs « Opponent » avec autocomplétion des rosters et bouton d'échange. Redirige directement vers la note. Si le matchup existe déjà pour ce jeu, ouvre le plus récent (les doublons sont autorisés depuis 0003, à cause de la duplication).
 9. **Partage de notes** (depuis 0003) :
    - Bouton **Share** sur la page matchup (`share-button.tsx`) : passe `is_shared` à true et copie `https://<site>/share/<id>` ; **Stop sharing** désactive le lien.
    - **`/share/[id]`** (public, dans `PUBLIC_PATHS`) : vue en lecture seule (prop `readOnly` sur `StageSelector`, `QuickNotes`, `NoteEditor`). Le propriétaire est redirigé vers `/matchups/[id]` ; un non-propriétaire qui ouvre `/matchups/[id]` est redirigé vers `/share/[id]`. Non connecté : bandeau « Sign in / Sign up ».
@@ -113,6 +114,8 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - `get_shared_matchup()` renvoie en plus `author: { username, avatar_url }`.
 - `supabase/migrations/0005_rivals_of_aether_2.sql`
   - valeur `roa2` ajoutée à l'enum `game` ; `seed_matchup_stages()` recréée avec la stagelist Rivals 2.
+- `supabase/migrations/0006_roa2_air_armada.sql`
+  - Rivals 2 : « Metal Refinery » → « Air Armada » dans les matchups existants (statut conservé) et dans la stagelist par défaut.
 - **Ajouter un jeu :** valeur d'enum + branche dans `seed_matchup_stages()` (nouvelle migration), puis dans `src/lib/game-data.ts` : `GAMES`, `GAME_LABELS`, `CHARACTER_EXAMPLES`, `CHARACTERS`, et les `STAGE_LAYOUTS` des nouveaux stages. Le type `Game` est dans `src/lib/types.ts`. Le formulaire, les filtres et la validation se basent sur `GAMES` / `isGame()`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
@@ -120,7 +123,8 @@ Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS 
 **Stagelists par défaut :**
 - *Ultimate :* Battlefield, Final Destination, Small Battlefield, Pokémon Stadium 2, Hollow Bastion, Smashville, Town & City, Kalos Pokémon League, Yoshi's Story, Lylat Cruise.
 - *Melee (choix de Claude, non validé) :* Battlefield, Final Destination, Yoshi's Story, Dream Land, Fountain of Dreams, Pokémon Stadium.
-- *Rivals 2 (pool compétitif de dragdown.wiki/wiki/RoA2/Stages) :* starters Aetherian Forest, Godai Delta, Hodojo, Julesvale, Metal Refinery ; counterpicks Merchant Port, Fire Capital, Hyperborean Harbor, Rock Wall, Tempest Peak. Air Armada (non légal) et les variantes doubles sont exclus.
+- *Rivals 2 (pool compétitif de dragdown.wiki/wiki/RoA2/Stages) :* starters Aetherian Forest, Godai Delta, Hodojo, Julesvale, **Air Armada** ; counterpicks Merchant Port, Fire Capital, Hyperborean Harbor, Rock Wall, Tempest Peak. Variantes doubles exclues.
+  - Le propriétaire a demandé (2026-10-02) de remplacer Metal Refinery par Air Armada, même si le wiki les présente comme deux stages distincts (Air Armada retiré du pool en Saison 1). Migration `0006_roa2_air_armada.sql` : renomme les lignes existantes et met à jour `seed_matchup_stages()`. La silhouette « Metal Refinery » reste dans `STAGE_LAYOUTS` pour les anciennes notes et les stages custom.
 - *Roster Rivals 2* (rivals-of-aether.fandom.com) : 10 persos de lancement + DLC sortis jusqu'à Gouie (août 2026). Mina the Hollower (annoncée pour 2027) est à ajouter à sa sortie.
 
 Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créés sont des lignes en base.
@@ -136,7 +140,7 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
   - `slope` : pente en degrés près des ledges ;
   - `pillar: [largeur, hauteur]` : pilier central ;
   - `tilt` : inclinaison ;
-  - `moving` : flèches ; `true` = horizontales (Fountain of Dreams, Aetherian Forest, Julesvale, Metal Refinery), `"vertical"` = verticales (Tempest Peak).
+  - `moving` : flèches ; `true` = horizontales (Fountain of Dreams, Aetherian Forest, Julesvale, Air Armada, Metal Refinery), `"vertical"` = verticales (Tempest Peak).
 - Rivals 2 : largeurs de sol proportionnelles aux longueurs en jeu (1250 → 50, 2020 → 84), hauteurs et positions de plateformes d'après les descriptions de dragdown.wiki.
 - La géométrie du sol est calculée par `stageFloorPaths()`. Les stages inconnus ou custom utilisent `DEFAULT_LAYOUT`.
 - Consignes validées par le propriétaire (dernière itération) :
@@ -174,7 +178,7 @@ src/app/
     matchups/[id]/            page matchup
     account/                  compte + profil (profile-form.tsx) + suppression
 src/components/
-  app-header.tsx, auth-shell.tsx, avatar.tsx, brand-logo.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
+  app-header.tsx, auth-shell.tsx, avatar.tsx, brand-logo.tsx, dashboard.tsx, game-selector.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
   matchup/                    stage-selector, stage-glyph, note-editor, quick-notes, delete-matchup-button,
                               share-button, shared-note-actions, author-badge
 src/lib/

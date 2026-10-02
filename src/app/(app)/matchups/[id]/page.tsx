@@ -9,7 +9,7 @@ import { NoteEditor } from "@/components/matchup/note-editor";
 import { QuickNotes } from "@/components/matchup/quick-notes";
 import { ShareButton } from "@/components/matchup/share-button";
 import { StageSelector } from "@/components/matchup/stage-selector";
-import { GAME_LABELS } from "@/lib/game-data";
+import { dashboardHref, GAME_LABELS } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { Matchup, MatchupStage, Profile, QuickNote } from "@/lib/types";
 
@@ -59,7 +59,7 @@ export default async function MatchupPage({ params }: Props) {
     <div className="space-y-5">
       <div>
         <Link
-          href="/"
+          href={dashboardHref(matchup.game)}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-fg"
         >
           <ArrowLeft className="size-4" /> Matchups

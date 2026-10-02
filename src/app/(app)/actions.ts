@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { canonicalCharacter, isGame } from "@/lib/game-data";
+import { canonicalCharacter, dashboardHref, isGame } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 
 export type CreateMatchupState = { error?: string };
@@ -51,7 +51,9 @@ export async function createMatchup(
 
 export async function deleteMatchup(id: string) {
   const supabase = await createClient();
-  await supabase.from("matchups").delete().eq("id", id);
+  const { data } = await supabase.from("matchups").delete().eq("id", id).select("game");
   revalidatePath("/");
-  redirect("/");
+  // Back to the dashboard on the deleted note's game.
+  const game = data?.[0]?.game;
+  redirect(isGame(game) ? dashboardHref(game) : "/");
 }
