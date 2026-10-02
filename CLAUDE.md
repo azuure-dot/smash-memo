@@ -118,12 +118,14 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - valeur `roa2` ajoutée à l'enum `game` ; `seed_matchup_stages()` recréée avec la stagelist Rivals 2.
 - `supabase/migrations/0006_roa2_air_armada.sql`
   - Rivals 2 : « Metal Refinery » → « Air Armada » dans les matchups existants (statut conservé) et dans la stagelist par défaut.
+- `supabase/migrations/0007_ultimate_drop_lylat.sql`
+  - Ultimate : Lylat Cruise retiré de la stagelist par défaut (`seed_matchup_stages()` recréée). Les matchups existants le gardent.
 - **Ajouter un jeu :** valeur d'enum + branche dans `seed_matchup_stages()` (nouvelle migration), puis dans `src/lib/game-data.ts` : `GAMES`, `GAME_LABELS`, `CHARACTER_EXAMPLES`, `CHARACTERS`, et les `STAGE_LAYOUTS` des nouveaux stages. Le type `Game` est dans `src/lib/types.ts`. Le formulaire, les filtres et la validation se basent sur `GAMES` / `isGame()`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
 
 **Stagelists par défaut :**
-- *Ultimate :* Battlefield, Final Destination, Small Battlefield, Pokémon Stadium 2, Hollow Bastion, Smashville, Town & City, Kalos Pokémon League, Yoshi's Story, Lylat Cruise.
+- *Ultimate :* Battlefield, Final Destination, Small Battlefield, Pokémon Stadium 2, Hollow Bastion, Smashville, Town & City, Kalos Pokémon League, Yoshi's Story. Lylat Cruise retiré le 2026-10-02 (migration 0007, plus assez joué) ; sa silhouette reste dans `STAGE_LAYOUTS` pour les anciens matchups et les stages custom.
 - *Melee (choix de Claude, non validé) :* Battlefield, Final Destination, Yoshi's Story, Dream Land, Fountain of Dreams, Pokémon Stadium.
 - *Rivals 2 (pool compétitif de dragdown.wiki/wiki/RoA2/Stages) :* starters Aetherian Forest, Godai Delta, Hodojo, Julesvale, **Air Armada** ; counterpicks Merchant Port, Fire Capital, Hyperborean Harbor, Rock Wall, Tempest Peak. Variantes doubles exclues.
   - Le propriétaire a demandé (2026-10-02) de remplacer Metal Refinery par Air Armada, même si le wiki les présente comme deux stages distincts (Air Armada retiré du pool en Saison 1). Migration `0006_roa2_air_armada.sql` : renomme les lignes existantes et met à jour `seed_matchup_stages()`. La silhouette « Metal Refinery » reste dans `STAGE_LAYOUTS` pour les anciennes notes et les stages custom.
@@ -140,8 +142,8 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
   - `depth` : épaisseur du sol (9 par défaut) ;
   - `taper` : rétrécissement vers le bas (0.12 par défaut) ;
   - `slope` : pente en degrés près des ledges ; `slopeRun` : longueur de cette pente (7 par défaut) ;
-  - `platformSlope` : pente en degrés de l'extrémité extérieure des plateformes de côté (Lylat) ;
-  - `roundBottom` : dessous arrondi (Fountain of Dreams) ;
+  - `platformTilt` : inclinaison en degrés des plateformes de côté entières, bout extérieur plus bas (Lylat) ;
+  - `roundBottom` : dessous en demi-ellipse de profondeur `depth` ; `floorY` : hauteur du sol (30 par défaut), à remonter pour laisser la place à un dessous profond (Fountain of Dreams) ;
   - `pillar: [largeur, hauteur]` : pilier central ;
   - `body: [x, largeur]` : bloc plein sous un plateau fin, jusqu'en bas (Hyperborean Harbor).
   - `depth: 14` + `taper: 0` = murs droits du ledge jusqu'en bas.
@@ -154,10 +156,10 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
   - **Hollow Bastion** : plateforme centrale ≈ 45 % de la largeur du stage.
   - **Smashville** : même disposition que Hollow Bastion en plus petit, plateforme centrée ≥ 50 % du stage, sol fin.
   - **Town & City** : aussi long que Kalos, sol fin, plateformes `-  _  -` (côtés hauts, centre bas) ; ~30 % de chaque plateforme haute dépasse du bord, au-dessus du vide.
-  - **Kalos** : stage profond et rectangulaire, deux plateformes centrées pile au-dessus de chaque ledge.
+  - **Kalos** : stage profond et rectangulaire, murs parfaitement droits, deux plateformes centrées pile au-dessus de chaque ledge.
   - **Yoshi's Story** : parois plus profondes, pente d'environ 15° à côté de chaque ledge.
-  - **Lylat Cruise** : centre plat (plus penché), pente ~30° plus longue que Yoshi's vers les ledges, même pente au bout des plateformes de côté.
-  - *Melee* — **Dream Land** : sol plus épais ; **Fountain of Dreams** : dessous arrondi ; **Pokémon Stadium** : plateau fin + pilier central comme PS2.
+  - **Lylat Cruise** : ~65 % du sol plat au centre, puis longues pentes ~30° jusqu'aux ledges ; plateformes de côté au-dessus des pentes, entièrement inclinées parallèlement à elles ; plateforme centrale juste au-dessus de leurs extrémités intérieures.
+  - *Melee* — **Dream Land** : sol plus épais ; **Fountain of Dreams** : gros dessous presque hémisphérique (sol remonté) ; **Pokémon Stadium** : plateau fin + pilier central comme PS2.
   - *Rivals 2* — murs droits jusqu'en bas partout **sauf Air Armada et Hyperborean Harbor**. **Merchant Port** : aussi long que Fire Capital, plateformes de côté collées au bord du stage, plateformes hautes plus petites et plus centrées. **Hyperborean Harbor** : d'après le schéma du propriétaire, plateau fin dont les ledges dépassent d'un corps plus étroit qui descend jusqu'en bas.
 
 ## 8. Arborescence

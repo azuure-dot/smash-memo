@@ -87,10 +87,12 @@ export type StageLayout = {
   slope?: number;
   /** Horizontal length of that slope (default 7, as on Yoshi's Story). */
   slopeRun?: number;
-  /** Angle in degrees of the outer end of the side platforms, sloping down toward the edge. */
-  platformSlope?: number;
-  /** Rounded underside instead of a trapezoid (bowl shape). */
+  /** Tilt in degrees of the side platforms, outer end lower (parallel to the stage's slopes). */
+  platformTilt?: number;
+  /** Rounded underside instead of a trapezoid (half-ellipse, `depth` deep). */
   roundBottom?: boolean;
+  /** Height of the walkable floor in the viewBox (default 30). Raise it to make room for a deep underside. */
+  floorY?: number;
   /** Central support under the floor: [width, height]. */
   pillar?: [number, number];
   /** Solid block under a thin deck, from the floor down to the bottom: [x, width]. The deck overhangs it. */
@@ -125,8 +127,8 @@ export const STAGE_LAYOUTS: Record<string, StageLayout> = {
   // As long as Kalos, thin; side platforms high, centre platform low ( -  _  - ).
   // ~30% of each side platform hangs past the ledge, over the void.
   "Town & City": { main: [10, 80], platforms: [[4.6, 13, 18], [41, 21, 18], [77.4, 13, 18]], depth: 6 },
-  // Deep, rectangular stage; each platform is centred right above a ledge.
-  "Kalos Pokémon League": { main: [10, 80], platforms: [[2, 19, 16], [82, 19, 16]], depth: 13, taper: 0.02 },
+  // Deep, rectangular stage with perfectly straight walls; each platform is centred right above a ledge.
+  "Kalos Pokémon League": { main: [10, 80], platforms: [[2, 19, 16], [82, 19, 16]], depth: 13, taper: 0 },
   // Deeper walls and ~15° slopes next to each ledge.
   "Yoshi's Story": {
     main: [18, 64],
@@ -135,19 +137,27 @@ export const STAGE_LAYOUTS: Record<string, StageLayout> = {
     taper: 0.06,
     slope: 15,
   },
-  // Level in the middle; ~30° slopes toward the ledges, longer than Yoshi's Story's, and on the side platforms too.
+  // Not in the default Ultimate list since 0007; kept for older notes and custom stages with this name.
+  // Flat middle (~65% of the stage), then long ~30° slopes down to the ledges. The side platforms sit over
+  // the slopes, tilted parallel to them; the centre platform is just above their highest (inner) ends.
   "Lylat Cruise": {
     main: [14, 72],
-    platforms: [[22, 20, 16], [62, 20, 16], [42, 11, 16]],
-    depth: 8,
+    platforms: [[16, 21, 14], [70, 21, 14], [42, 15.5, 16]],
+    depth: 10,
     taper: 0.1,
     slope: 30,
-    slopeRun: 11,
-    platformSlope: 30,
+    slopeRun: 12.6,
+    platformTilt: 30,
   },
   "Dream Land": { main: [10, 80], platforms: [[20, 20, 20], [60, 20, 20], [40, 9, 20]], depth: 12 },
-  // Rounded, bowl-shaped underside.
-  "Fountain of Dreams": { main: [16, 68], platforms: [[22, 20, 16], [62, 20, 16], [42, 11, 16]], depth: 11, roundBottom: true },
+  // Big, almost hemispherical underside: the floor is raised to make room for it (radius 26 × 22 deep).
+  "Fountain of Dreams": {
+    main: [24, 52],
+    platforms: [[28, 12.5, 13], [59, 12.5, 13], [43.5, 3.5, 13]],
+    floorY: 22,
+    depth: 22,
+    roundBottom: true,
+  },
 
   // ── Rivals of Aether II (layouts from dragdown.wiki/wiki/RoA2/Stages) ──
   // Stage widths are scaled from the in-game lengths (1250 → 50, 2020 → 84) so relative sizes stay readable.
@@ -209,9 +219,8 @@ export const FLOOR_Y = 30;
 const VIEW_BOTTOM = 44;
 /** Default horizontal length of the sloped section next to each ledge (when `slope` is set). */
 const SLOPE_RUN = 7;
-/** Platform thickness, and horizontal length of a platform's sloped outer end (`platformSlope`). */
+/** Platform thickness. */
 const PLATFORM_H = 2.2;
-const PLATFORM_SLOPE_RUN = 4;
 
 const r = (n: number) => Math.round(n * 100) / 100;
 const rad = (deg: number) => (deg * Math.PI) / 180;
@@ -219,23 +228,24 @@ const rad = (deg: number) => (deg * Math.PI) / 180;
 /** SVG path data for the stage floor (and its pillar / body, if any). */
 export function stageFloorPaths(layout: StageLayout): string[] {
   const [x, w] = layout.main;
+  const top = layout.floorY ?? FLOOR_Y;
   const depth = layout.depth ?? 9;
-  const bottom = FLOOR_Y + depth;
+  const bottom = Math.min(top + depth, VIEW_BOTTOM);
   const paths: string[] = [];
 
   if (layout.roundBottom) {
     // Flat top, half-ellipse underneath.
-    paths.push(`M${r(x)} ${FLOOR_Y} L${r(x + w)} ${FLOOR_Y} A${r(w / 2)} ${depth} 0 0 1 ${r(x)} ${FLOOR_Y} Z`);
+    paths.push(`M${r(x)} ${top} L${r(x + w)} ${top} A${r(w / 2)} ${r(bottom - top)} 0 0 1 ${r(x)} ${top} Z`);
   } else {
     const inset = w * (layout.taper ?? 0.12);
     const run = layout.slope ? (layout.slopeRun ?? SLOPE_RUN) : 0;
     const drop = layout.slope ? run * Math.tan(rad(layout.slope)) : 0;
     paths.push(
       [
-        `M${r(x)} ${r(FLOOR_Y + drop)}`,
-        `L${r(x + run)} ${FLOOR_Y}`,
-        `L${r(x + w - run)} ${FLOOR_Y}`,
-        `L${r(x + w)} ${r(FLOOR_Y + drop)}`,
+        `M${r(x)} ${r(top + drop)}`,
+        `L${r(x + run)} ${top}`,
+        `L${r(x + w - run)} ${top}`,
+        `L${r(x + w)} ${r(top + drop)}`,
         `L${r(x + w - inset)} ${bottom}`,
         `L${r(x + inset)} ${bottom}`,
         "Z",
@@ -258,22 +268,19 @@ export function stageFloorPaths(layout: StageLayout): string[] {
 }
 
 /**
- * SVG path data for one platform [x, y, width]. With `platformSlope`, side platforms (left or right of
- * centre) get their outer end bent down toward the edge of the stage; the centre one stays flat.
+ * SVG path data for one platform [x, y, width]: a bar with rounded ends. With `platformTilt`, side
+ * platforms (left or right of centre) are rotated around their centre, outer end lower; the centre one stays flat.
  */
 export function platformPath(layout: StageLayout, [px, py, pw]: [number, number, number]): string {
-  const centre = px + pw / 2;
-  const side = !layout.platformSlope || Math.abs(centre - 50) < 8 ? null : centre < 50 ? "left" : "right";
+  const cx = px + pw / 2;
+  const cy = py + PLATFORM_H / 2;
+  const side = !layout.platformTilt || Math.abs(cx - 50) < 8 ? 0 : cx < 50 ? -1 : 1;
+  // Screen y points down: a positive angle lowers the right end, a negative one the left end.
+  const a = rad((layout.platformTilt ?? 0) * side);
+  const [cos, sin] = [Math.cos(a), Math.sin(a)];
+  const at = (dx: number, dy: number) => `${r(cx + dx * cos - dy * sin)} ${r(cy + dx * sin + dy * cos)}`;
 
-  if (!side) {
-    const c = PLATFORM_H / 2; // rounded ends
-    return `M${r(px + c)} ${r(py)} h${r(pw - 2 * c)} a${c} ${c} 0 0 1 0 ${PLATFORM_H} h${r(-(pw - 2 * c))} a${c} ${c} 0 0 1 0 ${-PLATFORM_H} Z`;
-  }
-
-  const run = Math.min(PLATFORM_SLOPE_RUN, pw * 0.35);
-  const drop = run * Math.tan(rad(layout.platformSlope!));
-  const h = PLATFORM_H;
-  return side === "left"
-    ? `M${r(px)} ${r(py + drop)} L${r(px + run)} ${r(py)} H${r(px + pw)} V${r(py + h)} H${r(px + run)} L${r(px)} ${r(py + drop + h)} Z`
-    : `M${r(px)} ${r(py)} H${r(px + pw - run)} L${r(px + pw)} ${r(py + drop)} V${r(py + drop + h)} L${r(px + pw - run)} ${r(py + h)} H${r(px)} Z`;
+  const half = pw / 2;
+  const c = PLATFORM_H / 2; // end radius
+  return `M${at(-half + c, -c)} L${at(half - c, -c)} A${c} ${c} 0 0 1 ${at(half - c, c)} L${at(-half + c, c)} A${c} ${c} 0 0 1 ${at(-half + c, -c)} Z`;
 }
