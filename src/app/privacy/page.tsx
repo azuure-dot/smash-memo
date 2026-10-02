@@ -45,6 +45,10 @@ export default function PrivacyPage() {
               one-way hash by our authentication provider; nobody, including us, can read it.
             </li>
             <li>
+              <strong>Profile (optional):</strong> a username and a profile picture, if you choose to add them. The
+              picture is cropped and resized on your device before upload, and the original file is never sent.
+            </li>
+            <li>
               <strong>Your content:</strong> matchups, stage preferences, notes and quick notes, with the dates they
               were created and last edited.
             </li>
@@ -73,8 +77,11 @@ export default function PrivacyPage() {
               <strong>Shared notes:</strong> when you tap &ldquo;Share&rdquo; on a note, anyone who has its link, signed
               in or not, can read that note (stages, quick notes and notes). They can also save a bookmark to it or
               duplicate it into their own account; a duplicate is their own copy and is not affected if you later edit,
-              stop sharing or delete yours. Shared notes are never listed publicly or shown to search engines, and
-              your email address is never shown. Tap &ldquo;Stop sharing&rdquo; at any time to make the link stop
+              stop sharing or delete yours. A shared note shows your username and profile picture as its author
+              (or &ldquo;Anonymous player&rdquo; if you haven&apos;t set them); your email address is never shown.
+              Shared notes are never listed publicly or shown to search engines, and profiles can&apos;t be browsed.
+              Profile pictures are stored as public files: anyone who has a picture&apos;s exact address can view
+              it. Tap &ldquo;Stop sharing&rdquo; at any time to make the link stop
               working.
             </li>
             <li>

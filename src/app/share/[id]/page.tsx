@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { ArrowLeft, Eye, LogIn } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { AuthorBadge } from "@/components/matchup/author-badge";
 import { NoteEditor } from "@/components/matchup/note-editor";
 import { QuickNotes } from "@/components/matchup/quick-notes";
 import { SharedNoteActions } from "@/components/matchup/shared-note-actions";
@@ -73,6 +74,7 @@ export default async function SharedMatchupPage({ params }: Props) {
               <span className="text-brand mx-2.5 text-xl font-bold sm:text-2xl">vs</span>
               {matchup.opponent_character}
             </h1>
+            <AuthorBadge author={data.author} />
           </div>
 
           {signedIn ? (

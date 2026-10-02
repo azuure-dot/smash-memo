@@ -12,6 +12,7 @@ export async function setSharing(id: string, shared: boolean): Promise<ShareActi
   const { data, error } = await supabase.from("matchups").update({ is_shared: shared }).eq("id", id).select("id");
   if (error || !data?.length) return { error: "Couldn't update sharing. Check your connection." };
   revalidatePath(`/share/${id}`);
+  revalidatePath(`/matchups/${id}`); // shows / hides the author badge on the owner's page
   return {};
 }
 

@@ -17,9 +17,16 @@ export type Matchup = {
   updated_at: string;
 };
 
+/** Public part of a user's profile, shown as the author of shared notes. */
+export type Profile = {
+  username: string | null;
+  avatar_url: string | null;
+};
+
 /** A note opened through its share link (shape returned by the get_shared_matchup() SQL function). */
 export type SharedMatchup = {
   matchup: Pick<Matchup, "id" | "game" | "my_character" | "opponent_character" | "content" | "updated_at">;
+  author: Profile;
   is_owner: boolean;
   is_saved: boolean;
   stages: MatchupStage[];

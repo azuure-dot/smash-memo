@@ -67,7 +67,11 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    - Bouton **Share** sur la page matchup (`share-button.tsx`) : passe `is_shared` à true et copie `https://<site>/share/<id>` ; **Stop sharing** désactive le lien.
    - **`/share/[id]`** (public, dans `PUBLIC_PATHS`) : vue en lecture seule (prop `readOnly` sur `StageSelector`, `QuickNotes`, `NoteEditor`). Le propriétaire est redirigé vers `/matchups/[id]` ; un non-propriétaire qui ouvre `/matchups/[id]` est redirigé vers `/share/[id]`. Non connecté : bandeau « Sign in / Sign up ».
    - **Save to my workspace** (table `saved_matchups`) et **Duplicate to my notes** (copie profonde en SQL, puis redirection vers la copie). Actions dans `src/app/share/actions.ts`.
-   - Choix validés par le propriétaire : doublons autorisés, lecture sans compte. L'auteur reste anonyme (aucun email affiché). Une note dont l'auteur arrête le partage disparaît des Saved Notes.
+   - Choix validés par le propriétaire : doublons autorisés, lecture sans compte. L'email de l'auteur n'est jamais affiché. Une note dont l'auteur arrête le partage disparaît des Saved Notes.
+10. **Profils** (depuis 0004) : pseudo (2–24 caractères, unique sans distinction de casse) et photo, éditables dans la carte Profile de `/account` (`profile-form.tsx`).
+   - La photo est recadrée en carré et réduite à 256 px **dans le navigateur** (canvas → WebP, PNG en repli), puis envoyée directement depuis le client vers Supabase Storage, bucket `avatars`, chemin `<user id>/<timestamp>.webp`. Nom de fichier nouveau à chaque envoi (pas de cache périmé). Les anciens fichiers sont supprimés après l'enregistrement.
+   - **Badge auteur** (`author-badge.tsx`, composant `Avatar` avec initiales en repli) : sur `/share/[id]`, et sur la page du propriétaire quand la note est partagée. Sans pseudo : « Anonymous player ».
+   - L'avatar du header vient de `profiles`. La suppression de compte efface d'abord les fichiers du dossier avatar (le stockage ne suit pas la cascade).
 5. **Page matchup** (`/matchups/[id]`), dans cet ordre :
    - **Stages :** clic = cycle Neutral → Prefer → Avoid ; ajout et suppression de stages custom.
    - **Quick Notes :** repliées par défaut ; ajout, édition inline (sauvegarde au blur), suppression.
@@ -95,6 +99,10 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - table `saved_matchups` (RLS : lecture et suppression de ses propres lignes) ;
   - fonctions `security definer` : `get_shared_matchup(id)` (anon + authenticated), `save_shared_matchup(id)`, `list_saved_matchups()`, `duplicate_shared_matchup(id)`.
   - **Règle de sécurité :** ne jamais ajouter de policy SELECT du type « `is_shared` = true » sur les tables. Avec la clé publique, n'importe qui pourrait lister toutes les notes partagées. Les non-propriétaires passent uniquement par ces fonctions, qui exigent l'id exact.
+- `supabase/migrations/0004_profiles.sql`
+  - table `profiles` (`id` = `auth.users.id`, `username`, `avatar_url`) avec RLS « own profile » uniquement (pas de lecture publique, même règle que ci-dessus) ; index unique sur `lower(username)` ; contrainte qui n'autorise comme `avatar_url` qu'un fichier du dossier de l'utilisateur dans le bucket `avatars` ;
+  - bucket Storage `avatars` : public, 2 Mo max, `image/jpeg|png|webp` ; policies `storage.objects` : insert / select / delete limités au dossier `<auth.uid()>/` ;
+  - `get_shared_matchup()` renvoie en plus `author: { username, avatar_url }`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
 
@@ -129,7 +137,7 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
 ## 8. Arborescence
 
 ```
-supabase/migrations/          0001_init.sql, 0002_delete_account.sql, 0003_note_sharing.sql
+supabase/migrations/          0001_init.sql … 0004_profiles.sql
 public/sw.js                  service worker (incrémenter VERSION si la logique de cache change)
 public/icons/                 icônes PWA
 src/proxy.ts                  refresh de session + garde (sous Next 15 : middleware.ts / middleware())
@@ -147,11 +155,11 @@ src/app/
     page.tsx                  dashboard
     actions.ts                createMatchup / deleteMatchup
     matchups/[id]/            page matchup
-    account/                  compte + suppression
+    account/                  compte + profil (profile-form.tsx) + suppression
 src/components/
-  app-header.tsx, auth-shell.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
+  app-header.tsx, auth-shell.tsx, avatar.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
   matchup/                    stage-selector, stage-glyph, note-editor, quick-notes, delete-matchup-button,
-                              share-button, shared-note-actions
+                              share-button, shared-note-actions, author-badge
 src/lib/
   supabase/{client,server,proxy}.ts
   game-data.ts                rosters, layouts de stages, stageFloorPaths()

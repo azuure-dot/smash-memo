@@ -14,6 +14,15 @@ export async function deleteAccount(
   if (formData.get("confirm") !== "DELETE") return { error: "Type DELETE to confirm." };
 
   const supabase = await createClient();
+
+  // Storage files don't cascade with the account: remove the profile picture(s) first.
+  const { data: claims } = await supabase.auth.getClaims();
+  const uid = claims?.claims.sub;
+  if (uid) {
+    const { data: files } = await supabase.storage.from("avatars").list(uid);
+    if (files?.length) await supabase.storage.from("avatars").remove(files.map((f) => `${uid}/${f.name}`));
+  }
+
   const { error } = await supabase.rpc("delete_my_account");
   if (error) return { error: "Couldn't delete your account. Please try again." };
 

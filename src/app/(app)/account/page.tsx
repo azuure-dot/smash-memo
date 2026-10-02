@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { ResetPasswordForm } from "@/app/reset-password/reset-password-form";
 import { createClient } from "@/lib/supabase/server";
+import type { Profile } from "@/lib/types";
 import { DeleteAccountForm } from "./delete-account-form";
+import { ProfileForm } from "./profile-form";
 
 export const metadata = { title: "Account" };
 
@@ -30,7 +32,10 @@ export default async function AccountPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { count } = await supabase.from("matchups").select("id", { count: "exact", head: true });
+  const [{ count }, { data: profile }] = await Promise.all([
+    supabase.from("matchups").select("id", { count: "exact", head: true }),
+    supabase.from("profiles").select("username, avatar_url").eq("id", user.id).maybeSingle(),
+  ]);
   const memberSince = new Date(user.created_at).toLocaleDateString("en", { dateStyle: "long" });
 
   return (
@@ -43,6 +48,10 @@ export default async function AccountPage({
       </div>
 
       <Card title="Profile">
+        <ProfileForm userId={user.id} initial={(profile as Profile | null) ?? { username: null, avatar_url: null }} />
+      </Card>
+
+      <Card title="Account details">
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
           <dt className="text-muted">Email</dt>
           <dd className="truncate">{user.email}</dd>

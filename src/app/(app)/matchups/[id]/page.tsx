@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { ArrowLeft } from "lucide-react";
+import { AuthorBadge } from "@/components/matchup/author-badge";
 import { DeleteMatchupButton } from "@/components/matchup/delete-matchup-button";
 import { NoteEditor } from "@/components/matchup/note-editor";
 import { QuickNotes } from "@/components/matchup/quick-notes";
@@ -10,7 +11,7 @@ import { ShareButton } from "@/components/matchup/share-button";
 import { StageSelector } from "@/components/matchup/stage-selector";
 import { GAME_LABELS } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
-import type { Matchup, MatchupStage, QuickNote } from "@/lib/types";
+import type { Matchup, MatchupStage, Profile, QuickNote } from "@/lib/types";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -35,7 +36,7 @@ export default async function MatchupPage({ params }: Props) {
   if (!UUID.test(id)) notFound();
 
   const supabase = await createClient();
-  const [matchup, stagesRes, notesRes] = await Promise.all([
+  const [matchup, stagesRes, notesRes, profileRes] = await Promise.all([
     getMatchup(id),
     supabase
       .from("matchup_stages")
@@ -47,6 +48,8 @@ export default async function MatchupPage({ params }: Props) {
       .select("id, matchup_id, body, created_at, updated_at")
       .eq("matchup_id", id)
       .order("created_at"),
+    // RLS only returns the signed-in user's own profile row.
+    supabase.from("profiles").select("username, avatar_url").maybeSingle(),
   ]);
 
   // Not one of yours: it may be someone else's shared note, whose read-only view lives at /share/[id].
@@ -72,6 +75,8 @@ export default async function MatchupPage({ params }: Props) {
               <span className="text-brand mx-2.5 text-xl font-bold sm:text-2xl">vs</span>
               {matchup.opponent_character}
             </h1>
+            {/* What visitors of the share link see. */}
+            {matchup.is_shared && <AuthorBadge author={profileRes.data as Profile | null} isYou />}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <ShareButton id={matchup.id} initialShared={matchup.is_shared} />
