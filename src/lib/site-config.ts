@@ -3,7 +3,7 @@
  */
 export const SITE = {
   /** Production address, used for absolute links such as the link-preview image. */
-  url: "https://smash-memo.vercel.app",
+  url: "https://smashmemo.fr",
   /** Who runs the app (your name or pseudonym). */
   operator: "Mael 'azuure' DE ALMEIDA-LAGIERE",
   /** Where people can reach you about their data. Leave empty to hide the line. */

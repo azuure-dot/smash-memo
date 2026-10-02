@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   openGraph: { siteName: "Smash Memo", type: "website" },
   twitter: { card: "summary_large_image" },
   title: { default: "Smash Memo", template: "%s · Smash Memo" },
-  description: "Matchup notes for Super Smash Bros. Ultimate and Melee, synced across your devices.",
+  description:
+    "Matchup notes for Super Smash Bros. Ultimate, Melee and Rivals of Aether II, synced across your devices.",
   applicationName: "Smash Memo",
   appleWebApp: { capable: true, title: "Smash Memo", statusBarStyle: "black-translucent" },
   formatDetection: { telephone: false },

@@ -28,7 +28,7 @@ export function AuthShell({
           ) : (
             <h1 className="sr-only">Smash Memo</h1>
           )}
-          {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+          {subtitle && <p className="mt-1 text-balance text-sm text-muted">{subtitle}</p>}
         </div>
         {children}
         <p className="mt-6 text-center text-xs text-muted">

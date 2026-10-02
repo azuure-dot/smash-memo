@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "Smash Memo",
     short_name: "Smash Memo",
-    description: "Matchup notes for Super Smash Bros. Ultimate and Melee.",
+    description: "Matchup notes for Super Smash Bros. Ultimate, Melee and Rivals of Aether II.",
     start_url: "/",
     scope: "/",
     display: "standalone",

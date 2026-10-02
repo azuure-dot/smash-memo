@@ -12,7 +12,9 @@ Document de reprise du projet pour Claude Code. À lire en entier avant toute mo
 
 - **Repo :** GitHub `smash-memo` (compte du propriétaire, ex-`smash-notes`), branche `main`.
 - **Hébergement :** Vercel (projet `smash-memo`, ex-`smash-notes`, équipe « azuure-dot », plan Hobby). Chaque push sur `main` déclenche un redéploiement.
-- **URL de production :** https://smash-memo.vercel.app (l'ancienne `smash-notes-pi.vercel.app` redirige vers elle).
+- **URL de production :** **https://smashmemo.fr** (domaine acheté chez OVH le 2026-10-02 ; `SITE.url` dans `src/lib/site-config.ts`).
+  - DNS OVH : `@` A → `216.198.79.1` (Vercel), `www` CNAME → `*.vercel-dns-017.com`. Pas d'enregistrement AAAA sur `@` : celui par défaut d'OVH renvoyait vers sa page « Site en construction ».
+  - Conseillé dans Vercel → Domains : `www.smashmemo.fr`, `smash-memo.vercel.app` et `smash-notes-pi.vercel.app` en redirection 308 vers `smashmemo.fr`.
 - **Backend :** Supabase (Postgres + Auth + RLS), plan gratuit.
 
 ## 2. Le propriétaire et la façon de travailler avec lui
@@ -193,8 +195,8 @@ Les chemins publics (accessibles sans être connecté) sont listés dans `PUBLIC
 ## 9. Configuration Supabase attendue
 
 - **Authentication → URL Configuration :**
-  - Site URL = l'URL Vercel de production ;
-  - Redirect URLs = `https://<url-vercel>/**` et `http://localhost:3000/**`.
+  - Site URL = `https://smashmemo.fr` ;
+  - Redirect URLs = `https://smashmemo.fr/**` et `http://localhost:3000/**` (et `https://smash-memo.vercel.app/**` tant que cette adresse sert encore).
   - Une Site URL restée sur `localhost` renvoyait les mails de confirmation vers localhost : c'est corrigé.
 - **Emails :** le SMTP intégré de Supabase n'envoie **qu'aux membres de l'équipe Supabase**. Tant qu'aucun SMTP externe n'est branché :
   - « Confirm email » doit rester **désactivé**, sinon les autres utilisateurs ne peuvent pas s'inscrire ;

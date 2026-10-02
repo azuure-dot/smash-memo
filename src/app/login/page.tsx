@@ -16,7 +16,7 @@ export default async function LoginPage({
   const { next, notice } = await searchParams;
 
   return (
-    <AuthShell subtitle="Matchup notes for Ultimate & Melee, on every device.">
+    <AuthShell subtitle="Matchup notes for Ultimate, Melee & Rivals 2, on every device.">
       {notice && NOTICES[notice] && (
         <p className="mb-4 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
           {NOTICES[notice]}
