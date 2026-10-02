@@ -1,4 +1,4 @@
--- Smash Mémo — note sharing, saved notes and duplication.
+-- Smash Memo — note sharing, saved notes and duplication.
 -- Run in the Supabase SQL editor after 0002_delete_account.sql.
 --
 -- Security model: non-owners NEVER get direct SELECT access to matchups / stages / quick notes.

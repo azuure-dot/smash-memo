@@ -1,4 +1,4 @@
-# Smash Mémo
+# Smash Memo
 
 Matchup notes for Super Smash Bros. Ultimate and Melee — installable PWA, synced across devices.
 

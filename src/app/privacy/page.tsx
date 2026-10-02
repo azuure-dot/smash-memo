@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       <Link
         href="/"
         className="mb-8 inline-flex items-center gap-2 text-muted transition hover:text-fg"
-        aria-label="Back to Smash Mémo"
+        aria-label="Back to Smash Memo"
       >
         <ArrowLeft className="size-4" /> <BrandLogo />
       </Link>
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
             <li>No administrator key is ever sent to your browser.</li>
           </ul>
           <p>
-            Smash Mémo is a small independent project and has not been professionally audited. Please don&apos;t use
+            Smash Memo is a small independent project and has not been professionally audited. Please don&apos;t use
             it to store sensitive personal information.
           </p>
         </Section>

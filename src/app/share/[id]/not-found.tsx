@@ -6,7 +6,7 @@ export default function SharedNoteNotFound() {
       <h1 className="text-xl font-semibold">This note isn&apos;t available</h1>
       <p className="text-sm text-muted">The link may be wrong, or its author stopped sharing it or deleted it.</p>
       <Link href="/" className="rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white">
-        Go to Smash Mémo
+        Go to Smash Memo
       </Link>
     </main>
   );

@@ -1,4 +1,4 @@
-# Passation — Smash Mémo
+# Passation — Smash Memo
 
 Document de reprise du projet pour Claude Code. À lire en entier avant toute modification.
 
@@ -8,7 +8,7 @@ Document de reprise du projet pour Claude Code. À lire en entier avant toute mo
 
 ## 1. Le projet en bref
 
-**Smash Mémo** (anciennement « Smash Notes », renommée le 2026-10-01 car une autre app porte ce nom) est une web app (PWA installable) pour prendre des notes de matchups sur **Super Smash Bros. Ultimate** et **Melee**. Chaque utilisateur a un compte, et ses notes sont synchronisées sur tous ses appareils.
+**Smash Memo**, sans accent (anciennement « Smash Notes », renommée le 2026-10-01 car une autre app porte ce nom, puis « Smash Mémo » → « Smash Memo » le 2026-10-02) est une web app (PWA installable) pour prendre des notes de matchups sur **Super Smash Bros. Ultimate** et **Melee**. Chaque utilisateur a un compte, et ses notes sont synchronisées sur tous ses appareils.
 
 - **Repo :** GitHub `smash-memo` (compte du propriétaire, ex-`smash-notes`), branche `main`.
 - **Hébergement :** Vercel (projet `smash-memo`, ex-`smash-notes`, équipe « azuure-dot », plan Hobby). Chaque push sur `main` déclenche un redéploiement.
@@ -56,7 +56,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 - **Statuts de stage :** Prefer = **bleu**, Avoid = **rouge**, Neutral = gris.
 - Police Geist. Coins arrondis `rounded-xl` / `rounded-2xl`. Respect des safe-area iOS.
 - Pas de visuels officiels Nintendo (droits d'auteur). Les stages sont des silhouettes abstraites dessinées en SVG (voir §7).
-- **Logos** (fournis par le propriétaire le 2026-10-02, originaux dans `brand/`) :
+- **Logos** (fournis par le propriétaire le 2026-10-02, Small remplacé par une version recentrée le même jour ; originaux dans `brand/`) :
   - **Small** (`brand/logo-small-source.webp`, carré, dégradé `#a851fe` → `#ff67fe` + stylo « SM ») : icône d'onglet, icônes PWA et raccourci mobile. Coins arrondis pour `icon.png` et les icônes « any » ; carré plein pour `apple-icon.png` ; marge de sécurité de 80 % pour `maskable-512.png`.
   - **Long** (`brand/logo-long-source.png`, « SMASH MEMO » + stylo sur fond noir) : rendu transparent dans `public/brand/logo-long.png`, affiché via le composant `BrandLogo` (headers, pages de connexion / mot de passe, Privacy) et dans l'image d'aperçu des liens `src/app/opengraph-image.png`.
   - Tout se régénère avec `node scripts/make-icons.mjs` (arrêter `npm run dev` avant, sinon Windows verrouille les fichiers). Après un changement d'icônes, incrémenter `VERSION` dans `public/sw.js`, qui garde `/icons/` en cache.

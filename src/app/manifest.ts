@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Smash Mémo",
-    short_name: "Smash Mémo",
+    name: "Smash Memo",
+    short_name: "Smash Memo",
     description: "Matchup notes for Super Smash Bros. Ultimate and Melee.",
     start_url: "/",
     scope: "/",

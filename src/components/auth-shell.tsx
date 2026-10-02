@@ -20,13 +20,13 @@ export function AuthShell({
       />
       <div className="relative w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Link href="/" className="mb-4 inline-block" aria-label="Smash Mémo home">
+          <Link href="/" className="mb-4 inline-block" aria-label="Smash Memo home">
             <BrandLogo className="h-20" />
           </Link>
           {title ? (
             <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           ) : (
-            <h1 className="sr-only">Smash Mémo</h1>
+            <h1 className="sr-only">Smash Memo</h1>
           )}
           {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
         </div>

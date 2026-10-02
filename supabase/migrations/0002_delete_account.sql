@@ -1,4 +1,4 @@
--- Smash Mémo — lets a signed-in user delete their own account.
+-- Smash Memo — lets a signed-in user delete their own account.
 -- Run in the Supabase SQL editor after 0001_init.sql.
 --
 -- Deleting the auth user cascades to matchups, matchup_stages and quick_notes

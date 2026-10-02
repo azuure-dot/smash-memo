@@ -50,7 +50,7 @@ export function InstallPrompt() {
         <img src="/icons/icon-192.png" alt="" className="size-11 shrink-0 rounded-xl" />
 
         <div className="min-w-0 flex-1">
-          <p id="install-title" className="font-semibold">Install Smash Mémo</p>
+          <p id="install-title" className="font-semibold">Install Smash Memo</p>
           {platform === "android" ? (
             <p className="mt-0.5 text-sm text-muted">Open your notes from the home screen, full screen, in one tap.</p>
           ) : (

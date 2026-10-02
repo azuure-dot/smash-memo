@@ -10,12 +10,12 @@ const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 export const metadata: Metadata = {
   // Absolute base for the link-preview image (opengraph-image.png) shown by Discord, WhatsApp, X…
   metadataBase: new URL(SITE.url),
-  openGraph: { siteName: "Smash Mémo", type: "website" },
+  openGraph: { siteName: "Smash Memo", type: "website" },
   twitter: { card: "summary_large_image" },
-  title: { default: "Smash Mémo", template: "%s · Smash Mémo" },
+  title: { default: "Smash Memo", template: "%s · Smash Memo" },
   description: "Matchup notes for Super Smash Bros. Ultimate and Melee, synced across your devices.",
-  applicationName: "Smash Mémo",
-  appleWebApp: { capable: true, title: "Smash Mémo", statusBarStyle: "black-translucent" },
+  applicationName: "Smash Memo",
+  appleWebApp: { capable: true, title: "Smash Memo", statusBarStyle: "black-translucent" },
   formatDetection: { telephone: false },
 };
 

@@ -1,4 +1,4 @@
--- Smash Mémo — user profiles (username + avatar) and avatar storage.
+-- Smash Memo — user profiles (username + avatar) and avatar storage.
 -- Run in the Supabase SQL editor after 0003_note_sharing.sql.
 --
 -- Same security model as sharing: profiles are NOT publicly readable (that would let anyone list

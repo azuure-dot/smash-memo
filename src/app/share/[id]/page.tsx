@@ -107,7 +107,7 @@ function PublicHeader({ next }: { next: string }) {
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-bg/80 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
-        <Link href="/login" className="flex items-center" aria-label="Smash Mémo">
+        <Link href="/login" className="flex items-center" aria-label="Smash Memo">
           <BrandLogo />
         </Link>
         <Link

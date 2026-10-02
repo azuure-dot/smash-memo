@@ -6,7 +6,7 @@ export function BrandLogo({ className }: { className?: string }) {
   return (
     <Image
       src="/brand/logo-long.png"
-      alt="Smash Mémo"
+      alt="Smash Memo"
       width={484}
       height={160}
       priority
