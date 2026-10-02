@@ -1,5 +1,6 @@
 import { MatchupList, type Filter, type MatchupSummary, type Tab } from "@/components/matchup-list";
 import { NewMatchupForm } from "@/components/new-matchup-form";
+import { isGame } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { SavedMatchup } from "@/lib/types";
 
@@ -9,7 +10,7 @@ export default async function DashboardPage({
   searchParams: Promise<{ game?: string; tab?: string }>;
 }) {
   const { game, tab } = await searchParams;
-  const filter: Filter = game === "ultimate" || game === "melee" ? game : "all";
+  const filter: Filter = isGame(game) ? game : "all";
   const initialTab: Tab = tab === "saved" ? "saved" : "mine";
 
   // Load everything once; tabs and the game filter run client-side in MatchupList.

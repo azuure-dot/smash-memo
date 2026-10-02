@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Bookmark, CopyPlus, Link2, NotebookPen } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { GAME_LABELS } from "@/lib/game-data";
+import { GAME_LABELS, GAMES } from "@/lib/game-data";
 import type { Game, Matchup, SavedMatchup } from "@/lib/types";
 
 export type Tab = "mine" | "saved";
@@ -16,8 +16,7 @@ export type MatchupSummary = Pick<
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "ultimate", label: "Ultimate" },
-  { key: "melee", label: "Melee" },
+  ...GAMES.map((g) => ({ key: g, label: GAME_LABELS[g] })),
 ];
 
 function timeAgo(iso: string) {

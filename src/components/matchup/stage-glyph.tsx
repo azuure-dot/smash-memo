@@ -17,7 +17,15 @@ export function StageGlyph({ name, className }: { name: string; className?: stri
           <rect key={i} x={px} y={py} width={pw} height={2.2} rx={1.1} opacity={0.75} />
         ))}
       </g>
-      {layout.moving && (
+      {layout.moving === "vertical" ? (
+        <path
+          d="M7 3 v8 M5 5 l2 -2 2 2 M5 9 l2 2 2 -2 M93 3 v8 M91 5 l2 -2 2 2 M91 9 l2 2 2 -2"
+          stroke="currentColor"
+          strokeWidth={1}
+          fill="none"
+          opacity={0.45}
+        />
+      ) : layout.moving && (
         <path
           d="M4 8 h6 M8 6 l2 2 -2 2 M96 8 h-6 M92 6 l-2 2 2 2"
           stroke="currentColor"

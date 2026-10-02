@@ -1,8 +1,23 @@
 import type { Game } from "./types";
 
+/** Display order everywhere (game pickers, dashboard filters). */
+export const GAMES: Game[] = ["ultimate", "melee", "roa2"];
+
 export const GAME_LABELS: Record<Game, string> = {
   ultimate: "Ultimate",
   melee: "Melee",
+  roa2: "Rivals 2",
+};
+
+export function isGame(value: unknown): value is Game {
+  return typeof value === "string" && (GAMES as string[]).includes(value);
+}
+
+/** Example names for the "My character" / "Opponent" fields of the new-matchup form. */
+export const CHARACTER_EXAMPLES: Record<Game, [string, string]> = {
+  ultimate: ["Marth", "Fox"],
+  melee: ["Marth", "Fox"],
+  roa2: ["Zetterburn", "Orcane"],
 };
 
 export const CHARACTERS: Record<Game, string[]> = {
@@ -26,6 +41,13 @@ export const CHARACTERS: Record<Game, string[]> = {
     "Captain Falcon", "Ganondorf", "Falco", "Fox", "Ness", "Ice Climbers", "Kirby",
     "Samus", "Zelda", "Sheik", "Link", "Young Link", "Pichu", "Pikachu", "Jigglypuff",
     "Mewtwo", "Mr. Game & Watch", "Marth", "Roy",
+  ],
+  // Rivals of Aether II: launch roster (2024) + DLC released up to August 2026.
+  // Mina the Hollower is announced for 2027: add her once she's out.
+  roa2: [
+    "Clairen", "Fleet", "Forsburn", "Kragg", "Loxodont", "Maypul", "Orcane", "Ranno",
+    "Wrastor", "Zetterburn", "Etalus", "Olympia", "Absa", "Galvan", "La Reina", "Slade",
+    "Gouie",
   ],
 };
 
@@ -51,7 +73,8 @@ export type StageLayout = {
   slope?: number;
   /** Central support under the floor: [width, height]. */
   pillar?: [number, number];
-  moving?: boolean;
+  /** Arrows showing moving platforms: true = side to side, "vertical" = up and down. */
+  moving?: boolean | "vertical";
   tilt?: number;
 };
 
@@ -88,6 +111,29 @@ export const STAGE_LAYOUTS: Record<string, StageLayout> = {
   "Lylat Cruise": { main: [14, 72], platforms: [[22, 20, 16], [62, 20, 16], [42, 11, 16]], tilt: -4 },
   "Dream Land": { main: [10, 80], platforms: [[20, 20, 20], [60, 20, 20], [40, 9, 20]] },
   "Fountain of Dreams": { main: [16, 68], platforms: [[22, 20, 16], [62, 20, 16], [42, 11, 16]], moving: true },
+
+  // ── Rivals of Aether II (layouts from dragdown.wiki/wiki/RoA2/Stages) ──
+  // Stage widths are scaled from the in-game lengths (1250 → 50, 2020 → 84) so relative sizes stay readable.
+  // Smallest stage; one platform in the middle, always swinging left and right.
+  "Aetherian Forest": { main: [24.5, 51], platforms: [[43.5, 20, 13]], moving: true },
+  // Symmetrical side platforms, the lowest of all starters.
+  "Godai Delta": { main: [17, 66], platforms: [[25.5, 22, 16.5], [58, 22, 16.5]] },
+  // Tri-plat with the tallest platforms of the starters.
+  "Hodojo": { main: [20.5, 59], platforms: [[24.5, 19, 11], [64.5, 19, 11], [44.5, 9.5, 11]] },
+  // High platform sliding left ↔ right; a small low platform drifts across and disappears.
+  "Julesvale": { main: [21.5, 57], platforms: [[44.5, 11, 11], [28, 22, 8]], moving: true },
+  // Two platforms that join in the middle, then split over the abyss; full walls down to the blast zone.
+  "Metal Refinery": { main: [15.5, 69], platforms: [[31, 18, 18.5], [50.5, 18, 18.5]], depth: 14, taper: 0, moving: true },
+  // Two platforms right above the ledges, two smaller raised ones closer to the middle.
+  "Merchant Port": { main: [16.5, 67], platforms: [[10.5, 21, 12], [77.5, 21, 12], [33, 12, 10], [57, 12, 10]] },
+  // Longest stage; opposite of Merchant Port: raised platforms near the edges, low ones near the centre.
+  "Fire Capital": { main: [8, 84], platforms: [[12, 11, 10.5], [77.5, 11, 10.5], [33, 23, 10.5], [56.5, 23, 10.5]] },
+  // Three platforms at similar heights; the outer two reach past the ledges, which overhang the stage body.
+  "Hyperborean Harbor": { main: [18, 64], platforms: [[12, 18, 16], [72, 18, 16], [44.5, 18, 11]], taper: 0.22 },
+  // Two columns of stacked platforms (the top ones are the tallest in the game), open space in between.
+  "Rock Wall": { main: [11.5, 77], platforms: [[19, 20, 11], [70, 20, 11], [19, 8, 11], [70, 8, 11]] },
+  // Small stage; two wide platforms that take turns rising and lowering.
+  "Tempest Peak": { main: [25, 50], platforms: [[27, 15, 17], [56, 22, 17]], moving: "vertical" },
 };
 
 export const DEFAULT_LAYOUT: StageLayout = { main: [12, 76] };

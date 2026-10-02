@@ -2,9 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { canonicalCharacter } from "@/lib/game-data";
+import { canonicalCharacter, isGame } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
-import type { Game } from "@/lib/types";
 
 export type CreateMatchupState = { error?: string };
 
@@ -14,10 +13,10 @@ export async function createMatchup(
   formData: FormData,
 ): Promise<CreateMatchupState> {
   const game = formData.get("game");
-  if (game !== "ultimate" && game !== "melee") return { error: "Pick a game." };
+  if (!isGame(game)) return { error: "Pick a game." };
 
-  const mine = canonicalCharacter(game as Game, String(formData.get("my_character") ?? ""));
-  const opp = canonicalCharacter(game as Game, String(formData.get("opponent_character") ?? ""));
+  const mine = canonicalCharacter(game, String(formData.get("my_character") ?? ""));
+  const opp = canonicalCharacter(game, String(formData.get("opponent_character") ?? ""));
   if (!mine || !opp) return { error: "Choose both characters." };
   if (mine.length > 60 || opp.length > 60) return { error: "Character names are too long." };
 

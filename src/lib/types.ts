@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 
-export type Game = "ultimate" | "melee";
+export type Game = "ultimate" | "melee" | "roa2";
 export type StageStatus = "neutral" | "prefer" | "avoid";
 
 export type Matchup = {

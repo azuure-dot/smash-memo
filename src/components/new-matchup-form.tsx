@@ -4,7 +4,7 @@ import { ArrowLeftRight, Plus, X } from "lucide-react";
 import { useActionState, useState } from "react";
 import { createMatchup, type CreateMatchupState } from "@/app/(app)/actions";
 import { cn } from "@/lib/cn";
-import { CHARACTERS, GAME_LABELS } from "@/lib/game-data";
+import { CHARACTER_EXAMPLES, CHARACTERS, GAME_LABELS, GAMES } from "@/lib/game-data";
 import type { Game } from "@/lib/types";
 
 const inputClass =
@@ -43,8 +43,8 @@ export function NewMatchupForm({ defaultOpen = false }: { defaultOpen?: boolean 
       </div>
 
       <input type="hidden" name="game" value={game} />
-      <div className="mb-4 inline-grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-1 text-sm" role="radiogroup" aria-label="Game">
-        {(Object.keys(GAME_LABELS) as Game[]).map((g) => (
+      <div className="mb-4 inline-grid grid-cols-3 gap-1 rounded-xl bg-surface-2 p-1 text-sm" role="radiogroup" aria-label="Game">
+        {GAMES.map((g) => (
           <button
             key={g}
             type="button"
@@ -52,7 +52,7 @@ export function NewMatchupForm({ defaultOpen = false }: { defaultOpen?: boolean 
             aria-checked={game === g}
             onClick={() => setGame(g)}
             className={cn(
-              "rounded-lg px-4 py-1.5 font-medium transition",
+              "rounded-lg px-3 py-1.5 font-medium transition sm:px-4",
               game === g ? "bg-bg text-fg shadow" : "text-muted hover:text-fg",
             )}
           >
@@ -69,7 +69,7 @@ export function NewMatchupForm({ defaultOpen = false }: { defaultOpen?: boolean 
             list={`chars-${game}`}
             value={mine}
             onChange={(e) => setMine(e.target.value)}
-            placeholder="e.g. Marth"
+            placeholder={`e.g. ${CHARACTER_EXAMPLES[game][0]}`}
             required
             autoComplete="off"
             className={inputClass}
@@ -96,7 +96,7 @@ export function NewMatchupForm({ defaultOpen = false }: { defaultOpen?: boolean 
             list={`chars-${game}`}
             value={opp}
             onChange={(e) => setOpp(e.target.value)}
-            placeholder="e.g. Fox"
+            placeholder={`e.g. ${CHARACTER_EXAMPLES[game][1]}`}
             required
             autoComplete="off"
             className={inputClass}

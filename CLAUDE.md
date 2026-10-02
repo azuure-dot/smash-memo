@@ -8,7 +8,7 @@ Document de reprise du projet pour Claude Code. À lire en entier avant toute mo
 
 ## 1. Le projet en bref
 
-**Smash Memo**, sans accent (anciennement « Smash Notes », renommée le 2026-10-01 car une autre app porte ce nom, puis « Smash Mémo » → « Smash Memo » le 2026-10-02) est une web app (PWA installable) pour prendre des notes de matchups sur **Super Smash Bros. Ultimate** et **Melee**. Chaque utilisateur a un compte, et ses notes sont synchronisées sur tous ses appareils.
+**Smash Memo**, sans accent (anciennement « Smash Notes », renommée le 2026-10-01 car une autre app porte ce nom, puis « Smash Mémo » → « Smash Memo » le 2026-10-02) est une web app (PWA installable) pour prendre des notes de matchups sur **Super Smash Bros. Ultimate**, **Melee** et **Rivals of Aether II** (ajouté le 2026-10-02, libellé « Rivals 2 », clé `roa2`). Chaque utilisateur a un compte, et ses notes sont synchronisées sur tous ses appareils.
 
 - **Repo :** GitHub `smash-memo` (compte du propriétaire, ex-`smash-notes`), branche `main`.
 - **Hébergement :** Vercel (projet `smash-memo`, ex-`smash-notes`, équipe « azuure-dot », plan Hobby). Chaque push sur `main` déclenche un redéploiement.
@@ -111,12 +111,17 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - table `profiles` (`id` = `auth.users.id`, `username`, `avatar_url`) avec RLS « own profile » uniquement (pas de lecture publique, même règle que ci-dessus) ; index unique sur `lower(username)` ; contrainte qui n'autorise comme `avatar_url` qu'un fichier du dossier de l'utilisateur dans le bucket `avatars` ;
   - bucket Storage `avatars` : public, 2 Mo max, `image/jpeg|png|webp` ; policies `storage.objects` : insert / select / delete limités au dossier `<auth.uid()>/` ;
   - `get_shared_matchup()` renvoie en plus `author: { username, avatar_url }`.
+- `supabase/migrations/0005_rivals_of_aether_2.sql`
+  - valeur `roa2` ajoutée à l'enum `game` ; `seed_matchup_stages()` recréée avec la stagelist Rivals 2.
+- **Ajouter un jeu :** valeur d'enum + branche dans `seed_matchup_stages()` (nouvelle migration), puis dans `src/lib/game-data.ts` : `GAMES`, `GAME_LABELS`, `CHARACTER_EXAMPLES`, `CHARACTERS`, et les `STAGE_LAYOUTS` des nouveaux stages. Le type `Game` est dans `src/lib/types.ts`. Le formulaire, les filtres et la validation se basent sur `GAMES` / `isGame()`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
 
 **Stagelists par défaut :**
 - *Ultimate :* Battlefield, Final Destination, Small Battlefield, Pokémon Stadium 2, Hollow Bastion, Smashville, Town & City, Kalos Pokémon League, Yoshi's Story, Lylat Cruise.
 - *Melee (choix de Claude, non validé) :* Battlefield, Final Destination, Yoshi's Story, Dream Land, Fountain of Dreams, Pokémon Stadium.
+- *Rivals 2 (pool compétitif de dragdown.wiki/wiki/RoA2/Stages) :* starters Aetherian Forest, Godai Delta, Hodojo, Julesvale, Metal Refinery ; counterpicks Merchant Port, Fire Capital, Hyperborean Harbor, Rock Wall, Tempest Peak. Air Armada (non légal) et les variantes doubles sont exclus.
+- *Roster Rivals 2* (rivals-of-aether.fandom.com) : 10 persos de lancement + DLC sortis jusqu'à Gouie (août 2026). Mina the Hollower (annoncée pour 2027) est à ajouter à sa sortie.
 
 Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créés sont des lignes en base.
 
@@ -131,7 +136,8 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
   - `slope` : pente en degrés près des ledges ;
   - `pillar: [largeur, hauteur]` : pilier central ;
   - `tilt` : inclinaison ;
-  - `moving` : flèches (encore utilisées pour Fountain of Dreams).
+  - `moving` : flèches ; `true` = horizontales (Fountain of Dreams, Aetherian Forest, Julesvale, Metal Refinery), `"vertical"` = verticales (Tempest Peak).
+- Rivals 2 : largeurs de sol proportionnelles aux longueurs en jeu (1250 → 50, 2020 → 84), hauteurs et positions de plateformes d'après les descriptions de dragdown.wiki.
 - La géométrie du sol est calculée par `stageFloorPaths()`. Les stages inconnus ou custom utilisent `DEFAULT_LAYOUT`.
 - Consignes validées par le propriétaire (dernière itération) :
   - **Small Battlefield** : même disposition que Pokémon Stadium 2 (2 plateformes, pas de plateforme haute), en plus petit.
