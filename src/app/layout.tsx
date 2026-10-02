@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
+import { InstallPrompt } from "@/components/install-prompt";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import "./globals.css";
 
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-dvh bg-bg font-sans text-fg antialiased">
         {children}
         <ServiceWorkerRegister />
+        <InstallPrompt />
       </body>
     </html>
   );

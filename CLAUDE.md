@@ -80,6 +80,10 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 6. **Compte** (`/account`) : profil, changement de mot de passe, lien Privacy, **suppression du compte** (taper `DELETE`). Vide aussi le cache du service worker.
 7. **Privacy** (`/privacy`) : page publique en anglais. Les valeurs variables viennent de `src/lib/site-config.ts`.
 8. **PWA :** manifest, icônes (any + maskable), page `/offline`, cache network-first des pages et cache-first des assets `/_next/static`. Les requêtes Supabase ne sont jamais mises en cache.
+   - **Popup d'installation** (`src/components/install-prompt.tsx` + hook `src/lib/use-pwa-install.ts`, monté dans le layout racine) : uniquement sur écran ≤ 768 px, si l'app n'est pas déjà installée (`display-mode: standalone` / `navigator.standalone`), affiché après 3 s.
+     - Android : basé sur l'événement `beforeinstallprompt` (pas de détection par user agent) ; bouton « Install App » qui ouvre la boîte native. Ne s'affiche qu'en production (le SW n'est pas enregistré en dev).
+     - iOS : Safari seul (iPhone, et iPad repéré par `Macintosh` + écran tactile ; Chrome/Firefox/Edge iOS et navigateurs intégrés exclus) ; instructions « Share → Add to Home Screen ».
+     - Fermeture ou refus : clé `localStorage` `sm-install-dismissed-at`, masqué 30 jours. Animations `animate-slide-up` / `animate-slide-down` définies dans `@theme`.
 
 ## 6. Base de données
 
