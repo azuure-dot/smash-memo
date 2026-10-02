@@ -139,20 +139,26 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
   - `platforms: [x, y, largeur][]` : plateformes ;
   - `depth` : épaisseur du sol (9 par défaut) ;
   - `taper` : rétrécissement vers le bas (0.12 par défaut) ;
-  - `slope` : pente en degrés près des ledges ;
+  - `slope` : pente en degrés près des ledges ; `slopeRun` : longueur de cette pente (7 par défaut) ;
+  - `platformSlope` : pente en degrés de l'extrémité extérieure des plateformes de côté (Lylat) ;
+  - `roundBottom` : dessous arrondi (Fountain of Dreams) ;
   - `pillar: [largeur, hauteur]` : pilier central ;
-  - `tilt` : inclinaison ;
-  - `moving` : flèches ; `true` = horizontales (Fountain of Dreams, Aetherian Forest, Julesvale, Air Armada, Metal Refinery), `"vertical"` = verticales (Tempest Peak).
+  - `body: [x, largeur]` : bloc plein sous un plateau fin, jusqu'en bas (Hyperborean Harbor).
+  - `depth: 14` + `taper: 0` = murs droits du ledge jusqu'en bas.
+  - Plus de flèches ni d'inclinaison globale (`moving` / `tilt` retirés le 2026-10-02 à la demande du propriétaire).
 - Rivals 2 : largeurs de sol proportionnelles aux longueurs en jeu (1250 → 50, 2020 → 84), hauteurs et positions de plateformes d'après les descriptions de dragdown.wiki.
-- La géométrie du sol est calculée par `stageFloorPaths()`. Les stages inconnus ou custom utilisent `DEFAULT_LAYOUT`.
+- La géométrie est calculée par `stageFloorPaths()` (sol, bloc, pilier) et `platformPath()`. Les stages inconnus ou custom utilisent `DEFAULT_LAYOUT`.
 - Consignes validées par le propriétaire (dernière itération) :
   - **Small Battlefield** : même disposition que Pokémon Stadium 2 (2 plateformes, pas de plateforme haute), en plus petit.
   - **Pokémon Stadium 2** : pilier central sous le stage.
   - **Hollow Bastion** : plateforme centrale ≈ 45 % de la largeur du stage.
-  - **Smashville** : même disposition que Hollow Bastion en plus petit, plateforme centrée ≥ 50 % du stage, pas de flèches.
-  - **Town & City** : aussi long que Kalos, plateformes `-  _  -` (côtés hauts, centre bas), pas de flèches.
+  - **Smashville** : même disposition que Hollow Bastion en plus petit, plateforme centrée ≥ 50 % du stage, sol fin.
+  - **Town & City** : aussi long que Kalos, sol fin, plateformes `-  _  -` (côtés hauts, centre bas) ; ~30 % de chaque plateforme haute dépasse du bord, au-dessus du vide.
   - **Kalos** : stage profond et rectangulaire, deux plateformes centrées pile au-dessus de chaque ledge.
   - **Yoshi's Story** : parois plus profondes, pente d'environ 15° à côté de chaque ledge.
+  - **Lylat Cruise** : centre plat (plus penché), pente ~30° plus longue que Yoshi's vers les ledges, même pente au bout des plateformes de côté.
+  - *Melee* — **Dream Land** : sol plus épais ; **Fountain of Dreams** : dessous arrondi ; **Pokémon Stadium** : plateau fin + pilier central comme PS2.
+  - *Rivals 2* — murs droits jusqu'en bas partout **sauf Air Armada et Hyperborean Harbor**. **Merchant Port** : aussi long que Fire Capital, plateformes de côté collées au bord du stage, plateformes hautes plus petites et plus centrées. **Hyperborean Harbor** : d'après le schéma du propriétaire, plateau fin dont les ledges dépassent d'un corps plus étroit qui descend jusqu'en bas.
 
 ## 8. Arborescence
 

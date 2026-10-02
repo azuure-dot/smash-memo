@@ -79,17 +79,22 @@ export function canonicalCharacter(game: Game, input: string): string {
 export type StageLayout = {
   main: [number, number];
   platforms?: [number, number, number][];
-  /** Floor thickness below the walkable surface (default 9). */
+  /** Floor thickness below the walkable surface (default 9). 14 = walls all the way down to the bottom. */
   depth?: number;
   /** How much the floor narrows toward the bottom, as a fraction of its width (default 0.12). */
   taper?: number;
   /** Angle in degrees of the slope next to each ledge (none by default). */
   slope?: number;
+  /** Horizontal length of that slope (default 7, as on Yoshi's Story). */
+  slopeRun?: number;
+  /** Angle in degrees of the outer end of the side platforms, sloping down toward the edge. */
+  platformSlope?: number;
+  /** Rounded underside instead of a trapezoid (bowl shape). */
+  roundBottom?: boolean;
   /** Central support under the floor: [width, height]. */
   pillar?: [number, number];
-  /** Arrows showing moving platforms: true = side to side, "vertical" = up and down. */
-  moving?: boolean | "vertical";
-  tilt?: number;
+  /** Solid block under a thin deck, from the floor down to the bottom: [x, width]. The deck overhangs it. */
+  body?: [number, number];
 };
 
 export const STAGE_LAYOUTS: Record<string, StageLayout> = {
@@ -105,13 +110,21 @@ export const STAGE_LAYOUTS: Record<string, StageLayout> = {
     taper: 0.02,
     pillar: [18, 8],
   },
-  "Pokémon Stadium": { main: [8, 84], platforms: [[20, 21, 20], [60, 21, 20]] },
+  // Melee's Stadium: same thin deck and central pillar as Pokémon Stadium 2.
+  "Pokémon Stadium": {
+    main: [8, 84],
+    platforms: [[20, 21, 20], [60, 21, 20]],
+    depth: 4,
+    taper: 0.02,
+    pillar: [18, 8],
+  },
   // Centered platform ≈ 45% of the stage width.
   "Hollow Bastion": { main: [8, 84], platforms: [[31, 17, 38]] },
-  // Same layout as Hollow Bastion on a smaller stage; platform ≈ 53% of the stage width.
-  "Smashville": { main: [16, 68], platforms: [[32, 17, 36]] },
-  // As long as Kalos; side platforms high, centre platform low ( -  _  - ).
-  "Town & City": { main: [10, 80], platforms: [[16, 13, 18], [41, 21, 18], [66, 13, 18]] },
+  // Same layout as Hollow Bastion on a smaller, thinner stage; platform ≈ 53% of the stage width.
+  "Smashville": { main: [16, 68], platforms: [[32, 17, 36]], depth: 6 },
+  // As long as Kalos, thin; side platforms high, centre platform low ( -  _  - ).
+  // ~30% of each side platform hangs past the ledge, over the void.
+  "Town & City": { main: [10, 80], platforms: [[4.6, 13, 18], [41, 21, 18], [77.4, 13, 18]], depth: 6 },
   // Deep, rectangular stage; each platform is centred right above a ledge.
   "Kalos Pokémon League": { main: [10, 80], platforms: [[2, 19, 16], [82, 19, 16]], depth: 13, taper: 0.02 },
   // Deeper walls and ~15° slopes next to each ledge.
@@ -122,70 +135,145 @@ export const STAGE_LAYOUTS: Record<string, StageLayout> = {
     taper: 0.06,
     slope: 15,
   },
-  "Lylat Cruise": { main: [14, 72], platforms: [[22, 20, 16], [62, 20, 16], [42, 11, 16]], tilt: -4 },
-  "Dream Land": { main: [10, 80], platforms: [[20, 20, 20], [60, 20, 20], [40, 9, 20]] },
-  "Fountain of Dreams": { main: [16, 68], platforms: [[22, 20, 16], [62, 20, 16], [42, 11, 16]], moving: true },
+  // Level in the middle; ~30° slopes toward the ledges, longer than Yoshi's Story's, and on the side platforms too.
+  "Lylat Cruise": {
+    main: [14, 72],
+    platforms: [[22, 20, 16], [62, 20, 16], [42, 11, 16]],
+    depth: 8,
+    taper: 0.1,
+    slope: 30,
+    slopeRun: 11,
+    platformSlope: 30,
+  },
+  "Dream Land": { main: [10, 80], platforms: [[20, 20, 20], [60, 20, 20], [40, 9, 20]], depth: 12 },
+  // Rounded, bowl-shaped underside.
+  "Fountain of Dreams": { main: [16, 68], platforms: [[22, 20, 16], [62, 20, 16], [42, 11, 16]], depth: 11, roundBottom: true },
 
   // ── Rivals of Aether II (layouts from dragdown.wiki/wiki/RoA2/Stages) ──
   // Stage widths are scaled from the in-game lengths (1250 → 50, 2020 → 84) so relative sizes stay readable.
-  // Smallest stage; one platform in the middle, always swinging left and right.
-  "Aetherian Forest": { main: [24.5, 51], platforms: [[43.5, 20, 13]], moving: true },
+  // Most stages have straight walls from the ledge down to the bottom blast zone (depth 14, no taper);
+  // the exceptions are Air Armada and Hyperborean Harbor. No arrows: moving parts are shown at rest.
+  // Smallest stage; one platform in the middle (it swings left and right in game).
+  "Aetherian Forest": { main: [24.5, 51], platforms: [[43.5, 20, 13]], depth: 14, taper: 0 },
   // Symmetrical side platforms, the lowest of all starters.
-  "Godai Delta": { main: [17, 66], platforms: [[25.5, 22, 16.5], [58, 22, 16.5]] },
+  "Godai Delta": { main: [17, 66], platforms: [[25.5, 22, 16.5], [58, 22, 16.5]], depth: 14, taper: 0 },
   // Tri-plat with the tallest platforms of the starters.
-  "Hodojo": { main: [20.5, 59], platforms: [[24.5, 19, 11], [64.5, 19, 11], [44.5, 9.5, 11]] },
+  "Hodojo": { main: [20.5, 59], platforms: [[24.5, 19, 11], [64.5, 19, 11], [44.5, 9.5, 11]], depth: 14, taper: 0 },
   // High platform sliding left ↔ right; a small low platform drifts across and disappears.
-  "Julesvale": { main: [21.5, 57], platforms: [[44.5, 11, 11], [28, 22, 8]], moving: true },
+  "Julesvale": { main: [21.5, 57], platforms: [[44.5, 11, 11], [28, 22, 8]], depth: 14, taper: 0 },
   // Two platforms that join in the middle, then split over the abyss; slightly slanted walls that stop
   // above the bottom blast zone. Longer than Metal Refinery (1900 vs 1680). In the default list since 0006.
-  "Air Armada": { main: [10.5, 79], platforms: [[29, 18, 20.5], [50.5, 18, 20.5]], depth: 11, taper: 0.07, moving: true },
+  "Air Armada": { main: [10.5, 79], platforms: [[29, 18, 20.5], [50.5, 18, 20.5]], depth: 11, taper: 0.07 },
   // Same moving platforms, full walls down to the blast zone. Replaced by Air Armada in the default list (0006);
   // kept so older notes or custom stages with this name still get their silhouette.
-  "Metal Refinery": { main: [15.5, 69], platforms: [[31, 18, 18.5], [50.5, 18, 18.5]], depth: 14, taper: 0, moving: true },
-  // Two platforms right above the ledges, two smaller raised ones closer to the middle.
-  "Merchant Port": { main: [16.5, 67], platforms: [[10.5, 21, 12], [77.5, 21, 12], [33, 12, 10], [57, 12, 10]] },
+  "Metal Refinery": { main: [15.5, 69], platforms: [[31, 18, 18.5], [50.5, 18, 18.5]], depth: 14, taper: 0 },
+  // As long as Fire Capital. Side platforms flush with the stage edges; two smaller raised ones near the middle.
+  "Merchant Port": {
+    main: [8, 84],
+    platforms: [[8, 21, 12], [80, 21, 12], [34.5, 12, 9], [56.5, 12, 9]],
+    depth: 14,
+    taper: 0,
+  },
   // Longest stage; opposite of Merchant Port: raised platforms near the edges, low ones near the centre.
-  "Fire Capital": { main: [8, 84], platforms: [[12, 11, 10.5], [77.5, 11, 10.5], [33, 23, 10.5], [56.5, 23, 10.5]] },
-  // Three platforms at similar heights; the outer two reach past the ledges, which overhang the stage body.
-  "Hyperborean Harbor": { main: [18, 64], platforms: [[12, 18, 16], [72, 18, 16], [44.5, 18, 11]], taper: 0.22 },
+  "Fire Capital": {
+    main: [8, 84],
+    platforms: [[12, 11, 10.5], [77.5, 11, 10.5], [33, 23, 10.5], [56.5, 23, 10.5]],
+    depth: 14,
+    taper: 0,
+  },
+  // From the owner's sketch: a thin deck whose ledges overhang a narrower body going down to the bottom;
+  // three platforms at about the same height, the outer two reaching past the ledges.
+  "Hyperborean Harbor": {
+    main: [10.9, 76.3],
+    platforms: [[2.3, 14.5, 18.6], [38, 15.2, 20], [74.5, 14.6, 19.1]],
+    depth: 2.5,
+    taper: 0,
+    body: [29.5, 37.7],
+  },
   // Two columns of stacked platforms (the top ones are the tallest in the game), open space in between.
-  "Rock Wall": { main: [11.5, 77], platforms: [[19, 20, 11], [70, 20, 11], [19, 8, 11], [70, 8, 11]] },
+  "Rock Wall": {
+    main: [11.5, 77],
+    platforms: [[19, 20, 11], [70, 20, 11], [19, 8, 11], [70, 8, 11]],
+    depth: 14,
+    taper: 0,
+  },
   // Small stage; two wide platforms that take turns rising and lowering.
-  "Tempest Peak": { main: [25, 50], platforms: [[27, 15, 17], [56, 22, 17]], moving: "vertical" },
+  "Tempest Peak": { main: [25, 50], platforms: [[27, 15, 17], [56, 22, 17]], depth: 14, taper: 0 },
 };
 
 export const DEFAULT_LAYOUT: StageLayout = { main: [12, 76] };
 
 /** Top of the stage floor in the 100 × 44 viewBox. */
 export const FLOOR_Y = 30;
-/** Horizontal length of the sloped section next to each ledge (when `slope` is set). */
+/** Bottom edge of the viewBox (walls with `depth: 14` reach it). */
+const VIEW_BOTTOM = 44;
+/** Default horizontal length of the sloped section next to each ledge (when `slope` is set). */
 const SLOPE_RUN = 7;
+/** Platform thickness, and horizontal length of a platform's sloped outer end (`platformSlope`). */
+const PLATFORM_H = 2.2;
+const PLATFORM_SLOPE_RUN = 4;
 
 const r = (n: number) => Math.round(n * 100) / 100;
+const rad = (deg: number) => (deg * Math.PI) / 180;
 
-/** SVG path data for the stage floor (and its pillar, if any). */
+/** SVG path data for the stage floor (and its pillar / body, if any). */
 export function stageFloorPaths(layout: StageLayout): string[] {
   const [x, w] = layout.main;
   const depth = layout.depth ?? 9;
-  const inset = w * (layout.taper ?? 0.12);
-  const run = layout.slope ? SLOPE_RUN : 0;
-  const drop = layout.slope ? SLOPE_RUN * Math.tan((layout.slope * Math.PI) / 180) : 0;
   const bottom = FLOOR_Y + depth;
+  const paths: string[] = [];
 
-  const floor = [
-    `M${r(x)} ${r(FLOOR_Y + drop)}`,
-    `L${r(x + run)} ${FLOOR_Y}`,
-    `L${r(x + w - run)} ${FLOOR_Y}`,
-    `L${r(x + w)} ${r(FLOOR_Y + drop)}`,
-    `L${r(x + w - inset)} ${bottom}`,
-    `L${r(x + inset)} ${bottom}`,
-    "Z",
-  ].join(" ");
+  if (layout.roundBottom) {
+    // Flat top, half-ellipse underneath.
+    paths.push(`M${r(x)} ${FLOOR_Y} L${r(x + w)} ${FLOOR_Y} A${r(w / 2)} ${depth} 0 0 1 ${r(x)} ${FLOOR_Y} Z`);
+  } else {
+    const inset = w * (layout.taper ?? 0.12);
+    const run = layout.slope ? (layout.slopeRun ?? SLOPE_RUN) : 0;
+    const drop = layout.slope ? run * Math.tan(rad(layout.slope)) : 0;
+    paths.push(
+      [
+        `M${r(x)} ${r(FLOOR_Y + drop)}`,
+        `L${r(x + run)} ${FLOOR_Y}`,
+        `L${r(x + w - run)} ${FLOOR_Y}`,
+        `L${r(x + w)} ${r(FLOOR_Y + drop)}`,
+        `L${r(x + w - inset)} ${bottom}`,
+        `L${r(x + inset)} ${bottom}`,
+        "Z",
+      ].join(" "),
+    );
+  }
 
-  if (!layout.pillar) return [floor];
+  if (layout.body) {
+    const [bx, bw] = layout.body;
+    paths.push(`M${r(bx)} ${bottom} h${r(bw)} V${VIEW_BOTTOM} h${r(-bw)} Z`);
+  }
 
-  const [pw, ph] = layout.pillar;
-  const cx = x + w / 2;
-  const pillar = `M${r(cx - pw / 2)} ${bottom} h${pw} l-1.5 ${ph} h-${pw - 3} Z`;
-  return [floor, pillar];
+  if (layout.pillar) {
+    const [pw, ph] = layout.pillar;
+    const cx = x + w / 2;
+    paths.push(`M${r(cx - pw / 2)} ${bottom} h${pw} l-1.5 ${ph} h-${pw - 3} Z`);
+  }
+
+  return paths;
+}
+
+/**
+ * SVG path data for one platform [x, y, width]. With `platformSlope`, side platforms (left or right of
+ * centre) get their outer end bent down toward the edge of the stage; the centre one stays flat.
+ */
+export function platformPath(layout: StageLayout, [px, py, pw]: [number, number, number]): string {
+  const centre = px + pw / 2;
+  const side = !layout.platformSlope || Math.abs(centre - 50) < 8 ? null : centre < 50 ? "left" : "right";
+
+  if (!side) {
+    const c = PLATFORM_H / 2; // rounded ends
+    return `M${r(px + c)} ${r(py)} h${r(pw - 2 * c)} a${c} ${c} 0 0 1 0 ${PLATFORM_H} h${r(-(pw - 2 * c))} a${c} ${c} 0 0 1 0 ${-PLATFORM_H} Z`;
+  }
+
+  const run = Math.min(PLATFORM_SLOPE_RUN, pw * 0.35);
+  const drop = run * Math.tan(rad(layout.platformSlope!));
+  const h = PLATFORM_H;
+  return side === "left"
+    ? `M${r(px)} ${r(py + drop)} L${r(px + run)} ${r(py)} H${r(px + pw)} V${r(py + h)} H${r(px + run)} L${r(px)} ${r(py + drop + h)} Z`
+    : `M${r(px)} ${r(py)} H${r(px + pw - run)} L${r(px + pw)} ${r(py + drop)} V${r(py + drop + h)} L${r(px + pw - run)} ${r(py + h)} H${r(px)} Z`;
 }
