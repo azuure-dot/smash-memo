@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { ArrowLeft, Eye, LogIn } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { BrandLogo } from "@/components/brand-logo";
 import { AuthorBadge } from "@/components/matchup/author-badge";
 import { NoteEditor } from "@/components/matchup/note-editor";
 import { QuickNotes } from "@/components/matchup/quick-notes";
@@ -106,9 +107,8 @@ function PublicHeader({ next }: { next: string }) {
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-bg/80 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
-        <Link href="/login" className="flex items-center gap-2.5">
-          <span className="grid size-8 place-items-center rounded-xl bg-brand text-xs font-bold text-white">SM</span>
-          <span className="font-semibold tracking-tight">Smash Mémo</span>
+        <Link href="/login" className="flex items-center" aria-label="Smash Mémo">
+          <BrandLogo />
         </Link>
         <Link
           href={`/login?next=${encodeURIComponent(next)}`}

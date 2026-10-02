@@ -3,6 +3,7 @@ import { UserRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 import { Avatar } from "./avatar";
+import { BrandLogo } from "./brand-logo";
 import { SignOutButton } from "./sign-out-button";
 
 export async function AppHeader() {
@@ -19,9 +20,8 @@ export async function AppHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line/70 bg-bg/80 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid size-8 place-items-center rounded-xl bg-brand text-xs font-bold text-white">SM</span>
-          <span className="font-semibold tracking-tight">Smash Mémo</span>
+        <Link href="/" className="flex items-center" aria-label="Smash Mémo home">
+          <BrandLogo />
         </Link>
         <div className="flex items-center gap-1">
           <Link

@@ -2,6 +2,8 @@
  * Site-wide settings shown on the Privacy page. Fill these in before sharing the app.
  */
 export const SITE = {
+  /** Production address, used for absolute links such as the link-preview image. */
+  url: "https://smash-memo.vercel.app",
   /** Who runs the app (your name or pseudonym). */
   operator: "Mael 'azuure' DE ALMEIDA-LAGIERE",
   /** Where people can reach you about their data. Leave empty to hide the line. */

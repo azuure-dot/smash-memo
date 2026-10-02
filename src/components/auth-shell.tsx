@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "./brand-logo";
 
 /** Centered card layout shared by the sign-in, forgot-password and reset-password pages. */
 export function AuthShell({
@@ -6,7 +7,8 @@ export function AuthShell({
   subtitle,
   children,
 }: {
-  title: string;
+  /** Visible heading under the logo. Omit it when the logo itself says it all (sign-in page). */
+  title?: string;
   subtitle?: string;
   children: React.ReactNode;
 }) {
@@ -18,13 +20,14 @@ export function AuthShell({
       />
       <div className="relative w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Link
-            href="/"
-            className="mx-auto mb-4 grid size-12 place-items-center rounded-2xl bg-brand text-lg font-bold text-white"
-          >
-            SM
+          <Link href="/" className="mb-4 inline-block" aria-label="Smash Mémo home">
+            <BrandLogo className="h-20" />
           </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          {title ? (
+            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          ) : (
+            <h1 className="sr-only">Smash Mémo</h1>
+          )}
           {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
         </div>
         {children}

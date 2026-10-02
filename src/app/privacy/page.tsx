@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { SITE } from "@/lib/site-config";
 
 export const metadata = { title: "Privacy" };
@@ -16,8 +17,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl px-5 pb-20 pt-[calc(env(safe-area-inset-top)+2rem)]">
-      <Link href="/" className="mb-8 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-fg">
-        <ArrowLeft className="size-4" /> Smash Mémo
+      <Link
+        href="/"
+        className="mb-8 inline-flex items-center gap-2 text-muted transition hover:text-fg"
+        aria-label="Back to Smash Mémo"
+      >
+        <ArrowLeft className="size-4" /> <BrandLogo />
       </Link>
 
       <h1 className="text-3xl font-semibold tracking-tight">

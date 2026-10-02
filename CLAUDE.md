@@ -56,6 +56,10 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 - **Statuts de stage :** Prefer = **bleu**, Avoid = **rouge**, Neutral = gris.
 - Police Geist. Coins arrondis `rounded-xl` / `rounded-2xl`. Respect des safe-area iOS.
 - Pas de visuels officiels Nintendo (droits d'auteur). Les stages sont des silhouettes abstraites dessinées en SVG (voir §7).
+- **Logos** (fournis par le propriétaire le 2026-10-02, originaux dans `brand/`) :
+  - **Small** (`brand/logo-small-source.webp`, carré, dégradé `#a851fe` → `#ff67fe` + stylo « SM ») : icône d'onglet, icônes PWA et raccourci mobile. Coins arrondis pour `icon.png` et les icônes « any » ; carré plein pour `apple-icon.png` ; marge de sécurité de 80 % pour `maskable-512.png`.
+  - **Long** (`brand/logo-long-source.png`, « SMASH MEMO » + stylo sur fond noir) : rendu transparent dans `public/brand/logo-long.png`, affiché via le composant `BrandLogo` (headers, pages de connexion / mot de passe, Privacy) et dans l'image d'aperçu des liens `src/app/opengraph-image.png`.
+  - Tout se régénère avec `node scripts/make-icons.mjs` (arrêter `npm run dev` avant, sinon Windows verrouille les fichiers). Après un changement d'icônes, incrémenter `VERSION` dans `public/sw.js`, qui garde `/icons/` en cache.
 
 ## 5. Fonctionnalités en place
 
@@ -143,11 +147,14 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
 ```
 supabase/migrations/          0001_init.sql … 0004_profiles.sql
 public/sw.js                  service worker (incrémenter VERSION si la logique de cache change)
-public/icons/                 icônes PWA
+public/icons/                 icônes PWA (générées par scripts/make-icons.mjs)
+public/brand/logo-long.png    logo Long transparent (généré)
+brand/                        logos sources fournis par le propriétaire
+scripts/make-icons.mjs        génère icônes, logo transparent et image d'aperçu de lien
 src/proxy.ts                  refresh de session + garde (sous Next 15 : middleware.ts / middleware())
 src/app/
   layout.tsx, globals.css     shell racine, tokens, styles Tiptap
-  manifest.ts, icon.png, apple-icon.png
+  manifest.ts, icon.png, apple-icon.png, opengraph-image.png (+ .alt.txt)
   login/                      connexion / inscription (+ lien "Forgot password?")
   forgot-password/            demande de reset (contient aussi updatePassword)
   reset-password/             choix du nouveau mot de passe (formulaire réutilisé dans /account)
@@ -161,7 +168,7 @@ src/app/
     matchups/[id]/            page matchup
     account/                  compte + profil (profile-form.tsx) + suppression
 src/components/
-  app-header.tsx, auth-shell.tsx, avatar.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
+  app-header.tsx, auth-shell.tsx, avatar.tsx, brand-logo.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
   matchup/                    stage-selector, stage-glyph, note-editor, quick-notes, delete-matchup-button,
                               share-button, shared-note-actions, author-badge
 src/lib/
