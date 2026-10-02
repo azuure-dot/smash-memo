@@ -61,8 +61,13 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 1. **Auth :** inscription et connexion par email + mot de passe (`/login`), déconnexion, garde des routes privées dans `src/proxy.ts`.
 2. **Mot de passe oublié :** `/forgot-password` envoie l'email ; le lien passe par `/auth/callback?next=/reset-password` puis arrive sur `/reset-password`.
-3. **Dashboard** (`/`) : liste des matchups triée par date de modification, filtre All / Ultimate / Melee.
-4. **Création de matchup :** choix du jeu, « My character » vs « Opponent » avec autocomplétion des rosters et bouton d'échange. Redirige directement vers la note. Si le matchup existe déjà pour ce jeu, ouvre l'existant.
+3. **Dashboard** (`/`) : onglets **My Notes** / **Saved Notes** + filtre All / Ultimate / Melee, tous gérés côté client (`src/components/matchup-list.tsx`, état reflété dans l'URL `?tab=saved&game=melee`). Badges Shared / Copy / Saved.
+4. **Création de matchup :** choix du jeu, « My character » vs « Opponent » avec autocomplétion des rosters et bouton d'échange. Redirige directement vers la note. Si le matchup existe déjà pour ce jeu, ouvre le plus récent (les doublons sont autorisés depuis 0003, à cause de la duplication).
+9. **Partage de notes** (depuis 0003) :
+   - Bouton **Share** sur la page matchup (`share-button.tsx`) : passe `is_shared` à true et copie `https://<site>/share/<id>` ; **Stop sharing** désactive le lien.
+   - **`/share/[id]`** (public, dans `PUBLIC_PATHS`) : vue en lecture seule (prop `readOnly` sur `StageSelector`, `QuickNotes`, `NoteEditor`). Le propriétaire est redirigé vers `/matchups/[id]` ; un non-propriétaire qui ouvre `/matchups/[id]` est redirigé vers `/share/[id]`. Non connecté : bandeau « Sign in / Sign up ».
+   - **Save to my workspace** (table `saved_matchups`) et **Duplicate to my notes** (copie profonde en SQL, puis redirection vers la copie). Actions dans `src/app/share/actions.ts`.
+   - Choix validés par le propriétaire : doublons autorisés, lecture sans compte. L'auteur reste anonyme (aucun email affiché). Une note dont l'auteur arrête le partage disparaît des Saved Notes.
 5. **Page matchup** (`/matchups/[id]`), dans cet ordre :
    - **Stages :** clic = cycle Neutral → Prefer → Avoid ; ajout et suppression de stages custom.
    - **Quick Notes :** repliées par défaut ; ajout, édition inline (sauvegarde au blur), suppression.
@@ -84,6 +89,12 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - **RLS** sur toutes les tables : un utilisateur ne voit et ne modifie que ses propres lignes.
 - `supabase/migrations/0002_delete_account.sql`
   - fonction `delete_my_account()` en `security definer`, qui supprime uniquement `auth.uid()` ; la cascade efface ensuite toutes les données.
+- `supabase/migrations/0003_note_sharing.sql`
+  - colonnes `matchups.is_shared` et `matchups.copied_from` ; suppression de la contrainte d'unicité `(user_id, game, my_character, opponent_character)` ;
+  - le trigger `updated_at` de `matchups` ne se déclenche plus que sur `game`, `my_character`, `opponent_character`, `content` (partager ne compte pas comme une modification) ;
+  - table `saved_matchups` (RLS : lecture et suppression de ses propres lignes) ;
+  - fonctions `security definer` : `get_shared_matchup(id)` (anon + authenticated), `save_shared_matchup(id)`, `list_saved_matchups()`, `duplicate_shared_matchup(id)`.
+  - **Règle de sécurité :** ne jamais ajouter de policy SELECT du type « `is_shared` = true » sur les tables. Avec la clé publique, n'importe qui pourrait lister toutes les notes partagées. Les non-propriétaires passent uniquement par ces fonctions, qui exigent l'id exact.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
 
@@ -118,7 +129,7 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
 ## 8. Arborescence
 
 ```
-supabase/migrations/          0001_init.sql, 0002_delete_account.sql
+supabase/migrations/          0001_init.sql, 0002_delete_account.sql, 0003_note_sharing.sql
 public/sw.js                  service worker (incrémenter VERSION si la logique de cache change)
 public/icons/                 icônes PWA
 src/proxy.ts                  refresh de session + garde (sous Next 15 : middleware.ts / middleware())
@@ -130,6 +141,7 @@ src/app/
   reset-password/             choix du nouveau mot de passe (formulaire réutilisé dans /account)
   privacy/                    page Privacy publique
   offline/                    page hors ligne
+  share/[id]/, share/actions.ts  vue publique en lecture seule + setSharing / setSaved / duplicateSharedMatchup
   auth/callback, auth/signout routes Supabase
   (app)/                      zone connectée (header commun)
     page.tsx                  dashboard
@@ -137,8 +149,9 @@ src/app/
     matchups/[id]/            page matchup
     account/                  compte + suppression
 src/components/
-  app-header.tsx, auth-shell.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
-  matchup/                    stage-selector, stage-glyph, note-editor, quick-notes, delete-matchup-button
+  app-header.tsx, auth-shell.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
+  matchup/                    stage-selector, stage-glyph, note-editor, quick-notes, delete-matchup-button,
+                              share-button, shared-note-actions
 src/lib/
   supabase/{client,server,proxy}.ts
   game-data.ts                rosters, layouts de stages, stageFloorPaths()

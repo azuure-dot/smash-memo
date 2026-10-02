@@ -8,7 +8,16 @@ import type { QuickNote } from "@/lib/types";
 
 const COLUMNS = "id, matchup_id, body, created_at, updated_at";
 
-export function QuickNotes({ matchupId, initialNotes }: { matchupId: string; initialNotes: QuickNote[] }) {
+export function QuickNotes({
+  matchupId,
+  initialNotes,
+  readOnly = false,
+}: {
+  matchupId: string;
+  initialNotes: QuickNote[];
+  /** Shared view: notes are listed but can't be added, edited or deleted. */
+  readOnly?: boolean;
+}) {
   const supabase = createClient();
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState(initialNotes);
@@ -86,13 +95,28 @@ export function QuickNotes({ matchupId, initialNotes }: { matchupId: string; ini
           )}
         </span>
         <span className="flex items-center gap-1 text-sm text-muted">
-          {open ? "Hide" : notes.length ? "Show" : "Add quick note"}
+          {open ? "Hide" : notes.length || readOnly ? "Show" : "Add quick note"}
           <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
         </span>
       </button>
 
       {open && (
         <div id="quick-notes-panel" className="border-t border-line px-4 pb-4 pt-3 sm:px-5">
+          {readOnly ? (
+            notes.length > 0 ? (
+              <ul className="space-y-1.5">
+                {notes.map((note) => (
+                  <li key={note.id} className="flex items-start gap-2 rounded-xl bg-surface-2/60 px-3 py-2">
+                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand" aria-hidden />
+                    <p className="flex-1 whitespace-pre-wrap break-words text-sm leading-6">{note.body}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted">No quick notes for this matchup.</p>
+            )
+          ) : (
+          <>
           {notes.length > 0 && (
             <ul className="mb-3 space-y-1.5">
               {notes.map((note) => (
@@ -152,6 +176,8 @@ export function QuickNotes({ matchupId, initialNotes }: { matchupId: string; ini
           <p className="mt-2 text-[11px] text-muted">Enter to add · Shift + Enter for a new line · Edits save when you tap away</p>
 
           {error && <p className="mt-2 text-sm text-red-400" role="alert">{error}</p>}
+          </>
+          )}
         </div>
       )}
     </section>

@@ -24,9 +24,12 @@ const SAVE_LABEL: Record<SaveState, string> = {
 export function NoteEditor({
   matchupId,
   initialContent,
+  readOnly = false,
 }: {
   matchupId: string;
   initialContent: JSONContent | null;
+  /** Shared view: no toolbar, no typing, nothing is saved. */
+  readOnly?: boolean;
 }) {
   const supabase = createClient();
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -51,6 +54,7 @@ export function NoteEditor({
 
   const editor = useEditor({
     immediatelyRender: false, // required with SSR
+    editable: !readOnly,
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }), // includes Bold, Italic, Underline, lists, undo
       TableKit.configure({ table: { resizable: true } }),
@@ -58,7 +62,7 @@ export function NoteEditor({
     content: initialContent ?? "",
     editorProps: {
       attributes: {
-        class: "min-h-[340px] px-4 py-4 sm:px-6 sm:py-5 focus:outline-none",
+        class: cn("px-4 py-4 sm:px-6 sm:py-5 focus:outline-none", readOnly ? "min-h-24" : "min-h-[340px]"),
         "aria-label": "Matchup notes",
       },
     },
@@ -91,8 +95,16 @@ export function NoteEditor({
           {SAVE_LABEL[saveState]}
         </span>
       </div>
-      <Toolbar editor={editor} />
-      <EditorContent editor={editor} />
+      {readOnly ? (
+        <div className="mt-3 border-t border-line" />
+      ) : (
+        <Toolbar editor={editor} />
+      )}
+      {readOnly && editor?.isEmpty ? (
+        <p className="px-4 py-4 text-sm text-muted sm:px-6 sm:py-5">No notes written yet.</p>
+      ) : (
+        <EditorContent editor={editor} />
+      )}
     </section>
   );
 }

@@ -10,8 +10,25 @@ export type Matchup = {
   my_character: string;
   opponent_character: string;
   content: JSONContent | null;
+  is_shared: boolean;
+  /** Set when this note was duplicated from someone else's shared note. */
+  copied_from: string | null;
   created_at: string;
   updated_at: string;
+};
+
+/** A note opened through its share link (shape returned by the get_shared_matchup() SQL function). */
+export type SharedMatchup = {
+  matchup: Pick<Matchup, "id" | "game" | "my_character" | "opponent_character" | "content" | "updated_at">;
+  is_owner: boolean;
+  is_saved: boolean;
+  stages: MatchupStage[];
+  quick_notes: QuickNote[];
+};
+
+/** A row of the "Saved Notes" tab (list_saved_matchups()). */
+export type SavedMatchup = Pick<Matchup, "id" | "game" | "my_character" | "opponent_character" | "updated_at"> & {
+  saved_at: string;
 };
 
 export type MatchupStage = {

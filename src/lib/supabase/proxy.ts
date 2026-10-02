@@ -2,7 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Pages reachable without being signed in. /reset-password checks the session itself.
-const PUBLIC_PATHS = ["/login", "/auth", "/offline", "/forgot-password", "/reset-password", "/privacy"];
+// /share/[id] only ever shows notes their owner chose to share (enforced in SQL).
+const PUBLIC_PATHS = ["/login", "/auth", "/offline", "/forgot-password", "/reset-password", "/privacy", "/share"];
 
 /** Refreshes the Supabase session cookie on every request and guards private routes. */
 export async function updateSession(request: NextRequest) {

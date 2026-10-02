@@ -17,14 +17,24 @@ const CARD: Record<StageStatus, string> = {
   avoid: "border-red-500/70 bg-red-500/10 text-red-300 shadow-[0_0_24px_-8px] shadow-red-500/60",
 };
 
+/** Same colours without the hover affordance, for the read-only shared view. */
+const READONLY_CARD: Record<StageStatus, string> = {
+  neutral: "border-line bg-surface-2/60 text-muted",
+  prefer: CARD.prefer,
+  avoid: CARD.avoid,
+};
+
 const COLUMNS = "id, matchup_id, name, status, is_custom, position";
 
 export function StageSelector({
   matchupId,
   initialStages,
+  readOnly = false,
 }: {
   matchupId: string;
   initialStages: MatchupStage[];
+  /** Shared view: statuses are shown but can't be changed. */
+  readOnly?: boolean;
 }) {
   const supabase = createClient();
   const [stages, setStages] = useState(initialStages);
@@ -89,8 +99,17 @@ export function StageSelector({
         <div>
           <h2 id="stages-title" className="font-semibold">Stages</h2>
           <p className="mt-0.5 text-xs text-muted">
-            Tap a stage to cycle Neutral → <span className="text-blue-300">Prefer</span> →{" "}
-            <span className="text-red-300">Avoid</span>
+            {readOnly ? (
+              <>
+                <span className="text-blue-300">Prefer</span> and <span className="text-red-300">Avoid</span> picks
+                for this matchup
+              </>
+            ) : (
+              <>
+                Tap a stage to cycle Neutral → <span className="text-blue-300">Prefer</span> →{" "}
+                <span className="text-red-300">Avoid</span>
+              </>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs">
@@ -106,20 +125,34 @@ export function StageSelector({
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {stages.map((stage) => (
           <li key={stage.id} className="group relative">
-            <button
-              type="button"
-              onClick={() => cycle(stage)}
-              aria-label={`${stage.name}: ${LABEL[stage.status]}. Tap to change.`}
-              className={cn(
-                "flex h-full w-full flex-col items-center gap-1.5 rounded-xl border px-2 pb-2.5 pt-3 text-center transition active:scale-[0.97]",
-                CARD[stage.status],
-              )}
-            >
-              <StageGlyph name={stage.name} className="h-9 w-full max-w-[7.5rem]" />
-              <span className="line-clamp-2 text-[13px] font-medium leading-tight text-fg">{stage.name}</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider">{LABEL[stage.status]}</span>
-            </button>
-            {stage.is_custom && (
+            {readOnly ? (
+              <div
+                aria-label={`${stage.name}: ${LABEL[stage.status]}`}
+                className={cn(
+                  "flex h-full w-full flex-col items-center gap-1.5 rounded-xl border px-2 pb-2.5 pt-3 text-center",
+                  READONLY_CARD[stage.status],
+                )}
+              >
+                <StageGlyph name={stage.name} className="h-9 w-full max-w-[7.5rem]" />
+                <span className="line-clamp-2 text-[13px] font-medium leading-tight text-fg">{stage.name}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider">{LABEL[stage.status]}</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => cycle(stage)}
+                aria-label={`${stage.name}: ${LABEL[stage.status]}. Tap to change.`}
+                className={cn(
+                  "flex h-full w-full flex-col items-center gap-1.5 rounded-xl border px-2 pb-2.5 pt-3 text-center transition active:scale-[0.97]",
+                  CARD[stage.status],
+                )}
+              >
+                <StageGlyph name={stage.name} className="h-9 w-full max-w-[7.5rem]" />
+                <span className="line-clamp-2 text-[13px] font-medium leading-tight text-fg">{stage.name}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider">{LABEL[stage.status]}</span>
+              </button>
+            )}
+            {stage.is_custom && !readOnly && (
               <button
                 type="button"
                 onClick={() => removeStage(stage)}
@@ -132,6 +165,7 @@ export function StageSelector({
           </li>
         ))}
 
+        {!readOnly && (
         <li>
           {adding ? (
             <form
@@ -171,6 +205,7 @@ export function StageSelector({
             </button>
           )}
         </li>
+        )}
       </ul>
 
       {error && <p className="mt-3 text-sm text-red-400" role="alert">{error}</p>}

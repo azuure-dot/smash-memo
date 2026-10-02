@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { ArrowLeft } from "lucide-react";
 import { DeleteMatchupButton } from "@/components/matchup/delete-matchup-button";
 import { NoteEditor } from "@/components/matchup/note-editor";
 import { QuickNotes } from "@/components/matchup/quick-notes";
+import { ShareButton } from "@/components/matchup/share-button";
 import { StageSelector } from "@/components/matchup/stage-selector";
 import { GAME_LABELS } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
@@ -48,7 +49,8 @@ export default async function MatchupPage({ params }: Props) {
       .order("created_at"),
   ]);
 
-  if (!matchup) notFound();
+  // Not one of yours: it may be someone else's shared note, whose read-only view lives at /share/[id].
+  if (!matchup) redirect(`/share/${id}`);
 
   return (
     <div className="space-y-5">
@@ -71,7 +73,10 @@ export default async function MatchupPage({ params }: Props) {
               {matchup.opponent_character}
             </h1>
           </div>
-          <DeleteMatchupButton id={matchup.id} />
+          <div className="flex shrink-0 items-center gap-1">
+            <ShareButton id={matchup.id} initialShared={matchup.is_shared} />
+            <DeleteMatchupButton id={matchup.id} />
+          </div>
         </div>
       </div>
 

@@ -23,12 +23,15 @@ export async function createMatchup(
 
   const supabase = await createClient();
 
+  // Several notes can exist for one matchup (e.g. a duplicated one): open the most recent.
   const { data: existing } = await supabase
     .from("matchups")
     .select("id")
     .eq("game", game)
     .eq("my_character", mine)
     .eq("opponent_character", opp)
+    .order("updated_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   let id: string | undefined = existing?.id;

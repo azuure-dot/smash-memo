@@ -30,7 +30,9 @@ export default function PrivacyPage() {
         <ul className="mt-2 list-disc space-y-1 pl-5 text-fg/85">
           <li>We store your email address and the notes you write. Nothing else about you.</li>
           <li>No ads, no analytics, no tracking cookies. Your data is never sold or shared for marketing.</li>
-          <li>Other users can never see your notes.</li>
+          <li>
+            Your notes are private. If you share one, anyone with its link can read it, until you stop sharing it.
+          </li>
           <li>You can delete your account and everything in it at any time, instantly.</li>
         </ul>
       </div>
@@ -64,8 +66,16 @@ export default function PrivacyPage() {
         <Section title="Who can see your data">
           <ul className="list-disc space-y-1 pl-5">
             <li>
-              <strong>Other users: never.</strong> Access rules are enforced by the database itself, which only returns
-              rows that belong to the signed-in account.
+              <strong>Other users: only notes you share.</strong> Access rules are enforced by the database itself,
+              which only returns rows that belong to the signed-in account.
+            </li>
+            <li>
+              <strong>Shared notes:</strong> when you tap &ldquo;Share&rdquo; on a note, anyone who has its link, signed
+              in or not, can read that note (stages, quick notes and notes). They can also save a bookmark to it or
+              duplicate it into their own account; a duplicate is their own copy and is not affected if you later edit,
+              stop sharing or delete yours. Shared notes are never listed publicly or shown to search engines, and
+              your email address is never shown. Tap &ldquo;Stop sharing&rdquo; at any time to make the link stop
+              working.
             </li>
             <li>
               <strong>{SITE.operator}:</strong> as the person running the service, the maintainer has technical access

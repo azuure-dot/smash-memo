@@ -9,5 +9,5 @@ export const SITE = {
   /** Where your Supabase project is hosted (Project Settings → General → Region). */
   dataRegion: "the European Union",
   /** Date of the last change to the Privacy page. */
-  privacyUpdated: "September 30, 2026",
+  privacyUpdated: "October 2, 2026",
 };
