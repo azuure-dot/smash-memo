@@ -81,7 +81,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    - L'avatar du header vient de `profiles`. La suppression de compte efface d'abord les fichiers du dossier avatar (le stockage ne suit pas la cascade).
 5. **Page matchup** (`/matchups/[id]`), dans cet ordre :
    - **Stages :** clic = cycle Neutral → Prefer → Avoid ; ajout et suppression de stages custom.
-   - **Quick Notes :** repliées par défaut ; ajout, édition inline (sauvegarde au blur), suppression.
+   - **Pre-Set Reminder** (depuis 0009, `preset-reminder.tsx`, remplace les anciennes Quick Notes) : un seul `<textarea>` en texte simple (colonne `matchups.preset_reminder`, 5000 caractères max), juste sous les stages, encadré magenta. Autosave à 800 ms, au blur et quand l'app passe en arrière-plan. En lecture seule : bloc citation (barre magenta), masqué s'il est vide.
    - **Notes :** éditeur Tiptap avec H1–H3, gras, italique, souligné, listes, tableaux (barre d'outils dédiée quand le curseur est dans un tableau), undo/redo. Autosave à 800 ms et sauvegarde quand l'app passe en arrière-plan.
    - **Video Resources** (depuis 0008, `video-resources.tsx`) : liens YouTube collés → lecteurs 16:9. `src/lib/youtube.ts` extrait l'id (watch, youtu.be, embed, shorts, live, m./music./nocookie, avec ou sans https) et le temps de départ (`t=95`, `1m35s`…). L'action serveur `matchups/[id]/video-actions.ts` vérifie la vidéo via l'oEmbed public de YouTube (existe, intégration autorisée), récupère le titre, et limite à 20 vidéos par note. Affichage : miniature (i.ytimg.com) puis iframe `youtube-nocookie.com` seulement au clic sur lecture. En lecture seule : pas de formulaire ni de suppression, et la section est masquée s'il n'y a aucune vidéo.
    - Bouton de suppression du matchup.
@@ -124,6 +124,11 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
 - `supabase/migrations/0008_matchup_videos.sql`
   - table `matchup_videos` (`video_id` = id YouTube de 11 caractères, contrôlé par regex, jamais d'URL brute ; `title`, `start_seconds`), unique par note, RLS « own rows » ;
   - `get_shared_matchup()` renvoie aussi `videos` ; `duplicate_shared_matchup()` copie aussi les vidéos.
+- `supabase/migrations/0009_preset_reminder.sql`
+  - colonne `matchups.preset_reminder` ; les Quick Notes existantes y sont recopiées (« • » + texte, une par ligne, sans toucher `updated_at`) ;
+  - le trigger `updated_at` inclut désormais `preset_reminder` ;
+  - table `quick_notes` renommée `quick_notes_legacy` et rendue inaccessible (grants retirés), à supprimer quand le propriétaire a vérifié : `drop table public.quick_notes_legacy;` ;
+  - `get_shared_matchup()` renvoie `matchup.preset_reminder` (plus de `quick_notes`) ; `duplicate_shared_matchup()` copie le reminder.
 - **Ajouter un jeu :** valeur d'enum + branche dans `seed_matchup_stages()` (nouvelle migration), puis dans `src/lib/game-data.ts` : `GAMES`, `GAME_LABELS`, `CHARACTER_EXAMPLES`, `CHARACTERS`, et les `STAGE_LAYOUTS` des nouveaux stages. Le type `Game` est dans `src/lib/types.ts`. Le formulaire, les filtres et la validation se basent sur `GAMES` / `isGame()`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
@@ -230,7 +235,7 @@ Ces points n'ont pas été confirmés par le propriétaire :
 
 1. **Stagelist Melee** : garder la liste Melee actuelle ou utiliser la même liste que pour Ultimate ?
 2. **Connexion Discord / Google** en plus de l'email ?
-3. **Ordre des sections** sur la page matchup : Quick Notes est actuellement placé *au-dessus* de l'éditeur (accès rapide en plein set), alors que le cahier des charges donnait l'ordre A Stages, B Éditeur, C Quick Notes.
+3. ~~Ordre des sections~~ : tranché le 2026-10-03, l'ordre est Stages → Pre-Set Reminder → Notes → Video Resources.
 
 ## 12. Pistes pour la suite (par priorité)
 

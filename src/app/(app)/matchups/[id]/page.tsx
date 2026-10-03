@@ -6,13 +6,13 @@ import { ArrowLeft } from "lucide-react";
 import { AuthorBadge } from "@/components/matchup/author-badge";
 import { DeleteMatchupButton } from "@/components/matchup/delete-matchup-button";
 import { NoteEditor } from "@/components/matchup/note-editor";
-import { QuickNotes } from "@/components/matchup/quick-notes";
+import { PresetReminder } from "@/components/matchup/preset-reminder";
 import { ShareButton } from "@/components/matchup/share-button";
 import { StageSelector } from "@/components/matchup/stage-selector";
 import { VideoResources } from "@/components/matchup/video-resources";
 import { dashboardHref, GAME_LABELS } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
-import type { Matchup, MatchupStage, MatchupVideo, Profile, QuickNote } from "@/lib/types";
+import type { Matchup, MatchupStage, MatchupVideo, Profile } from "@/lib/types";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -37,18 +37,13 @@ export default async function MatchupPage({ params }: Props) {
   if (!UUID.test(id)) notFound();
 
   const supabase = await createClient();
-  const [matchup, stagesRes, notesRes, profileRes, videosRes] = await Promise.all([
+  const [matchup, stagesRes, profileRes, videosRes] = await Promise.all([
     getMatchup(id),
     supabase
       .from("matchup_stages")
       .select("id, matchup_id, name, status, is_custom, position")
       .eq("matchup_id", id)
       .order("position"),
-    supabase
-      .from("quick_notes")
-      .select("id, matchup_id, body, created_at, updated_at")
-      .eq("matchup_id", id)
-      .order("created_at"),
     // RLS only returns the signed-in user's own profile row.
     supabase.from("profiles").select("username, avatar_url").maybeSingle(),
     supabase
@@ -94,10 +89,10 @@ export default async function MatchupPage({ params }: Props) {
       {/* A. Stage preferences */}
       <StageSelector matchupId={matchup.id} initialStages={(stagesRes.data ?? []) as MatchupStage[]} />
 
-      {/* C. Quick notes — collapsed by default, kept above the long-form notes for mid-set access */}
-      <QuickNotes matchupId={matchup.id} initialNotes={(notesRes.data ?? []) as QuickNote[]} />
+      {/* B. Pre-set reminder — the first text you see, read right before the set */}
+      <PresetReminder matchupId={matchup.id} initialText={matchup.preset_reminder ?? null} />
 
-      {/* B. Rich text notes */}
+      {/* C. Rich text notes */}
       <NoteEditor matchupId={matchup.id} initialContent={matchup.content} />
 
       {/* D. YouTube videos (VODs, guides…) */}

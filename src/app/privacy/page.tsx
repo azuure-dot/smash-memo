@@ -54,7 +54,7 @@ export default function PrivacyPage() {
               picture is cropped and resized on your device before upload, and the original file is never sent.
             </li>
             <li>
-              <strong>Your content:</strong> matchups, stage preferences, notes and quick notes, with the dates they
+              <strong>Your content:</strong> matchups, stage preferences, pre-set reminders, notes and video links, with the dates they
               were created and last edited.
             </li>
             <li>
@@ -85,7 +85,7 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong>Shared notes:</strong> when you tap &ldquo;Share&rdquo; on a note, anyone who has its link, signed
-              in or not, can read that note (stages, quick notes and notes). They can also save a bookmark to it or
+              in or not, can read that note (stages, pre-set reminder, notes and videos). They can also save a bookmark to it or
               duplicate it into their own account; a duplicate is their own copy and is not affected if you later edit,
               stop sharing or delete yours. A shared note shows your username and profile picture as its author
               (or &ldquo;Anonymous player&rdquo; if you haven&apos;t set them); your email address is never shown.

@@ -7,7 +7,7 @@ import { AppHeader } from "@/components/app-header";
 import { BrandLogo } from "@/components/brand-logo";
 import { AuthorBadge } from "@/components/matchup/author-badge";
 import { NoteEditor } from "@/components/matchup/note-editor";
-import { QuickNotes } from "@/components/matchup/quick-notes";
+import { PresetReminder } from "@/components/matchup/preset-reminder";
 import { SharedNoteActions } from "@/components/matchup/shared-note-actions";
 import { StageSelector } from "@/components/matchup/stage-selector";
 import { VideoResources } from "@/components/matchup/video-resources";
@@ -96,7 +96,7 @@ export default async function SharedMatchupPage({ params }: Props) {
           )}
 
           <StageSelector matchupId={matchup.id} initialStages={data.stages} readOnly />
-          <QuickNotes matchupId={matchup.id} initialNotes={data.quick_notes} readOnly />
+          <PresetReminder matchupId={matchup.id} initialText={matchup.preset_reminder ?? null} readOnly />
           <NoteEditor matchupId={matchup.id} initialContent={matchup.content} readOnly />
           <VideoResources matchupId={matchup.id} initialVideos={data.videos ?? []} readOnly />
         </div>

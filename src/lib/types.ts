@@ -10,6 +10,8 @@ export type Matchup = {
   my_character: string;
   opponent_character: string;
   content: JSONContent | null;
+  /** Short plain-text TL;DR shown above the notes (replaced the old Quick Notes in 0009). */
+  preset_reminder: string | null;
   is_shared: boolean;
   /** Set when this note was duplicated from someone else's shared note. */
   copied_from: string | null;
@@ -35,12 +37,14 @@ export type Profile = {
 
 /** A note opened through its share link (shape returned by the get_shared_matchup() SQL function). */
 export type SharedMatchup = {
-  matchup: Pick<Matchup, "id" | "game" | "my_character" | "opponent_character" | "content" | "updated_at">;
+  matchup: Pick<Matchup, "id" | "game" | "my_character" | "opponent_character" | "content" | "updated_at"> & {
+    /** Missing until migration 0009 has been run. */
+    preset_reminder?: string | null;
+  };
   author: Profile;
   is_owner: boolean;
   is_saved: boolean;
   stages: MatchupStage[];
-  quick_notes: QuickNote[];
   /** Missing until migration 0008 has been run. */
   videos?: MatchupVideo[];
 };
@@ -57,12 +61,4 @@ export type MatchupStage = {
   status: StageStatus;
   is_custom: boolean;
   position: number;
-};
-
-export type QuickNote = {
-  id: string;
-  matchup_id: string;
-  body: string;
-  created_at: string;
-  updated_at: string;
 };

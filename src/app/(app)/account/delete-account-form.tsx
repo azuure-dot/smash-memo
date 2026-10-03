@@ -27,7 +27,7 @@ export function DeleteAccountForm({ matchupCount }: { matchupCount: number }) {
           <strong>
             {matchupCount} {matchupCount === 1 ? "matchup" : "matchups"}
           </strong>{" "}
-          with all their stages, notes and quick notes. It can&apos;t be undone.
+          with all their stages, reminders, notes and videos. It can&apos;t be undone.
         </p>
       </div>
 
