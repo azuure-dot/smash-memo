@@ -70,6 +70,11 @@ export default function PrivacyPage() {
             there is no cookie banner. The app also keeps a copy of recently opened pages on your device so it works
             offline; signing out or deleting your account clears it.
           </p>
+          <p>
+            Notes can include YouTube videos. Until you press play, only the video&apos;s thumbnail image is loaded
+            from YouTube. Pressing play loads YouTube&apos;s player in its privacy-enhanced mode
+            (youtube-nocookie.com); from then on, YouTube&apos;s own privacy policy applies to that video.
+          </p>
         </Section>
 
         <Section title="Who can see your data">

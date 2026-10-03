@@ -10,6 +10,7 @@ import { NoteEditor } from "@/components/matchup/note-editor";
 import { QuickNotes } from "@/components/matchup/quick-notes";
 import { SharedNoteActions } from "@/components/matchup/shared-note-actions";
 import { StageSelector } from "@/components/matchup/stage-selector";
+import { VideoResources } from "@/components/matchup/video-resources";
 import { dashboardHref, DEFAULT_GAME, GAME_LABELS } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { SharedMatchup } from "@/lib/types";
@@ -97,6 +98,7 @@ export default async function SharedMatchupPage({ params }: Props) {
           <StageSelector matchupId={matchup.id} initialStages={data.stages} readOnly />
           <QuickNotes matchupId={matchup.id} initialNotes={data.quick_notes} readOnly />
           <NoteEditor matchupId={matchup.id} initialContent={matchup.content} readOnly />
+          <VideoResources matchupId={matchup.id} initialVideos={data.videos ?? []} readOnly />
         </div>
       </main>
     </>

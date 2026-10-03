@@ -9,9 +9,10 @@ import { NoteEditor } from "@/components/matchup/note-editor";
 import { QuickNotes } from "@/components/matchup/quick-notes";
 import { ShareButton } from "@/components/matchup/share-button";
 import { StageSelector } from "@/components/matchup/stage-selector";
+import { VideoResources } from "@/components/matchup/video-resources";
 import { dashboardHref, GAME_LABELS } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
-import type { Matchup, MatchupStage, Profile, QuickNote } from "@/lib/types";
+import type { Matchup, MatchupStage, MatchupVideo, Profile, QuickNote } from "@/lib/types";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -36,7 +37,7 @@ export default async function MatchupPage({ params }: Props) {
   if (!UUID.test(id)) notFound();
 
   const supabase = await createClient();
-  const [matchup, stagesRes, notesRes, profileRes] = await Promise.all([
+  const [matchup, stagesRes, notesRes, profileRes, videosRes] = await Promise.all([
     getMatchup(id),
     supabase
       .from("matchup_stages")
@@ -50,6 +51,11 @@ export default async function MatchupPage({ params }: Props) {
       .order("created_at"),
     // RLS only returns the signed-in user's own profile row.
     supabase.from("profiles").select("username, avatar_url").maybeSingle(),
+    supabase
+      .from("matchup_videos")
+      .select("id, matchup_id, video_id, title, start_seconds, created_at")
+      .eq("matchup_id", id)
+      .order("created_at"),
   ]);
 
   // Not one of yours: it may be someone else's shared note, whose read-only view lives at /share/[id].
@@ -93,6 +99,9 @@ export default async function MatchupPage({ params }: Props) {
 
       {/* B. Rich text notes */}
       <NoteEditor matchupId={matchup.id} initialContent={matchup.content} />
+
+      {/* D. YouTube videos (VODs, guides…) */}
+      <VideoResources matchupId={matchup.id} initialVideos={(videosRes.data ?? []) as MatchupVideo[]} />
     </div>
   );
 }

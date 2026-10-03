@@ -17,6 +17,16 @@ export type Matchup = {
   updated_at: string;
 };
 
+/** A YouTube video attached to a matchup note (only the video id is stored). */
+export type MatchupVideo = {
+  id: string;
+  matchup_id: string;
+  video_id: string;
+  title: string | null;
+  start_seconds: number | null;
+  created_at: string;
+};
+
 /** Public part of a user's profile, shown as the author of shared notes. */
 export type Profile = {
   username: string | null;
@@ -31,6 +41,8 @@ export type SharedMatchup = {
   is_saved: boolean;
   stages: MatchupStage[];
   quick_notes: QuickNote[];
+  /** Missing until migration 0008 has been run. */
+  videos?: MatchupVideo[];
 };
 
 /** A row of the "Saved Notes" tab (list_saved_matchups()). */

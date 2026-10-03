@@ -83,6 +83,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    - **Stages :** clic = cycle Neutral → Prefer → Avoid ; ajout et suppression de stages custom.
    - **Quick Notes :** repliées par défaut ; ajout, édition inline (sauvegarde au blur), suppression.
    - **Notes :** éditeur Tiptap avec H1–H3, gras, italique, souligné, listes, tableaux (barre d'outils dédiée quand le curseur est dans un tableau), undo/redo. Autosave à 800 ms et sauvegarde quand l'app passe en arrière-plan.
+   - **Video Resources** (depuis 0008, `video-resources.tsx`) : liens YouTube collés → lecteurs 16:9. `src/lib/youtube.ts` extrait l'id (watch, youtu.be, embed, shorts, live, m./music./nocookie, avec ou sans https) et le temps de départ (`t=95`, `1m35s`…). L'action serveur `matchups/[id]/video-actions.ts` vérifie la vidéo via l'oEmbed public de YouTube (existe, intégration autorisée), récupère le titre, et limite à 20 vidéos par note. Affichage : miniature (i.ytimg.com) puis iframe `youtube-nocookie.com` seulement au clic sur lecture. En lecture seule : pas de formulaire ni de suppression, et la section est masquée s'il n'y a aucune vidéo.
    - Bouton de suppression du matchup.
 6. **Compte** (`/account`) : profil, changement de mot de passe, lien Privacy, **suppression du compte** (taper `DELETE`). Vide aussi le cache du service worker.
 7. **Privacy** (`/privacy`) : page publique en anglais. Les valeurs variables viennent de `src/lib/site-config.ts`.
@@ -120,6 +121,9 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - Rivals 2 : « Metal Refinery » → « Air Armada » dans les matchups existants (statut conservé) et dans la stagelist par défaut.
 - `supabase/migrations/0007_ultimate_drop_lylat.sql`
   - Ultimate : Lylat Cruise retiré de la stagelist par défaut (`seed_matchup_stages()` recréée). Les matchups existants le gardent.
+- `supabase/migrations/0008_matchup_videos.sql`
+  - table `matchup_videos` (`video_id` = id YouTube de 11 caractères, contrôlé par regex, jamais d'URL brute ; `title`, `start_seconds`), unique par note, RLS « own rows » ;
+  - `get_shared_matchup()` renvoie aussi `videos` ; `duplicate_shared_matchup()` copie aussi les vidéos.
 - **Ajouter un jeu :** valeur d'enum + branche dans `seed_matchup_stages()` (nouvelle migration), puis dans `src/lib/game-data.ts` : `GAMES`, `GAME_LABELS`, `CHARACTER_EXAMPLES`, `CHARACTERS`, et les `STAGE_LAYOUTS` des nouveaux stages. Le type `Game` est dans `src/lib/types.ts`. Le formulaire, les filtres et la validation se basent sur `GAMES` / `isGame()`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
