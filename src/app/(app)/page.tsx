@@ -17,8 +17,8 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Your matchups</h1>
-        <p className="mt-1 text-sm text-muted">Stage picks, game plans and mid-set reminders.</p>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Your matchups</h1>
+        <p className="mt-1.5 text-sm text-muted">Stage picks, game plans and mid-set reminders.</p>
       </div>
 
       <Dashboard matchups={(data ?? []) as MatchupSummary[]} saved={(savedData ?? []) as SavedMatchup[]} />

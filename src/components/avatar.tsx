@@ -25,6 +25,9 @@ export function Avatar({
       <img
         src={url}
         alt=""
+        // Intrinsic size of the stored file (256 × 256); CSS sets the displayed size.
+        width={256}
+        height={256}
         className={cn("shrink-0 rounded-full bg-surface-2 object-cover ring-1 ring-line", className)}
       />
     );

@@ -59,6 +59,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
   - **Polices** : Literata (texte, titres), Caveat (manuscrit, petites touches), Geist (boutons, libellés).
   - **Reminder et Notes** sur papier ligné identique ; dans l'éditeur, chaque ligne fait exactement une règle (titres compris) pour rester posée sur les lignes.
   - **Stages** : Prefer = nom surligné bleu, Avoid = nom entouré au stylo rouge (`InkCircle`), mentions manuscrites.
+  - **Formes (une seule échelle)** : feuilles `rounded-lg` (8 px, utilitaire `paper`), boutons et contrôles `rounded-md` (6 px), tampons `rounded-[3px]` (`GameStamp`, badges), avatars ronds. Plus de `rounded-xl` / `rounded-2xl`.
+  - **Champs** : des lignes d'écriture (`border-b` seulement, fond transparent), placeholders en `text-muted` plein (contraste AA) et terminés par « … ». Boutons principaux : aplat d'encre magenta `bg-brand text-on-brand`.
+  - **Dashboard** : onglets de jeu façon classeur (actif = feuille `paper` soulignée à l'encre magenta, autres en pointillés ; logo Ultimate inversé en encre en thème clair), notes en fiches `paper`. Lien « Skip to content » dans l'en-tête, `<main id="main">`.
   - **Règles validées par le propriétaire** : aucun néon / halo coloré ; pas de cadre de focus sur les champs de texte (curseur magenta + trait du champ qui passe à l'encre) ; pas de tiret cadratin dans les textes de l'interface. Focus clavier des boutons : fin contour crayon.
   - Skills de design du propriétaire : voir la mémoire (ils sont dans `~/.agents/skills`, à lire par chemin).
 - **Statuts de stage :** Prefer = **bleu**, Avoid = **rouge**, Neutral = crayon.

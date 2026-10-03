@@ -211,7 +211,7 @@ export function StageSelector({
                     <span
                       className={cn(
                         "font-hand text-[17px] leading-none",
-                        stage.status === "neutral" ? "text-muted/60" : INK[stage.status],
+                        stage.status === "neutral" ? "text-muted" : INK[stage.status],
                       )}
                     >
                       {stage.status === "prefer" ? "prefer ✓" : stage.status === "avoid" ? "avoid ✗" : "neutral"}
@@ -240,7 +240,7 @@ export function StageSelector({
                     {stage.is_custom && !readOnly && (
                       <button
                         type="button"
-                        onClick={() => removeStage(stage)}
+                        onClick={() => confirm(`Remove “${stage.name}” from this note?`) && removeStage(stage)}
                         className="absolute right-1 top-1 grid size-7 place-items-center rounded-md text-muted opacity-100 transition-[opacity,color] hover:text-avoid focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                         aria-label={`Remove ${stage.name}`}
                       >
@@ -271,7 +271,7 @@ export function StageSelector({
                         onKeyDown={(e) => e.key === "Escape" && setAdding(false)}
                         placeholder="Stage name…"
                         maxLength={60}
-                        className="w-full border-0 border-b border-line bg-transparent px-1 py-1 font-serif text-sm outline-none placeholder:text-muted/60 focus-visible:border-fg/60"
+                        className="w-full border-0 border-b border-line bg-transparent px-1 py-1 font-serif text-sm outline-none placeholder:text-muted focus-visible:border-fg/60"
                       />
                       <div className="flex gap-1.5">
                         <button

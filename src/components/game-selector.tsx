@@ -29,10 +29,11 @@ export function GameSelector({
             aria-selected={active}
             onClick={() => onChange(g)}
             className={cn(
-              "group relative flex h-24 flex-col items-center justify-center gap-1.5 rounded-2xl border px-2 transition sm:h-28",
+              // Binder index tabs: the active one is a sheet pulled forward, the others sit back on the desk.
+              "group relative flex h-24 flex-col items-center justify-center gap-1.5 rounded-lg px-2 transition-[transform,background-color,border-color] duration-200 active:scale-[0.98] sm:h-28",
               active
-                ? "border-brand-from/70 bg-brand-from/10"
-                : "border-line bg-surface hover:border-brand-from/50",
+                ? "paper -translate-y-0.5"
+                : "border border-dashed border-line bg-surface/40 hover:border-fg/30 hover:bg-surface/70",
             )}
           >
             <Image
@@ -42,16 +43,19 @@ export function GameSelector({
               height={logo.height}
               priority
               className={cn(
-                "w-auto max-w-full object-contain transition",
+                "w-auto max-w-full object-contain transition-[opacity,filter]",
                 // The Rivals logo is squarer than the Smash ones: a bit taller so it reads at the same size.
                 g === "roa2" ? "h-12 sm:h-[3.75rem]" : "h-9 sm:h-12",
-                active ? "opacity-100" : "opacity-65 grayscale-[35%] group-hover:opacity-100 group-hover:grayscale-0",
+                // Ultimate's logo is white: print it in ink on the light paper.
+                g === "ultimate" && "invert-[0.88] dark:invert-0",
+                active ? "opacity-100" : "opacity-60 grayscale-[40%] group-hover:opacity-90 group-hover:grayscale-0",
               )}
             />
-            <span className={cn("text-[11px] font-medium", active ? "text-fg" : "text-muted")}>
+            <span className={cn("text-xs tabular-nums", active ? "font-medium text-fg" : "text-muted")}>
               {counts[g]} {counts[g] === 1 ? "note" : "notes"}
             </span>
-            {active && <span aria-hidden className="absolute inset-x-6 -bottom-px h-0.5 rounded-full bg-brand" />}
+            {/* Underlined in magenta ink, like a heading in a notebook. */}
+            {active && <span aria-hidden className="absolute inset-x-8 bottom-2 h-[2px] -rotate-1 rounded-full bg-brand" />}
           </button>
         );
       })}

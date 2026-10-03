@@ -40,14 +40,14 @@ export function InstallPrompt() {
       aria-labelledby="install-title"
       className={cn(
         "fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 md:hidden",
-        "rounded-2xl border border-line bg-surface/95 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl",
+        "paper rounded-lg p-4",
         closing ? "animate-slide-down" : "animate-slide-up",
         "motion-reduce:animate-none",
       )}
     >
       <div className="flex items-start gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/icon-192.png" alt="" className="size-11 shrink-0 rounded-xl" />
+        <img src="/icons/icon-192.png" alt="" width={44} height={44} className="size-11 shrink-0 rounded-lg" />
 
         <div className="min-w-0 flex-1">
           <p id="install-title" className="font-semibold">Install Smash Memo</p>
@@ -65,7 +65,7 @@ export function InstallPrompt() {
         <button
           type="button"
           onClick={() => close(dismiss)}
-          className="-mr-1 -mt-1 grid size-8 shrink-0 place-items-center rounded-lg text-muted transition hover:bg-surface-2 hover:text-fg"
+          className="-mr-1 -mt-1 grid size-9 shrink-0 place-items-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-fg"
           aria-label="Not now"
           title="Not now"
         >
@@ -78,14 +78,14 @@ export function InstallPrompt() {
           <button
             type="button"
             onClick={() => close(dismiss)}
-            className="h-10 flex-1 rounded-xl border border-line text-sm font-medium text-muted transition hover:text-fg"
+            className="h-10 flex-1 rounded-md border border-line text-sm font-medium text-muted transition-colors hover:text-fg"
           >
             Not now
           </button>
           <button
             type="button"
             onClick={() => void install()}
-            className="flex h-10 flex-[2] items-center justify-center gap-2 rounded-xl bg-brand text-sm font-semibold text-on-brand transition hover:brightness-110"
+            className="flex h-10 flex-[2] items-center justify-center gap-2 rounded-md bg-brand text-sm font-semibold text-on-brand transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
           >
             <Download className="size-4" /> Install App
           </button>

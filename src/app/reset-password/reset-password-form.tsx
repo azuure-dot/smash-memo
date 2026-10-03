@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { fieldClass, primaryButtonClass } from "@/components/auth-shell";
+import { authCardClass, fieldClass, primaryButtonClass } from "@/components/auth-shell";
 import { updatePassword, type ResetState } from "@/app/forgot-password/actions";
 
 export function ResetPasswordForm({
@@ -21,7 +21,7 @@ export function ResetPasswordForm({
   return (
     <form
       action={formAction}
-      className={bare ? "space-y-3" : "space-y-3 rounded-2xl border border-line bg-surface p-5"}
+      className={bare ? "space-y-4" : `space-y-4 ${authCardClass}`}
     >
       <input type="hidden" name="return_to" value={returnTo} />
       {/* Lets password managers attach the new password to the right account */}

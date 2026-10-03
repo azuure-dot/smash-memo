@@ -43,23 +43,23 @@ export function SharedNoteActions({ id, initialSaved }: { id: string; initialSav
           disabled={saving}
           aria-pressed={saved}
           className={cn(
-            "flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-medium transition disabled:opacity-60",
+            "flex h-10 items-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-60",
             saved
-              ? "border border-brand-from/60 bg-brand-from/10 text-fg hover:bg-brand-from/20"
-              : "border border-line text-fg hover:border-brand-from/60",
+              ? "border border-brand-from/50 bg-[var(--color-magenta-hl)] text-fg hover:border-brand-from"
+              : "border border-line bg-surface text-fg hover:border-fg/40",
           )}
         >
-          {saved ? <BookmarkCheck className="size-4 text-brand-from" /> : <BookmarkPlus className="size-4" />}
-          {saved ? "Saved to your workspace" : "Save to my workspace"}
+          {saved ? <BookmarkCheck className="size-4 text-brand" aria-hidden /> : <BookmarkPlus className="size-4" aria-hidden />}
+          {saved ? "Saved to Your Workspace" : "Save to My Workspace"}
         </button>
         <button
           type="button"
           onClick={duplicate}
           disabled={duplicating}
-          className="flex h-10 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:opacity-60"
+          className="flex h-10 items-center gap-2 rounded-md bg-brand px-4 text-sm font-semibold text-on-brand transition-[filter,transform,opacity] hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
         >
-          <CopyPlus className="size-4" />
-          {duplicating ? "Duplicating…" : "Duplicate to my notes"}
+          <CopyPlus className="size-4" aria-hidden />
+          {duplicating ? "Duplicating…" : "Duplicate to My Notes"}
         </button>
       </div>
       {error && <p className="mt-2 text-sm text-avoid" role="alert">{error}</p>}

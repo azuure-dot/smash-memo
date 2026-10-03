@@ -77,11 +77,11 @@ export function VideoResources({
                 setUrl(e.target.value);
                 setError(null);
               }}
-              placeholder="Paste a YouTube link (VOD, guide, combo video…)"
+              placeholder="Paste a YouTube link…"
               aria-label="YouTube link"
               aria-invalid={Boolean(error)}
               // A line to write on, like the rest of the notebook.
-              className="min-w-0 flex-1 border-0 border-b border-line bg-transparent px-1 py-2 font-serif text-[15px] outline-none transition-colors placeholder:text-muted/60 focus-visible:border-fg/60 aria-[invalid=true]:border-avoid"
+              className="min-w-0 flex-1 border-0 border-b border-line bg-transparent px-1 py-2 font-serif text-[15px] outline-none transition-colors placeholder:text-muted focus-visible:border-fg/60 aria-[invalid=true]:border-avoid"
             />
             <button
               type="submit"
@@ -136,7 +136,7 @@ export function VideoResources({
                 {!readOnly && (
                   <button
                     type="button"
-                    onClick={() => remove(video)}
+                    onClick={() => confirm(`Remove “${video.title ?? "this video"}” from this note?`) && remove(video)}
                     className="grid size-8 shrink-0 place-items-center rounded-md text-muted transition-colors hover:bg-avoid/10 hover:text-avoid"
                     aria-label={`Remove ${video.title ?? "video"}`}
                     title="Remove"

@@ -42,7 +42,7 @@ export default async function AccountPage({
   return (
     <div className="mx-auto max-w-xl space-y-5">
       <div>
-        <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-fg">
+        <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-fg">
           <ArrowLeft className="size-4" aria-hidden /> Matchups
         </Link>
         <h1 className="font-serif text-3xl font-semibold tracking-tight">Account</h1>
@@ -82,7 +82,7 @@ export default async function AccountPage({
       <Card title="Privacy">
         <Link
           href="/privacy"
-          className="flex items-center gap-3 rounded-xl border border-line px-3 py-2.5 text-sm transition hover:border-brand-from/60"
+          className="flex items-center gap-3 rounded-md border border-line px-3 py-2.5 text-sm transition-colors hover:border-fg/40"
         >
           <ShieldCheck className="size-4 text-brand-from" aria-hidden />
           What we store and who can see it

@@ -6,8 +6,9 @@ import { createMatchup, type CreateMatchupState } from "@/app/(app)/actions";
 import { CHARACTER_EXAMPLES, CHARACTERS, GAME_LABELS } from "@/lib/game-data";
 import type { Game } from "@/lib/types";
 
+/** A line to write on: no box, the pencil line turns to ink while you type. */
 const inputClass =
-  "w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition placeholder:text-muted/60 focus:border-fg/60";
+  "w-full border-0 border-b border-line bg-transparent px-1 py-2 font-serif text-base outline-none transition-colors placeholder:text-muted focus:border-fg/60";
 
 /** The game comes from the dashboard's global game selector: the form only asks for the two characters. */
 export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defaultOpen?: boolean }) {
@@ -19,33 +20,34 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
   if (!open) {
     return (
       <button
+        type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110"
+        className="inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
       >
-        <Plus className="size-4" /> New {GAME_LABELS[game]} matchup
+        <Plus className="size-4" aria-hidden /> New {GAME_LABELS[game]} Matchup
       </button>
     );
   }
 
   return (
-    <form action={formAction} className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
+    <form action={formAction} className="paper rounded-lg p-4 sm:p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-semibold">
+        <h2 className="font-serif text-lg font-semibold">
           New <span className="text-brand">{GAME_LABELS[game]}</span> matchup
         </h2>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="grid size-8 place-items-center rounded-lg text-muted hover:bg-surface-2 hover:text-fg"
+          className="grid size-9 place-items-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-fg"
           aria-label="Close"
         >
-          <X className="size-4" />
+          <X className="size-4" aria-hidden />
         </button>
       </div>
 
       <input type="hidden" name="game" value={game} />
 
-      <div className="grid items-end gap-3 sm:grid-cols-[1fr_auto_1fr]">
+      <div className="grid items-end gap-4 sm:grid-cols-[1fr_auto_1fr]">
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-muted">My character</span>
           <input
@@ -53,9 +55,10 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
             list={`chars-${game}`}
             value={mine}
             onChange={(e) => setMine(e.target.value)}
-            placeholder={`e.g. ${CHARACTER_EXAMPLES[game][0]}`}
+            placeholder={`e.g. ${CHARACTER_EXAMPLES[game][0]}…`}
             required
             autoComplete="off"
+            spellCheck={false}
             className={inputClass}
           />
         </label>
@@ -66,11 +69,11 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
             setMine(opp);
             setOpp(mine);
           }}
-          className="mx-auto grid size-10 place-items-center rounded-xl border border-line text-muted transition hover:border-brand-from hover:text-fg"
+          className="mx-auto grid size-10 place-items-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-brand"
           aria-label="Swap characters"
           title="Swap"
         >
-          <ArrowLeftRight className="size-4" />
+          <ArrowLeftRight className="size-4" aria-hidden />
         </button>
 
         <label className="block">
@@ -80,9 +83,10 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
             list={`chars-${game}`}
             value={opp}
             onChange={(e) => setOpp(e.target.value)}
-            placeholder={`e.g. ${CHARACTER_EXAMPLES[game][1]}`}
+            placeholder={`e.g. ${CHARACTER_EXAMPLES[game][1]}…`}
             required
             autoComplete="off"
+            spellCheck={false}
             className={inputClass}
           />
         </label>
@@ -94,18 +98,22 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
         ))}
       </datalist>
 
-      {state.error && <p className="mt-3 text-sm text-avoid" role="alert">{state.error}</p>}
+      {state.error && (
+        <p className="mt-3 text-sm text-avoid" role="alert">
+          {state.error}
+        </p>
+      )}
 
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="truncate text-sm text-muted">
-          {mine || "…"} <span className="text-brand font-semibold">vs</span> {opp || "…"}
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <p className="min-w-0 truncate font-serif text-base text-muted">
+          {mine || "…"} <span className="mx-1 font-hand text-xl font-bold text-brand">vs</span> {opp || "…"}
         </p>
         <button
           type="submit"
           disabled={pending}
-          className="shrink-0 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:opacity-60"
+          className="shrink-0 rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition-[filter,transform,opacity] hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
         >
-          {pending ? "Creating…" : "Create note"}
+          {pending ? "Creating…" : "Create Note"}
         </button>
       </div>
     </form>

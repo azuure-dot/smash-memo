@@ -18,7 +18,7 @@ export default async function LoginPage({
   return (
     <AuthShell subtitle="Matchup notes for Ultimate, Melee & Rivals 2, on every device.">
       {notice && NOTICES[notice] && (
-        <p className="mb-4 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
+        <p className="paper mb-4 rounded-lg px-4 py-3 text-sm text-muted" role="status">
           {NOTICES[notice]}
         </p>
       )}

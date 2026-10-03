@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
+import { authCardClass, fieldClass, primaryButtonClass } from "@/components/auth-shell";
 import { cn } from "@/lib/cn";
 import { authenticate, type AuthState } from "./actions";
 
@@ -10,8 +11,8 @@ export function LoginForm({ next }: { next: string }) {
   const [state, formAction, pending] = useActionState<AuthState, FormData>(authenticate, {});
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-5">
-      <div className="mb-5 grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-1 text-sm" role="tablist">
+    <div className={authCardClass}>
+      <div className="mb-5 grid grid-cols-2 border-b border-line text-sm" role="tablist">
         {(["signin", "signup"] as const).map((m) => (
           <button
             key={m}
@@ -20,16 +21,16 @@ export function LoginForm({ next }: { next: string }) {
             aria-selected={mode === m}
             onClick={() => setMode(m)}
             className={cn(
-              "rounded-lg py-2 font-medium transition",
-              mode === m ? "bg-bg text-fg shadow" : "text-muted hover:text-fg",
+              "-mb-px border-b-2 py-2.5 font-semibold transition-colors",
+              mode === m ? "border-brand-from text-fg" : "border-transparent text-muted hover:text-fg",
             )}
           >
-            {m === "signin" ? "Sign in" : "Create account"}
+            {m === "signin" ? "Sign In" : "Create Account"}
           </button>
         ))}
       </div>
 
-      <form action={formAction} className="space-y-3">
+      <form action={formAction} className="space-y-4">
         <input type="hidden" name="intent" value={mode} />
         <input type="hidden" name="next" value={next} />
 
@@ -40,7 +41,8 @@ export function LoginForm({ next }: { next: string }) {
             type="email"
             required
             autoComplete="email"
-            className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-fg/60"
+            spellCheck={false}
+            className={fieldClass}
           />
         </label>
 
@@ -48,7 +50,7 @@ export function LoginForm({ next }: { next: string }) {
           <span className="mb-1 flex items-center justify-between text-xs font-medium text-muted">
             Password
             {mode === "signin" && (
-              <Link href="/forgot-password" className="font-normal text-brand-from hover:underline">
+              <Link href="/forgot-password" className="font-normal text-brand underline-offset-4 hover:underline">
                 Forgot password?
               </Link>
             )}
@@ -59,7 +61,7 @@ export function LoginForm({ next }: { next: string }) {
             required
             minLength={mode === "signup" ? 8 : undefined}
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-fg/60"
+            className={fieldClass}
           />
         </label>
 
@@ -69,9 +71,9 @@ export function LoginForm({ next }: { next: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-brand py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:opacity-60"
+          className={primaryButtonClass}
         >
-          {pending ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+          {pending ? "Please wait…" : mode === "signin" ? "Sign In" : "Create Account"}
         </button>
       </form>
     </div>

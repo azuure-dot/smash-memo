@@ -20,7 +20,7 @@ export function DeleteAccountForm({ matchupCount }: { matchupCount: number }) {
 
   return (
     <form action={formAction} className="space-y-3">
-      <div className="flex gap-3 rounded-xl border border-avoid/30 bg-avoid/5 p-3 text-sm text-fg">
+      <div className="flex gap-3 rounded-md border border-avoid/30 bg-avoid/5 p-3 text-sm text-fg">
         <AlertTriangle className="mt-0.5 size-4 shrink-0 text-avoid" aria-hidden />
         <p>
           This permanently deletes your account and{" "}
@@ -42,7 +42,7 @@ export function DeleteAccountForm({ matchupCount }: { matchupCount: number }) {
           autoComplete="off"
           autoCapitalize="characters"
           spellCheck={false}
-          className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 font-mono text-sm outline-none transition focus:border-fg/60"
+          className="w-full border-0 border-b border-line bg-transparent px-1 py-2 font-mono text-base outline-none transition-colors focus:border-fg/60"
         />
       </label>
 
@@ -51,7 +51,7 @@ export function DeleteAccountForm({ matchupCount }: { matchupCount: number }) {
       <button
         type="submit"
         disabled={typed !== "DELETE" || pending}
-        className="w-full rounded-xl bg-avoid py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+        className="w-full rounded-md bg-avoid py-2.5 text-sm font-semibold text-on-brand transition-[filter,opacity] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {pending ? "Deleting…" : "Delete my account"}
       </button>

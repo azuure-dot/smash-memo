@@ -134,21 +134,21 @@ export function ProfileForm({ userId, initial }: { userId: string; initial: Prof
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="flex h-9 items-center gap-2 rounded-xl border border-brand-from/60 bg-brand-from/10 px-3 text-sm font-medium transition hover:bg-brand-from/20"
+            className="flex h-9 items-center gap-2 rounded-md border border-line bg-surface px-3 text-sm font-medium transition-colors hover:border-fg/40"
           >
-            <Camera className="size-4 text-brand-from" />
+            <Camera className="size-4 text-brand" aria-hidden />
             {shownUrl ? "Change photo" : "Upload photo"}
           </button>
           {shownUrl && (
             <button
               type="button"
               onClick={removePhoto}
-              className="flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-muted transition hover:bg-avoid/10 hover:text-avoid"
+              className="flex h-9 items-center gap-2 rounded-md px-3 text-sm text-muted transition-colors hover:bg-avoid/10 hover:text-avoid"
             >
-              <Trash2 className="size-4" /> Remove
+              <Trash2 className="size-4" aria-hidden /> Remove
             </button>
           )}
-          <p className="w-full text-[11px] text-muted">JPEG, PNG or WebP. Cropped to a square.</p>
+          <p className="w-full text-xs text-muted">JPEG, PNG or WebP. Cropped to a square.</p>
         </div>
       </div>
 
@@ -161,11 +161,11 @@ export function ProfileForm({ userId, initial }: { userId: string; initial: Prof
             setSaved(false);
           }}
           maxLength={24}
-          placeholder="e.g. PlayerName"
+          placeholder="e.g. PlayerName…"
           autoComplete="nickname"
           className={fieldClass}
         />
-        <span className="mt-1 block text-[11px] text-muted">Shown as the author on notes you share.</span>
+        <span className="mt-1 block text-xs text-muted">Shown as the author on notes you share.</span>
       </label>
 
       {error && <p className="text-sm text-avoid" role="alert">{error}</p>}

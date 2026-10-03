@@ -22,11 +22,11 @@ export function SignOutButton() {
     >
       <button
         type="submit"
-        className="grid size-9 place-items-center rounded-xl text-muted transition hover:bg-surface-2 hover:text-fg"
+        className="grid size-9 place-items-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-fg"
         aria-label="Sign out"
         title="Sign out"
       >
-        <LogOut className="size-4" />
+        <LogOut className="size-4" aria-hidden />
       </button>
     </form>
   );

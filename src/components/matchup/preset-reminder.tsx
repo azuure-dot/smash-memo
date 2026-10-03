@@ -111,7 +111,7 @@ export function PresetReminder({
           placeholder="e.g. Watch out for neutral B, DI out on down-throw…"
           className={cn(
             ruled,
-            "block field-sizing-content min-h-[7.5rem] w-full resize-none border-0 bg-transparent placeholder:text-muted/60",
+            "block field-sizing-content min-h-[7.5rem] w-full resize-none border-0 bg-transparent placeholder:text-muted",
           )}
         />
       )}

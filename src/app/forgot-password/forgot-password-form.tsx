@@ -2,21 +2,21 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { fieldClass, primaryButtonClass } from "@/components/auth-shell";
+import { authCardClass, fieldClass, primaryButtonClass } from "@/components/auth-shell";
 import { requestPasswordReset, type ResetState } from "./actions";
 
 export function ForgotPasswordForm() {
   const [state, formAction, pending] = useActionState<ResetState, FormData>(requestPasswordReset, {});
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-5">
+    <div className={authCardClass}>
       {state.message ? (
         <p className="text-sm text-success" role="status">{state.message}</p>
       ) : (
-        <form action={formAction} className="space-y-3">
+        <form action={formAction} className="space-y-4">
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted">Email</span>
-            <input name="email" type="email" required autoComplete="email" className={fieldClass} />
+            <input name="email" type="email" required autoComplete="email" spellCheck={false} className={fieldClass} />
           </label>
           {state.error && <p className="text-sm text-avoid" role="alert">{state.error}</p>}
           <button type="submit" disabled={pending} className={primaryButtonClass}>
@@ -25,7 +25,7 @@ export function ForgotPasswordForm() {
         </form>
       )}
       <p className="mt-4 text-center text-sm text-muted">
-        <Link href="/login" className="hover:text-fg">
+        <Link href="/login" className="transition-colors hover:text-fg">
           ← Back to sign in
         </Link>
       </p>

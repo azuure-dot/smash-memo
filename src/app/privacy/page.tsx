@@ -8,7 +8,7 @@ export const metadata = { title: "Privacy" };
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2">
-      <h2 className="text-lg font-semibold">{title}</h2>
+      <h2 className="font-serif text-xl font-semibold">{title}</h2>
       <div className="space-y-2 text-sm leading-relaxed text-fg/85">{children}</div>
     </section>
   );
@@ -19,18 +19,18 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-2xl px-5 pb-20 pt-[calc(env(safe-area-inset-top)+2rem)]">
       <Link
         href="/"
-        className="mb-8 inline-flex items-center gap-2 text-muted transition hover:text-fg"
+        className="mb-8 inline-flex items-center gap-2 text-muted transition-colors hover:text-fg"
         aria-label="Back to Smash Memo"
       >
         <ArrowLeft className="size-4" /> <BrandLogo />
       </Link>
 
-      <h1 className="text-3xl font-semibold tracking-tight">
+      <h1 className="font-serif text-4xl font-semibold tracking-tight">
         Privacy <span className="text-brand">&amp; security</span>
       </h1>
       <p className="mt-2 text-sm text-muted">Last updated {SITE.privacyUpdated}</p>
 
-      <div className="mt-6 rounded-2xl border border-line bg-surface p-5 text-sm leading-relaxed">
+      <div className="paper mt-6 rounded-lg p-5 text-sm leading-relaxed sm:p-6">
         <p className="font-medium">The short version</p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-fg/85">
           <li>We store your email address and the notes you write. Nothing else about you.</li>

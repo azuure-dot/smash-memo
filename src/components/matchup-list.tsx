@@ -56,12 +56,12 @@ export function MatchupList({
             onClick={() => onTabChange(t.key)}
             aria-pressed={tab === t.key}
             className={cn(
-              "-mb-px flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-semibold transition",
+              "-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors",
               tab === t.key ? "border-brand-from text-fg" : "border-transparent text-muted hover:text-fg",
             )}
           >
             {t.label}
-            <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-[11px] font-medium text-muted">{t.count}</span>
+            <span className="text-xs font-normal tabular-nums text-muted">({t.count})</span>
           </button>
         ))}
       </nav>
@@ -74,15 +74,16 @@ export function MatchupList({
             const isSaved = tab === "saved";
             const mine = m as MatchupSummary;
             const badges = [
-              isSaved && <Badge key="saved" icon={<Bookmark className="size-3" />}>Saved</Badge>,
-              !isSaved && mine.is_shared && <Badge key="shared" icon={<Link2 className="size-3" />}>Shared</Badge>,
-              !isSaved && mine.copied_from && <Badge key="copy" icon={<CopyPlus className="size-3" />}>Copy</Badge>,
+              isSaved && <Badge key="saved" icon={<Bookmark className="size-3" aria-hidden />}>Saved</Badge>,
+              !isSaved && mine.is_shared && <Badge key="shared" icon={<Link2 className="size-3" aria-hidden />}>Shared</Badge>,
+              !isSaved && mine.copied_from && <Badge key="copy" icon={<CopyPlus className="size-3" aria-hidden />}>Copy</Badge>,
             ].filter(Boolean);
             return (
               <li key={m.id}>
                 <Link
                   href={isSaved ? `/share/${m.id}` : `/matchups/${m.id}`}
-                  className="group block rounded-2xl border border-line bg-surface p-4 transition hover:-translate-y-0.5 hover:border-brand-from/60"
+                  // An index card on the desk: lifts slightly on hover, no glow.
+                  className="paper group block rounded-lg p-4 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-fg/30 active:scale-[0.99] motion-reduce:transition-none"
                 >
                   <div className="mb-3 flex min-h-5 items-center justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-1.5">{badges}</div>
@@ -90,9 +91,9 @@ export function MatchupList({
                       {timeAgo(m.updated_at)}
                     </span>
                   </div>
-                  <p className="truncate text-base font-semibold">
+                  <p className="truncate font-serif text-lg font-semibold">
                     {m.my_character}
-                    <span className="text-brand mx-2 text-sm font-bold">vs</span>
+                    <span className="mx-2 font-hand text-xl font-bold text-brand">vs</span>
                     {m.opponent_character}
                   </p>
                 </Link>
@@ -107,7 +108,7 @@ export function MatchupList({
 
 function Badge({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-brand-from/40 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-brand-from">
+    <span className="inline-flex -rotate-1 items-center gap-1 rounded-[3px] border border-brand-from/60 px-1.5 py-px text-[10px] font-bold uppercase tracking-[0.12em] text-brand">
       {icon}
       {children}
     </span>
@@ -121,13 +122,13 @@ function EmptyState({ tab, game }: { tab: Tab; game: Game }) {
       ? `No ${label} notes yet. Create your first one above.`
       : `No saved ${label} notes yet. Open a note someone shared with you and tap “Save to my workspace”.`;
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line px-6 py-14 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-line px-6 py-14 text-center">
       {tab === "mine" ? (
         <NotebookPen className="size-7 text-muted" aria-hidden />
       ) : (
         <Bookmark className="size-7 text-muted" aria-hidden />
       )}
-      <p className="max-w-sm text-sm text-muted">{text}</p>
+      <p className="max-w-sm text-balance font-serif text-[15px] italic text-muted">{text}</p>
     </div>
   );
 }

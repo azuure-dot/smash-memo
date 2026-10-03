@@ -20,7 +20,7 @@ export function AuthShell({
             <BrandLogo className="h-20" />
           </Link>
           {title ? (
-            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+            <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight">{title}</h1>
           ) : (
             <h1 className="sr-only">Smash Memo</h1>
           )}
@@ -28,7 +28,7 @@ export function AuthShell({
         </div>
         {children}
         <p className="mt-6 text-center text-xs text-muted">
-          <Link href="/privacy" className="hover:text-fg">
+          <Link href="/privacy" className="underline decoration-dashed underline-offset-4 transition-colors hover:text-fg">
             Privacy
           </Link>
         </p>
@@ -37,8 +37,12 @@ export function AuthShell({
   );
 }
 
+/** A line to write on (no box): the pencil line turns to ink while typing. */
 export const fieldClass =
-  "w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-fg/60";
+  "w-full border-0 border-b border-line bg-transparent px-1 py-2 text-base outline-none transition-colors placeholder:text-muted focus:border-fg/60";
+
+/** Sheet of paper holding an auth form. */
+export const authCardClass = "paper rounded-lg p-5 sm:p-6";
 
 export const primaryButtonClass =
-  "w-full rounded-xl bg-brand py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:opacity-60";
+  "w-full rounded-md bg-brand py-2.5 text-sm font-semibold text-on-brand transition-[filter,transform,opacity] hover:brightness-110 active:scale-[0.99] disabled:opacity-60";
