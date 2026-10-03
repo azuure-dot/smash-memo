@@ -14,10 +14,6 @@ export function AuthShell({
 }) {
   return (
     <main className="relative flex min-h-dvh items-center justify-center overflow-hidden px-5 py-12">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 size-[36rem] -translate-x-1/2 rounded-full bg-brand opacity-15 blur-3xl"
-      />
       <div className="relative w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="mb-4 inline-block" aria-label="Smash Memo home">
@@ -42,7 +38,7 @@ export function AuthShell({
 }
 
 export const fieldClass =
-  "w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-brand-from";
+  "w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-fg/60";
 
 export const primaryButtonClass =
-  "w-full rounded-xl bg-brand py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60";
+  "w-full rounded-xl bg-brand py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:opacity-60";

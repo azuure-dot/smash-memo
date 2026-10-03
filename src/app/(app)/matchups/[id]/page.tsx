@@ -10,7 +10,8 @@ import { PresetReminder } from "@/components/matchup/preset-reminder";
 import { ShareButton } from "@/components/matchup/share-button";
 import { StageSelector } from "@/components/matchup/stage-selector";
 import { VideoResources } from "@/components/matchup/video-resources";
-import { dashboardHref, GAME_LABELS } from "@/lib/game-data";
+import { GameStamp } from "@/components/game-stamp";
+import { dashboardHref } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { Matchup, MatchupStage, MatchupVideo, Profile } from "@/lib/types";
 
@@ -68,12 +69,10 @@ export default async function MatchupPage({ params }: Props) {
 
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <span className="rounded-md bg-surface-2 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-muted">
-              {GAME_LABELS[matchup.game]}
-            </span>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+            <GameStamp game={matchup.game} />
+            <h1 className="mt-3 text-balance break-words font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
               {matchup.my_character}
-              <span className="text-brand mx-2.5 text-xl font-bold sm:text-2xl">vs</span>
+              <span className="mx-2.5 font-hand text-[1.15em] font-bold text-brand">vs</span>
               {matchup.opponent_character}
             </h1>
             {/* What visitors of the share link see. */}

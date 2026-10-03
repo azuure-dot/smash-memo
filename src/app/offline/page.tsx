@@ -13,7 +13,7 @@ export default function OfflinePage() {
       <p className="text-sm text-muted">
         Pages you&apos;ve opened recently are still available. Reconnect to sync new changes.
       </p>
-      <Link href="/" className="rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white">
+      <Link href="/" className="rounded-xl bg-brand px-4 py-2 text-sm font-medium text-on-brand">
         Try again
       </Link>
     </main>

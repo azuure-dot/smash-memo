@@ -61,21 +61,21 @@ export function ShareButton({ id, initialShared }: { id: string; initialShared: 
         disabled={pending}
         aria-expanded={open}
         className={cn(
-          "flex h-9 items-center gap-1.5 rounded-xl px-3 text-sm font-medium transition disabled:opacity-60",
+          "flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors disabled:opacity-60",
           shared
-            ? "border border-brand-from/60 bg-brand-from/10 text-fg hover:bg-brand-from/20"
-            : "border border-line text-muted hover:border-brand-from/60 hover:text-fg",
+            ? "border border-brand-from/50 bg-[var(--color-magenta-hl)] text-fg hover:border-brand-from"
+            : "border border-line bg-surface text-fg hover:border-brand-from/60 hover:text-brand",
         )}
       >
-        {shared ? <Link2 className="size-4 text-brand-to" /> : <Share2 className="size-4" />}
+        {shared ? <Link2 className="size-4 text-brand" aria-hidden /> : <Share2 className="size-4" aria-hidden />}
         {shared ? "Shared" : "Share"}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 z-40 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-line bg-surface p-4 shadow-2xl shadow-black/50">
+        <div className="paper absolute right-0 top-11 z-40 w-[min(20rem,calc(100vw-2rem))] rounded-md p-4">
           {shared ? (
             <>
-              <p className="text-sm font-semibold">Anyone with the link can view</p>
+              <p className="font-serif text-[15px] font-semibold">Anyone With the Link Can View</p>
               <p className="mt-1 text-xs text-muted">
                 They can read this note, save it or duplicate it. Only you can edit it.
               </p>
@@ -86,14 +86,14 @@ export function ShareButton({ id, initialShared }: { id: string; initialShared: 
                   value={shareUrl()}
                   onFocus={(e) => e.target.select()}
                   aria-label="Share link"
-                  className="min-w-0 flex-1 rounded-xl border border-line bg-bg px-3 py-2 text-xs text-muted outline-none focus:border-brand-from"
+                  className="min-w-0 flex-1 rounded-md border border-line bg-surface-2 px-3 py-2 text-xs text-muted"
                 />
                 <button
                   type="button"
                   onClick={copy}
-                  className="flex shrink-0 items-center gap-1.5 rounded-xl bg-brand px-3 text-xs font-semibold text-white transition hover:brightness-110"
+                  className="flex shrink-0 items-center gap-1.5 rounded-md bg-brand px-3 text-xs font-semibold text-on-brand transition-[filter] hover:brightness-110"
                 >
-                  {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                  {copied ? <Check className="size-3.5" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
                   {copied ? "Copied" : "Copy"}
                 </button>
               </div>
@@ -101,7 +101,7 @@ export function ShareButton({ id, initialShared }: { id: string; initialShared: 
                 type="button"
                 onClick={() => toggle(false)}
                 disabled={pending}
-                className="mt-3 text-xs text-muted transition hover:text-red-400 disabled:opacity-60"
+                className="mt-3 text-xs text-muted underline decoration-dashed underline-offset-4 transition-colors hover:text-avoid disabled:opacity-60"
               >
                 Stop sharing
               </button>
@@ -109,7 +109,7 @@ export function ShareButton({ id, initialShared }: { id: string; initialShared: 
           ) : (
             <p className="text-sm text-muted">{pending ? "Creating link…" : "This note is private."}</p>
           )}
-          {error && <p className="mt-2 text-xs text-red-400" role="alert">{error}</p>}
+          {error && <p className="mt-2 text-xs text-avoid" role="alert">{error}</p>}
         </div>
       )}
     </div>

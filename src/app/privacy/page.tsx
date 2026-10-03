@@ -126,7 +126,7 @@ export default function PrivacyPage() {
         <Section title="How long we keep it">
           <p>
             Your data is kept until you delete it. Deleting a matchup removes it immediately. Deleting your account
-            (from the <Link href="/account" className="text-brand-to hover:underline">Account</Link> page) immediately
+            (from the <Link href="/account" className="text-brand-from hover:underline">Account</Link> page) immediately
             and permanently removes your account and all of your notes. Copies in our providers&apos; short-term system
             logs expire on their own.
           </p>
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
             {SITE.contactEmail ? (
               <>
                 {" "}For anything else, contact{" "}
-                <a href={`mailto:${SITE.contactEmail}`} className="text-brand-to hover:underline">
+                <a href={`mailto:${SITE.contactEmail}`} className="text-brand-from hover:underline">
                   {SITE.contactEmail}
                 </a>
                 .

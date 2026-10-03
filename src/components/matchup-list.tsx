@@ -57,7 +57,7 @@ export function MatchupList({
             aria-pressed={tab === t.key}
             className={cn(
               "-mb-px flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-semibold transition",
-              tab === t.key ? "border-brand-to text-fg" : "border-transparent text-muted hover:text-fg",
+              tab === t.key ? "border-brand-from text-fg" : "border-transparent text-muted hover:text-fg",
             )}
           >
             {t.label}
@@ -82,7 +82,7 @@ export function MatchupList({
               <li key={m.id}>
                 <Link
                   href={isSaved ? `/share/${m.id}` : `/matchups/${m.id}`}
-                  className="group block rounded-2xl border border-line bg-surface p-4 transition hover:-translate-y-0.5 hover:border-brand-from/60 hover:shadow-lg hover:shadow-brand-from/10"
+                  className="group block rounded-2xl border border-line bg-surface p-4 transition hover:-translate-y-0.5 hover:border-brand-from/60"
                 >
                   <div className="mb-3 flex min-h-5 items-center justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-1.5">{badges}</div>
@@ -107,7 +107,7 @@ export function MatchupList({
 
 function Badge({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-brand-from/40 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-brand-to">
+    <span className="inline-flex items-center gap-1 rounded-md border border-brand-from/40 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-brand-from">
       {icon}
       {children}
     </span>

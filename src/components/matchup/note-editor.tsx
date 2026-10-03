@@ -18,7 +18,7 @@ const SAVE_LABEL: Record<SaveState, string> = {
   dirty: "Unsaved changes",
   saving: "Saving…",
   saved: "Saved",
-  error: "Couldn't save — retrying on next edit",
+  error: "Couldn't save. Retrying on your next edit.",
 };
 
 export function NoteEditor({
@@ -62,7 +62,8 @@ export function NoteEditor({
     content: initialContent ?? "",
     editorProps: {
       attributes: {
-        class: cn("px-4 py-4 sm:px-6 sm:py-5 focus:outline-none", readOnly ? "min-h-24" : "min-h-[340px]"),
+        // Ruled notebook paper with a red margin, exactly like the Pre-set reminder (see .tiptap in globals.css).
+        class: cn("bg-ruled rounded-b-lg pb-7 pl-12 pr-4 pt-1.5 sm:pr-6", readOnly ? "min-h-24" : "min-h-[22rem]"),
         "aria-label": "Matchup notes",
       },
     },
@@ -85,11 +86,11 @@ export function NoteEditor({
   }, [flush]);
 
   return (
-    <section className="rounded-2xl border border-line bg-surface" aria-labelledby="notes-title">
+    <section className="paper rounded-lg" aria-labelledby="notes-title">
       <div className="flex items-center justify-between px-4 pt-4 sm:px-6">
-        <h2 id="notes-title" className="font-semibold">Notes</h2>
+        <h2 id="notes-title" className="font-serif text-lg font-semibold">Notes</h2>
         <span
-          className={cn("text-xs", saveState === "error" ? "text-red-400" : "text-muted")}
+          className={cn("text-xs", saveState === "error" ? "text-avoid" : "text-muted")}
           aria-live="polite"
         >
           {SAVE_LABEL[saveState]}
@@ -97,11 +98,15 @@ export function NoteEditor({
       </div>
       {readOnly ? (
         <div className="mt-3 border-t border-line" />
-      ) : (
+      ) : editor ? (
+        // Mounted only once the editor exists: useEditorState captures its editor on mount and would
+        // otherwise stay empty until the first transaction (toolbar missing until the first click).
         <Toolbar editor={editor} />
+      ) : (
+        <div className="mt-3 h-12 border-y border-line" />
       )}
       {readOnly && editor?.isEmpty ? (
-        <p className="px-4 py-4 text-sm text-muted sm:px-6 sm:py-5">No notes written yet.</p>
+        <p className="px-4 py-4 font-serif text-sm italic text-muted sm:px-6 sm:py-5">No notes written yet.</p>
       ) : (
         <EditorContent editor={editor} />
       )}
@@ -216,8 +221,9 @@ function ToolButton({
       onMouseDown={(e) => e.preventDefault()} // keep the editor selection
       onClick={onClick}
       className={cn(
-        "grid size-9 shrink-0 place-items-center rounded-lg transition [&>svg]:size-4",
-        active ? "bg-brand text-white" : "text-muted hover:bg-surface-2 hover:text-fg",
+        "grid size-9 shrink-0 place-items-center rounded-md transition-colors [&>svg]:size-4",
+        // Active tool = highlighted with the magenta marker.
+        active ? "bg-[var(--color-magenta-hl)] text-fg" : "text-muted hover:bg-surface-2 hover:text-fg",
         disabled && "pointer-events-none opacity-35",
       )}
     >
@@ -239,8 +245,8 @@ function TextButton({
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       className={cn(
-        "shrink-0 rounded-md px-2 py-1 transition",
-        danger ? "text-red-400 hover:bg-red-500/10" : "text-muted hover:bg-surface-2 hover:text-fg",
+        "shrink-0 rounded-md px-2 py-1 transition-colors",
+        danger ? "text-avoid hover:bg-avoid/10" : "text-muted hover:bg-surface-2 hover:text-fg",
       )}
     >
       {children}

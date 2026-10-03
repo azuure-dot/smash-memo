@@ -136,14 +136,14 @@ export function ProfileForm({ userId, initial }: { userId: string; initial: Prof
             onClick={() => fileRef.current?.click()}
             className="flex h-9 items-center gap-2 rounded-xl border border-brand-from/60 bg-brand-from/10 px-3 text-sm font-medium transition hover:bg-brand-from/20"
           >
-            <Camera className="size-4 text-brand-to" />
+            <Camera className="size-4 text-brand-from" />
             {shownUrl ? "Change photo" : "Upload photo"}
           </button>
           {shownUrl && (
             <button
               type="button"
               onClick={removePhoto}
-              className="flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-muted transition hover:bg-red-500/10 hover:text-red-400"
+              className="flex h-9 items-center gap-2 rounded-xl px-3 text-sm text-muted transition hover:bg-avoid/10 hover:text-avoid"
             >
               <Trash2 className="size-4" /> Remove
             </button>
@@ -168,8 +168,8 @@ export function ProfileForm({ userId, initial }: { userId: string; initial: Prof
         <span className="mt-1 block text-[11px] text-muted">Shown as the author on notes you share.</span>
       </label>
 
-      {error && <p className="text-sm text-red-400" role="alert">{error}</p>}
-      {saved && !dirty && <p className="text-sm text-emerald-300" role="status">Profile saved.</p>}
+      {error && <p className="text-sm text-avoid" role="alert">{error}</p>}
+      {saved && !dirty && <p className="text-sm text-success" role="status">Profile saved.</p>}
 
       <button type="submit" disabled={busy || !dirty} className={primaryButtonClass}>
         {busy ? "Saving…" : "Save profile"}

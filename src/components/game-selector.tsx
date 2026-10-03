@@ -31,7 +31,7 @@ export function GameSelector({
             className={cn(
               "group relative flex h-24 flex-col items-center justify-center gap-1.5 rounded-2xl border px-2 transition sm:h-28",
               active
-                ? "border-brand-to/70 bg-brand-from/10 shadow-[0_0_32px_-12px] shadow-brand-to"
+                ? "border-brand-from/70 bg-brand-from/10"
                 : "border-line bg-surface hover:border-brand-from/50",
             )}
           >

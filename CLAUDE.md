@@ -52,11 +52,17 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 ## 4. Design
 
-- **Thème :** sombre par défaut, minimaliste et épuré.
-- **Accents :** dégradé violet `#8b5cf6` → magenta `#e040fb`. Utilitaires `bg-brand` et `text-brand` définis dans `globals.css`.
-- **Tokens :** `bg` `#0a0910`, `surface` `#121019`, `surface-2` `#1a1723`, `line` `#262232`, `fg` `#ecebf3`, `muted` `#8a8499`.
-- **Statuts de stage :** Prefer = **bleu**, Avoid = **rouge**, Neutral = gris.
-- Police Geist. Coins arrondis `rounded-xl` / `rounded-2xl`. Respect des safe-area iOS.
+- **Refonte « papier & encre »** (branche `new-design`, 2026-10-03, pas encore fusionnée dans `main`) :
+  - **Thèmes** clair (papier crème sur bureau) et sombre (carnet ardoise). `<html data-theme="light|dark">` posé avant l'affichage par `THEME_INIT_SCRIPT` (`src/lib/theme.ts`), d'après le choix de l'utilisateur (Account → **Appearance** : System / Light / Dark, `theme-setting.tsx`, stocké en `localStorage` `sm-theme`) ou le réglage de l'appareil. Tailwind `dark:` = `@custom-variant` sur `data-theme`.
+  - **Tokens** (`globals.css`) : `bg` bureau `#e8e1d3`, `surface` feuille `#fbf8f1`, `fg` encre `#1e2433`, `muted` crayon `#6e6757`, `brand-from` encre magenta `#b3246f` (aplat, plus de dégradé), `on-brand`, `prefer` / `avoid` (+ `-hl` surligneurs), `success`, `rule` / `margin` (cahier). Valeurs sombres sous `[data-theme="dark"]`.
+  - **Utilitaires** : `paper` (feuille + ombre teintée), `bg-ruled` (lignes + marge rouge, `--rule` 1.75rem), `marker` / `marker-prefer` / `marker-avoid` (surligneur).
+  - **Polices** : Literata (texte, titres), Caveat (manuscrit, petites touches), Geist (boutons, libellés).
+  - **Reminder et Notes** sur papier ligné identique ; dans l'éditeur, chaque ligne fait exactement une règle (titres compris) pour rester posée sur les lignes.
+  - **Stages** : Prefer = nom surligné bleu, Avoid = nom entouré au stylo rouge (`InkCircle`), mentions manuscrites.
+  - **Règles validées par le propriétaire** : aucun néon / halo coloré ; pas de cadre de focus sur les champs de texte (curseur magenta + trait du champ qui passe à l'encre) ; pas de tiret cadratin dans les textes de l'interface. Focus clavier des boutons : fin contour crayon.
+  - Skills de design du propriétaire : voir la mémoire (ils sont dans `~/.agents/skills`, à lire par chemin).
+- **Statuts de stage :** Prefer = **bleu**, Avoid = **rouge**, Neutral = crayon.
+- Respect des safe-area iOS.
 - Visuels officiels : **seuls les logos des jeux** sont utilisés, sur demande explicite du propriétaire (2026-10-02), dans le sélecteur de jeu du dashboard, avec une mention « Trademarks / not affiliated » sur la page Privacy. Pas d'autres visuels officiels (personnages, stages…) : les stages restent des silhouettes abstraites dessinées en SVG (voir §7).
   - Logos sources dans `brand/games/{ultimate,melee,roa2}.png`, versions optimisées dans `public/games/*.webp` (générées par `scripts/make-icons.mjs`), dimensions dans `GAME_LOGOS` (`src/lib/game-data.ts`).
 - **Logos** (fournis par le propriétaire le 2026-10-02, Small remplacé par une version recentrée le même jour ; originaux dans `brand/`) :

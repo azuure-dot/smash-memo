@@ -34,7 +34,7 @@ export function ResetPasswordForm({
         <span className="mb-1 block text-xs font-medium text-muted">Confirm new password</span>
         <input name="confirm" type="password" required minLength={8} autoComplete="new-password" className={fieldClass} />
       </label>
-      {state.error && <p className="text-sm text-red-400" role="alert">{state.error}</p>}
+      {state.error && <p className="text-sm text-avoid" role="alert">{state.error}</p>}
       <button type="submit" disabled={pending} className={primaryButtonClass}>
         {pending ? "Saving…" : submitLabel}
       </button>

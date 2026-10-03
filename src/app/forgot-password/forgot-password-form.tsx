@@ -11,14 +11,14 @@ export function ForgotPasswordForm() {
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
       {state.message ? (
-        <p className="text-sm text-emerald-300" role="status">{state.message}</p>
+        <p className="text-sm text-success" role="status">{state.message}</p>
       ) : (
         <form action={formAction} className="space-y-3">
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted">Email</span>
             <input name="email" type="email" required autoComplete="email" className={fieldClass} />
           </label>
-          {state.error && <p className="text-sm text-red-400" role="alert">{state.error}</p>}
+          {state.error && <p className="text-sm text-avoid" role="alert">{state.error}</p>}
           <button type="submit" disabled={pending} className={primaryButtonClass}>
             {pending ? "Sending…" : "Send reset link"}
           </button>

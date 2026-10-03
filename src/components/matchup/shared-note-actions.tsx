@@ -49,20 +49,20 @@ export function SharedNoteActions({ id, initialSaved }: { id: string; initialSav
               : "border border-line text-fg hover:border-brand-from/60",
           )}
         >
-          {saved ? <BookmarkCheck className="size-4 text-brand-to" /> : <BookmarkPlus className="size-4" />}
+          {saved ? <BookmarkCheck className="size-4 text-brand-from" /> : <BookmarkPlus className="size-4" />}
           {saved ? "Saved to your workspace" : "Save to my workspace"}
         </button>
         <button
           type="button"
           onClick={duplicate}
           disabled={duplicating}
-          className="flex h-10 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white shadow-lg shadow-brand-from/20 transition hover:brightness-110 disabled:opacity-60"
+          className="flex h-10 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:opacity-60"
         >
           <CopyPlus className="size-4" />
           {duplicating ? "Duplicating…" : "Duplicate to my notes"}
         </button>
       </div>
-      {error && <p className="mt-2 text-sm text-red-400" role="alert">{error}</p>}
+      {error && <p className="mt-2 text-sm text-avoid" role="alert">{error}</p>}
     </div>
   );
 }

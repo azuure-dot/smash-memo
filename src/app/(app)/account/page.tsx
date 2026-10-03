@@ -6,15 +6,16 @@ import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 import { DeleteAccountForm } from "./delete-account-form";
 import { ProfileForm } from "./profile-form";
+import { ThemeSetting } from "./theme-setting";
 
 export const metadata = { title: "Account" };
 
 function Card({ title, danger, children }: { title: string; danger?: boolean; children: React.ReactNode }) {
   return (
     <section
-      className={`rounded-2xl border bg-surface p-4 sm:p-5 ${danger ? "border-red-500/40" : "border-line"}`}
+      className={`paper rounded-lg p-4 sm:p-6 ${danger ? "!border-avoid/40" : ""}`}
     >
-      <h2 className={`mb-4 font-semibold ${danger ? "text-red-300" : ""}`}>{title}</h2>
+      <h2 className={`mb-4 font-serif text-lg font-semibold ${danger ? "text-avoid" : ""}`}>{title}</h2>
       {children}
     </section>
   );
@@ -42,13 +43,17 @@ export default async function AccountPage({
     <div className="mx-auto max-w-xl space-y-5">
       <div>
         <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-fg">
-          <ArrowLeft className="size-4" /> Matchups
+          <ArrowLeft className="size-4" aria-hidden /> Matchups
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Account</h1>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">Account</h1>
       </div>
 
       <Card title="Profile">
         <ProfileForm userId={user.id} initial={(profile as Profile | null) ?? { username: null, avatar_url: null }} />
+      </Card>
+
+      <Card title="Appearance">
+        <ThemeSetting />
       </Card>
 
       <Card title="Account details">
@@ -64,7 +69,7 @@ export default async function AccountPage({
 
       <Card title="Change password">
         {updated === "password" && (
-          <p className="mb-3 text-sm text-emerald-300" role="status">Your password has been updated.</p>
+          <p className="mb-3 text-sm text-success" role="status">Your password has been updated.</p>
         )}
         <ResetPasswordForm
           email={user.email ?? ""}
@@ -79,7 +84,7 @@ export default async function AccountPage({
           href="/privacy"
           className="flex items-center gap-3 rounded-xl border border-line px-3 py-2.5 text-sm transition hover:border-brand-from/60"
         >
-          <ShieldCheck className="size-4 text-brand-to" aria-hidden />
+          <ShieldCheck className="size-4 text-brand-from" aria-hidden />
           What we store and who can see it
         </Link>
       </Card>

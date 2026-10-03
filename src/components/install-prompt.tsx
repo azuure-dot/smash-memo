@@ -40,7 +40,7 @@ export function InstallPrompt() {
       aria-labelledby="install-title"
       className={cn(
         "fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 md:hidden",
-        "rounded-2xl border border-line bg-surface/95 p-4 shadow-2xl shadow-black/60 backdrop-blur-xl",
+        "rounded-2xl border border-line bg-surface/95 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl",
         closing ? "animate-slide-down" : "animate-slide-up",
         "motion-reduce:animate-none",
       )}
@@ -56,7 +56,7 @@ export function InstallPrompt() {
           ) : (
             <p className="mt-0.5 text-sm leading-relaxed text-muted">
               To install this app, tap the Share icon{" "}
-              <IOSShareIcon className="inline size-[1.1em] -translate-y-px align-middle text-brand-to" /> below and
+              <IOSShareIcon className="inline size-[1.1em] -translate-y-px align-middle text-brand-from" /> below and
               select <span className="font-medium text-fg">&lsquo;Add to Home Screen&rsquo;</span>.
             </p>
           )}
@@ -85,7 +85,7 @@ export function InstallPrompt() {
           <button
             type="button"
             onClick={() => void install()}
-            className="flex h-10 flex-[2] items-center justify-center gap-2 rounded-xl bg-brand text-sm font-semibold text-white shadow-lg shadow-brand-from/25 transition hover:brightness-110"
+            className="flex h-10 flex-[2] items-center justify-center gap-2 rounded-xl bg-brand text-sm font-semibold text-on-brand transition hover:brightness-110"
           >
             <Download className="size-4" /> Install App
           </button>

@@ -88,7 +88,7 @@ export default async function SharedMatchupPage({ params }: Props) {
               </p>
               <Link
                 href={`/login?next=${encodeURIComponent(`/share/${id}`)}`}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110"
               >
                 <LogIn className="size-4" /> Sign in / Sign up
               </Link>

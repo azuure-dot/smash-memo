@@ -1,77 +1,159 @@
-// Regenerates every app icon and the header logo from the two source files in /brand.
-// Usage (from the project folder):  node scripts/make-icons.mjs
+// Regenerates every app icon, the header logos and the link preview from the source files in /brand,
+// recoloured in the "paper & ink" style (the original artwork's shapes are kept as-is).
+// Usage (from the project folder, with `npm run dev` stopped):  node scripts/make-icons.mjs
 import sharp from "sharp";
 
-const SMALL = "brand/logo-small-source.webp"; // square, purple → magenta gradient + pen
-const LONG = "brand/logo-long-source.png"; // "SMASH MEMO" + pen on pure black
+const SMALL = "brand/logo-small-source.webp"; // square, purple → magenta gradient + white pen with "SM"
+const LONG = "brand/logo-long-source.png"; // "SMASH MEMO" (gradient) + white pen, on pure black
+
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const INK = {
+  paper: hex("#f6f1e7"),
+  ink: hex("#1e2433"), // blue-black pen
+  magenta: hex("#b3246f"),
+  chalk: hex("#e9e4d8"), // dark-mode "ink"
+  magentaDark: hex("#f06bb4"),
+};
+
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+
+/** How "white" a pixel is (1 = white pen, ~0.35 = the purple/magenta gradient). */
+function whiteness(r, g, b) {
+  const max = Math.max(r, g, b);
+  return max === 0 ? 0 : Math.min(r, g, b) / max;
+}
+/** Pen-ness from whiteness, with a soft edge for anti-aliased pixels. */
+const penAmount = (w) => clamp01((w - 0.5) / 0.4);
+
+/**
+ * Smooth value noise in [lo, hi], cell ≈ `cell` px: gives the ink a faint stamped / printed texture.
+ * Deterministic, so the output doesn't change between runs.
+ */
+function inkGrain(width, height, cell, lo, hi) {
+  const gw = Math.ceil(width / cell) + 2, gh = Math.ceil(height / cell) + 2;
+  let seed = 1234567;
+  const rand = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  const grid = Float32Array.from({ length: gw * gh }, () => lo + (hi - lo) * rand());
+  return (x, y) => {
+    const gx = x / cell, gy = y / cell;
+    const x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
+    const v = (i, j) => grid[j * gw + i];
+    const top = v(x0, y0) * (1 - fx) + v(x0 + 1, y0) * fx;
+    const bot = v(x0, y0 + 1) * (1 - fx) + v(x0 + 1, y0 + 1) * fx;
+    return top * (1 - fy) + bot * fy;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Small logo → icons: cream paper, blue-black pen, magenta "SM" letters.
+// ---------------------------------------------------------------------------
+async function inkSmall() {
+  const { data, info } = await sharp(SMALL).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: W, height: H } = info;
+  const n = W * H;
+  const pen = new Float32Array(n);
+  for (let p = 0; p < n; p++) pen[p] = penAmount(whiteness(data[p * 3], data[p * 3 + 1], data[p * 3 + 2]));
+
+  // Background = non-pen pixels reachable from the border; the non-pen pixels enclosed by the pen are the letters.
+  const bg = new Uint8Array(n);
+  const stack = [];
+  const push = (p) => { if (!bg[p] && pen[p] < 0.5) { bg[p] = 1; stack.push(p); } };
+  for (let x = 0; x < W; x++) { push(x); push((H - 1) * W + x); }
+  for (let y = 0; y < H; y++) { push(y * W); push(y * W + W - 1); }
+  while (stack.length) {
+    const p = stack.pop(), x = p % W, y = (p - x) / W;
+    if (x > 0) push(p - 1);
+    if (x < W - 1) push(p + 1);
+    if (y > 0) push(p - W);
+    if (y < H - 1) push(p + W);
+  }
+  // Letter mask, grown by 3 px so the anti-aliased pen edge around the letters blends to magenta, not cream.
+  const letter = new Uint8Array(n);
+  for (let p = 0; p < n; p++) if (!bg[p] && pen[p] < 0.5) letter[p] = 1;
+  const grown = Uint8Array.from(letter);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      if (!letter[y * W + x]) continue;
+      for (let dy = -3; dy <= 3; dy++)
+        for (let dx = -3; dx <= 3; dx++) {
+          const xx = x + dx, yy = y + dy;
+          if (xx >= 0 && yy >= 0 && xx < W && yy < H) grown[yy * W + xx] = 1;
+        }
+    }
+
+  const out = Buffer.alloc(n * 3);
+  for (let p = 0; p < n; p++) {
+    const base = grown[p] ? INK.magenta : INK.paper;
+    const [r, g, b] = mix(base, INK.ink, pen[p]);
+    out[p * 3] = r; out[p * 3 + 1] = g; out[p * 3 + 2] = b;
+  }
+  return sharp(out, { raw: { width: W, height: H, channels: 3 } }).png().toBuffer();
+}
 
 /** Rounded-corner mask (iOS-like radius) for icons shown as-is (tab, "any" PWA icons). */
 const roundMask = (size) =>
   Buffer.from(`<svg width="${size}" height="${size}"><rect width="${size}" height="${size}" rx="${size * 0.215}"/></svg>`);
 
-async function square(size, out, { rounded }) {
-  let img = sharp(SMALL).resize(size, size, { kernel: "lanczos3" });
+async function square(src, size, out, { rounded }) {
+  let img = sharp(src).resize(size, size, { kernel: "lanczos3" });
   if (rounded) img = sharp(await img.png().toBuffer()).composite([{ input: roundMask(size), blend: "dest-in" }]);
   await img.png({ compressionLevel: 9 }).toFile(out);
   console.log("wrote", out);
 }
 
-/**
- * Android "maskable" icon: the launcher crops it to a circle/squircle that keeps only the
- * central 80 %. Shrink the artwork into that safe zone, then repeat its edge pixels outwards:
- * the gradient is horizontal, so this continues it without any visible seam.
- */
-async function maskable(size, out) {
+/** Android "maskable" icon: artwork shrunk into the central 80 % safe zone, on plain paper. */
+async function maskable(src, size, out) {
   const inner = Math.round(size * 0.8);
   const pad = Math.round((size - inner) / 2);
-  await sharp(SMALL)
+  const [r, g, b] = INK.paper;
+  await sharp(src)
     .resize(inner, inner)
-    .extend({ top: pad, bottom: size - inner - pad, left: pad, right: size - inner - pad, extendWith: "copy" })
+    .extend({ top: pad, bottom: size - inner - pad, left: pad, right: size - inner - pad, background: { r, g, b } })
     .png({ compressionLevel: 9 })
     .toFile(out);
   console.log("wrote", out);
 }
 
-/**
- * Header logo: turns the black background transparent without a dark fringe.
- * Each pixel was drawn over black, so alpha = brightest channel and colour = pixel / alpha.
- */
-async function longOnTransparent(height) {
+// ---------------------------------------------------------------------------
+// Long logo → header wordmarks: transparent, ink lettering + magenta pen, faint stamp texture.
+// ---------------------------------------------------------------------------
+async function inkLong(height, { text, pen }) {
   const { data, info } = await sharp(LONG).removeAlpha().raw().toBuffer({ resolveWithObject: true });
-  const rgba = Buffer.alloc(info.width * info.height * 4);
-  for (let i = 0, j = 0; i < data.length; i += 3, j += 4) {
-    const r = data[i], g = data[i + 1], b = data[i + 2];
+  const { width: W, height: H } = info;
+  const grain = inkGrain(W, H, 12, 0.9, 1);
+  const rgba = Buffer.alloc(W * H * 4);
+  for (let p = 0; p < W * H; p++) {
+    const r = data[p * 3], g = data[p * 3 + 1], b = data[p * 3 + 2];
+    // Drawn over black: coverage = brightest channel; un-premultiply to get the real colour.
     const a = Math.max(r, g, b);
-    if (a > 0) {
-      rgba[j] = Math.min(255, Math.round((r * 255) / a));
-      rgba[j + 1] = Math.min(255, Math.round((g * 255) / a));
-      rgba[j + 2] = Math.min(255, Math.round((b * 255) / a));
-    }
-    rgba[j + 3] = a;
+    if (!a) continue;
+    const t = penAmount(whiteness(r, g, b));
+    const [cr, cg, cb] = mix(text, pen, t);
+    const x = p % W, y = (p - x) / W;
+    rgba[p * 4] = cr; rgba[p * 4 + 1] = cg; rgba[p * 4 + 2] = cb;
+    rgba[p * 4 + 3] = Math.round(a * grain(x, y));
   }
-  const trimmed = await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } })
-    .trim({ threshold: 1 }) // crop the empty margins
-    .png()
-    .toBuffer();
+  const trimmed = await sharp(rgba, { raw: { width: W, height: H, channels: 4 } }).trim({ threshold: 1 }).png().toBuffer();
   return sharp(trimmed).resize({ height, kernel: "lanczos3" }).png({ compressionLevel: 9 }).toBuffer();
 }
 
-async function transparentLong(out, height) {
-  await sharp(await longOnTransparent(height)).toFile(out);
+async function writeLong(out, height, colours) {
+  await sharp(await inkLong(height, colours)).toFile(out);
   const meta = await sharp(out).metadata();
   console.log("wrote", out, `${meta.width}x${meta.height}`);
 }
 
-/** Link preview (Discord, WhatsApp, X…): long logo on the app's dark background with the brand glow. */
+/** Link preview (Discord, WhatsApp, X…): the ink wordmark on dot-grid paper. */
 async function openGraph(out) {
   const W = 1200, H = 630;
+  const [pr, pg, pb] = INK.paper;
   const bg = Buffer.from(
-    `<svg width="${W}" height="${H}"><defs><radialGradient id="glow" cx="50%" cy="38%" r="55%">` +
-      `<stop offset="0" stop-color="#8b5cf6" stop-opacity="0.32"/><stop offset="0.6" stop-color="#e040fb" stop-opacity="0.08"/>` +
-      `<stop offset="1" stop-color="#0a0910" stop-opacity="0"/></radialGradient></defs>` +
-      `<rect width="${W}" height="${H}" fill="#0a0910"/><rect width="${W}" height="${H}" fill="url(#glow)"/></svg>`,
+    `<svg width="${W}" height="${H}"><defs><pattern id="d" width="26" height="26" patternUnits="userSpaceOnUse">` +
+      `<circle cx="13" cy="13" r="1.6" fill="rgb(30,36,51)" fill-opacity="0.12"/></pattern></defs>` +
+      `<rect width="${W}" height="${H}" fill="rgb(${pr},${pg},${pb})"/><rect width="${W}" height="${H}" fill="url(#d)"/></svg>`,
   );
-  const logo = await longOnTransparent(270);
+  const logo = await inkLong(270, { text: INK.ink, pen: INK.magenta });
   const { width } = await sharp(logo).metadata();
   await sharp(bg)
     .composite([{ input: logo, left: Math.round((W - width) / 2), top: Math.round((H - 270) / 2) }])
@@ -91,10 +173,13 @@ async function gameLogo(game) {
 
 for (const game of ["ultimate", "melee", "roa2"]) await gameLogo(game);
 
-await square(64, "src/app/icon.png", { rounded: true }); // browser tab
-await square(180, "src/app/apple-icon.png", { rounded: false }); // iOS home screen (iOS rounds it)
-await square(192, "public/icons/icon-192.png", { rounded: true });
-await square(512, "public/icons/icon-512.png", { rounded: true });
-await maskable(512, "public/icons/maskable-512.png");
-await transparentLong("public/brand/logo-long.png", 160); // shown 36–80 px tall: crisp on retina screens
+const small = await inkSmall();
+await square(small, 64, "src/app/icon.png", { rounded: true }); // browser tab
+await square(small, 180, "src/app/apple-icon.png", { rounded: false }); // iOS home screen (iOS rounds it)
+await square(small, 192, "public/icons/icon-192.png", { rounded: true });
+await square(small, 512, "public/icons/icon-512.png", { rounded: true });
+await maskable(small, 512, "public/icons/maskable-512.png");
+// Header wordmarks, shown 36–80 px tall: crisp on retina screens. One per theme.
+await writeLong("public/brand/logo-long-light.png", 160, { text: INK.ink, pen: INK.magenta });
+await writeLong("public/brand/logo-long-dark.png", 160, { text: INK.chalk, pen: INK.magentaDark });
 await openGraph("src/app/opengraph-image.png"); // Next.js adds the <meta og:image> tags automatically

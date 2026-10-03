@@ -14,7 +14,7 @@ const SAVE_LABEL: Record<SaveState, string> = {
   dirty: "Unsaved changes",
   saving: "Saving…",
   saved: "Saved",
-  error: "Couldn't save — retrying on next edit",
+  error: "Couldn't save. Retrying on your next edit.",
 };
 
 /**
@@ -76,42 +76,43 @@ export function PresetReminder({
     timer.current = setTimeout(() => void flush(), 800);
   }
 
+  // Ruled notebook paper: text sits on the lines (line-height = rule spacing), left of the red margin is empty.
+  const ruled = "bg-ruled pb-3 pl-12 pr-4 pt-1.5 font-serif text-[16px] leading-[1.75rem] sm:pr-6";
+
   return (
-    <section
-      aria-labelledby="reminder-title"
-      className="rounded-2xl border border-brand-to/40 bg-brand-to/[0.06] p-4 shadow-[0_0_32px_-16px] shadow-brand-to sm:p-5"
-    >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <span className="grid size-8 place-items-center rounded-lg bg-brand text-white">
-            <Zap className="size-4" />
-          </span>
-          <div>
-            <h2 id="reminder-title" className="font-semibold leading-tight">Pre-Set Reminder</h2>
-            <p className="text-xs text-muted">Read this right before the set.</p>
-          </div>
+    <section aria-labelledby="reminder-title" className="paper overflow-hidden rounded-lg">
+      <div className="flex items-end justify-between gap-3 px-4 pb-1 pt-3 sm:px-6">
+        <div className="flex items-center gap-2">
+          <Zap className="size-4 -rotate-6 text-brand" aria-hidden />
+          <h2 id="reminder-title" className="font-hand text-[26px] font-bold leading-none text-brand">
+            Pre-set reminder
+          </h2>
+          <span className="hidden text-xs text-muted sm:inline">Read this right before the set.</span>
         </div>
         {!readOnly && (
-          <span className={cn("text-xs", saveState === "error" ? "text-red-400" : "text-muted")} aria-live="polite">
+          <span className={cn("text-xs", saveState === "error" ? "text-avoid" : "text-muted")} aria-live="polite">
             {SAVE_LABEL[saveState]}
           </span>
         )}
       </div>
 
       {readOnly ? (
-        <blockquote className="whitespace-pre-wrap break-words border-l-2 border-brand-to pl-4 text-[15px] leading-relaxed">
-          {text}
-        </blockquote>
+        <p className={cn(ruled, "min-h-[5.5rem] whitespace-pre-wrap break-words")}>{text}</p>
       ) : (
         <textarea
+          name="preset_reminder"
           value={text}
           onChange={(e) => change(e.target.value)}
           onBlur={() => void flush()}
           maxLength={MAX_LENGTH}
-          rows={3}
+          rows={4}
+          autoComplete="off"
           aria-labelledby="reminder-title"
-          placeholder={"e.g. Watch out for neutral B, DI out on down-throw…"}
-          className="field-sizing-content min-h-24 w-full resize-none rounded-xl border border-brand-to/25 bg-bg/60 px-3.5 py-3 text-[15px] leading-relaxed outline-none transition placeholder:text-muted/60 focus:border-brand-to/70"
+          placeholder="e.g. Watch out for neutral B, DI out on down-throw…"
+          className={cn(
+            ruled,
+            "block field-sizing-content min-h-[7.5rem] w-full resize-none border-0 bg-transparent placeholder:text-muted/60",
+          )}
         />
       )}
     </section>

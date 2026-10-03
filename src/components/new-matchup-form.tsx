@@ -7,7 +7,7 @@ import { CHARACTER_EXAMPLES, CHARACTERS, GAME_LABELS } from "@/lib/game-data";
 import type { Game } from "@/lib/types";
 
 const inputClass =
-  "w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition placeholder:text-muted/60 focus:border-brand-from";
+  "w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition placeholder:text-muted/60 focus:border-fg/60";
 
 /** The game comes from the dashboard's global game selector: the form only asks for the two characters. */
 export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defaultOpen?: boolean }) {
@@ -20,7 +20,7 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-from/20 transition hover:brightness-110"
+        className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110"
       >
         <Plus className="size-4" /> New {GAME_LABELS[game]} matchup
       </button>
@@ -94,7 +94,7 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
         ))}
       </datalist>
 
-      {state.error && <p className="mt-3 text-sm text-red-400" role="alert">{state.error}</p>}
+      {state.error && <p className="mt-3 text-sm text-avoid" role="alert">{state.error}</p>}
 
       <div className="mt-4 flex items-center justify-between gap-3">
         <p className="truncate text-sm text-muted">
@@ -103,7 +103,7 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
         <button
           type="submit"
           disabled={pending}
-          className="shrink-0 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+          className="shrink-0 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:opacity-60"
         >
           {pending ? "Creating…" : "Create note"}
         </button>

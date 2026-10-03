@@ -20,8 +20,8 @@ export function DeleteAccountForm({ matchupCount }: { matchupCount: number }) {
 
   return (
     <form action={formAction} className="space-y-3">
-      <div className="flex gap-3 rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-200">
-        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-red-400" aria-hidden />
+      <div className="flex gap-3 rounded-xl border border-avoid/30 bg-avoid/5 p-3 text-sm text-fg">
+        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-avoid" aria-hidden />
         <p>
           This permanently deletes your account and{" "}
           <strong>
@@ -42,16 +42,16 @@ export function DeleteAccountForm({ matchupCount }: { matchupCount: number }) {
           autoComplete="off"
           autoCapitalize="characters"
           spellCheck={false}
-          className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 font-mono text-sm outline-none transition focus:border-red-400"
+          className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 font-mono text-sm outline-none transition focus:border-fg/60"
         />
       </label>
 
-      {state.error && <p className="text-sm text-red-400" role="alert">{state.error}</p>}
+      {state.error && <p className="text-sm text-avoid" role="alert">{state.error}</p>}
 
       <button
         type="submit"
         disabled={typed !== "DELETE" || pending}
-        className="w-full rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+        className="w-full rounded-xl bg-avoid py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {pending ? "Deleting…" : "Delete my account"}
       </button>

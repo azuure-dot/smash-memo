@@ -40,7 +40,7 @@ export function LoginForm({ next }: { next: string }) {
             type="email"
             required
             autoComplete="email"
-            className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-brand-from"
+            className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-fg/60"
           />
         </label>
 
@@ -48,7 +48,7 @@ export function LoginForm({ next }: { next: string }) {
           <span className="mb-1 flex items-center justify-between text-xs font-medium text-muted">
             Password
             {mode === "signin" && (
-              <Link href="/forgot-password" className="font-normal text-brand-to hover:underline">
+              <Link href="/forgot-password" className="font-normal text-brand-from hover:underline">
                 Forgot password?
               </Link>
             )}
@@ -59,17 +59,17 @@ export function LoginForm({ next }: { next: string }) {
             required
             minLength={mode === "signup" ? 8 : undefined}
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-brand-from"
+            className="w-full rounded-xl border border-line bg-bg px-3 py-2.5 text-sm outline-none transition focus:border-fg/60"
           />
         </label>
 
-        {state.error && <p className="text-sm text-red-400" role="alert">{state.error}</p>}
-        {state.message && <p className="text-sm text-emerald-300" role="status">{state.message}</p>}
+        {state.error && <p className="text-sm text-avoid" role="alert">{state.error}</p>}
+        {state.message && <p className="text-sm text-success" role="status">{state.message}</p>}
 
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-brand py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+          className="w-full rounded-xl bg-brand py-2.5 text-sm font-semibold text-on-brand transition hover:brightness-110 disabled:opacity-60"
         >
           {pending ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
         </button>

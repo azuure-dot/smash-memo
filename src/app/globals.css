@@ -1,19 +1,41 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
-/* Design tokens — dark by default, purple → magenta accents           */
+/* Design tokens — "paper & ink". Light = cream paper on a desk,       */
+/* dark = slate notebook. Follows the device setting.                  */
+/* Token names are shared by every component, so the whole app themes  */
+/* from here.                                                           */
 /* ------------------------------------------------------------------ */
 @theme {
-  --color-bg: #0a0910;
-  --color-surface: #121019;
-  --color-surface-2: #1a1723;
-  --color-line: #262232;
-  --color-fg: #ecebf3;
-  --color-muted: #8a8499;
-  --color-brand-from: #8b5cf6; /* violet */
-  --color-brand-to: #e040fb;   /* magenta */
+  /* Surfaces */
+  --color-bg: #e8e1d3;        /* desk, behind the sheets */
+  --color-surface: #fbf8f1;   /* sheet of paper */
+  --color-surface-2: #f2ede2; /* tinted paper (fills, chips) */
+  --color-line: #ddd4c2;      /* pencil borders */
+
+  /* Inks */
+  --color-fg: #1e2433;        /* blue-black pen */
+  --color-muted: #6e6757;     /* pencil */
+  --color-brand-from: #b3246f; /* magenta ink (brand) */
+  --color-brand-to: #b3246f;
+  --color-on-brand: #fbf8f1;  /* text on a magenta / ink fill */
+
+  /* Stage statuses: pen + highlighter */
+  --color-prefer: #2453b8;
+  --color-prefer-hl: rgb(124 172 255 / 0.55);
+  --color-avoid: #c0362c;
+  --color-avoid-hl: rgb(255 120 110 / 0.35);
+  --color-magenta-hl: rgb(240 130 190 / 0.4);
+  --color-success: #2f7a4f;   /* green ink */
+
+  /* Notebook details */
+  --color-rule: rgb(84 129 196 / 0.22); /* ruled lines */
+  --color-margin: rgb(214 82 82 / 0.45); /* red margin line */
+  --color-dot: rgb(30 36 51 / 0.13);     /* dot grid */
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-literata), ui-serif, Georgia, serif;
+  --font-hand: var(--font-caveat), "Segoe Print", "Bradley Hand", cursive;
 
   /* Bottom sheets (install prompt) */
   --animate-slide-up: slide-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -28,54 +50,149 @@
   }
 }
 
-@utility bg-brand {
-  background-image: linear-gradient(120deg, var(--color-brand-from), var(--color-brand-to));
+/*
+ * Theme switch. <html data-theme="light|dark"> is set before first paint by the inline script in
+ * layout.tsx, from the user's choice (Account → Appearance) or, by default, the device setting.
+ * Tailwind's dark: variant follows the same attribute.
+ */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  color-scheme: light;
+  --paper-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 1px 2px rgb(60 45 20 / 0.06), 0 10px 28px -14px rgb(60 45 20 / 0.28);
 }
 
+/* Slate notebook. */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper-shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 12px 32px -14px rgb(0 0 0 / 0.7);
+    --color-bg: #121316;
+    --color-surface: #1b1d21;
+    --color-surface-2: #23262b;
+    --color-line: #34373e;
+    --color-fg: #e9e4d8;
+    --color-muted: #9a958a;
+    --color-brand-from: #f06bb4;
+    --color-brand-to: #f06bb4;
+    --color-on-brand: #1b1d21;
+    --color-prefer: #86aeff;
+    --color-prefer-hl: rgb(90 140 255 / 0.32);
+    --color-avoid: #ff8a80;
+    --color-avoid-hl: rgb(255 110 100 / 0.25);
+    --color-magenta-hl: rgb(240 107 180 / 0.28);
+    --color-success: #7fd3a1;
+    --color-rule: rgb(140 170 220 / 0.14);
+    --color-margin: rgb(255 120 120 / 0.35);
+    --color-dot: rgb(233 228 216 / 0.1);
+}
+
+/* Magenta ink fill (primary buttons, avatars). Flat ink, no gradient. */
+@utility bg-brand {
+  background-color: var(--color-brand-from);
+}
+
+/* Magenta ink text. */
 @utility text-brand {
-  background-image: linear-gradient(120deg, var(--color-brand-from), var(--color-brand-to));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--color-brand-from);
+}
+
+/* A sheet of paper resting on the desk. */
+@utility paper {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-line);
+  /* Soft shadow tinted like the desk (no glow), set per theme above. */
+  box-shadow: var(--paper-shadow);
+}
+
+/* Ruled notebook paper with a red margin line. Line spacing = --rule (match the text's line-height). */
+@utility bg-ruled {
+  --rule: 1.75rem;
+  background-image:
+    linear-gradient(to right, transparent 2.1rem, var(--color-margin) 2.1rem, var(--color-margin) calc(2.1rem + 1px), transparent calc(2.1rem + 1px)),
+    linear-gradient(to bottom, transparent calc(var(--rule) - 1px), var(--color-rule) calc(var(--rule) - 1px));
+  background-size: 100% 100%, 100% var(--rule);
+  background-attachment: local;
+}
+
+/* Highlighter swipe behind text (slightly slanted ends, sits on the lower 60% of the line). */
+@utility marker {
+  --hl: var(--color-magenta-hl);
+  background-image: linear-gradient(100deg, transparent 0.12em, var(--hl) 0.3em, var(--hl) calc(100% - 0.3em), transparent calc(100% - 0.12em));
+  background-size: 100% 0.68em;
+  background-position: 0 88%;
+  background-repeat: no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding-inline: 0.28em;
+  margin-inline: -0.28em;
+}
+@utility marker-prefer {
+  --hl: var(--color-prefer-hl);
+}
+@utility marker-avoid {
+  --hl: var(--color-avoid-hl);
 }
 
 html {
-  color-scheme: dark;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+  /* Faint paper grain on the desk. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.2 0 0 0 0 0.1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   color: var(--color-fg);
+  touch-action: manipulation;
 }
 
+/* Keyboard focus on buttons and links: a thin pencil outline, no coloured frame. */
 :focus-visible {
-  outline: 2px solid var(--color-brand-to);
+  outline: 1.5px solid color-mix(in oklab, var(--color-fg) 55%, transparent);
   outline-offset: 2px;
 }
 
+/*
+ * Text fields never get an outline: you're writing on paper. The cue is the magenta ink caret,
+ * plus each field's own line/border turning to ink (see the components).
+ */
+input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+textarea,
+[contenteditable="true"] {
+  caret-color: var(--color-brand-from);
+}
+input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]):focus-visible,
+textarea:focus-visible,
+[contenteditable="true"]:focus-visible {
+  outline: none;
+}
+
 ::selection {
-  background: color-mix(in oklab, var(--color-brand-from) 45%, transparent);
+  background: var(--color-magenta-hl);
 }
 
 /* ------------------------------------------------------------------ */
-/* Rich text editor content                                            */
+/* Rich text editor: written on ruled notebook paper (same as the      */
+/* Pre-set reminder). Every line box is exactly one rule (1.75rem), so  */
+/* text always sits on the lines; headings stay one rule tall and are   */
+/* told apart by weight and ink colour rather than size.                */
 /* ------------------------------------------------------------------ */
 .tiptap {
-  line-height: 1.65;
-  font-size: 0.975rem;
+  --rule: 1.75rem;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: var(--rule);
 }
-.tiptap > * + * { margin-top: 0.75em; }
-.tiptap h1 { font-size: 1.6rem; font-weight: 700; line-height: 1.25; margin-top: 1.25em; }
-.tiptap h2 { font-size: 1.3rem; font-weight: 650; line-height: 1.3; margin-top: 1.1em; }
-.tiptap h3 { font-size: 1.1rem; font-weight: 600; line-height: 1.35; margin-top: 1em; color: #d8c8ff; }
+.tiptap > * + * { margin-top: 0; }
+.tiptap h1 { font-size: 1.3rem; font-weight: 700; line-height: var(--rule); margin-top: var(--rule); }
+.tiptap h2 { font-size: 1.15rem; font-weight: 650; line-height: var(--rule); margin-top: var(--rule); }
+.tiptap h3 { font-size: 1.02rem; font-weight: 650; line-height: var(--rule); margin-top: var(--rule); color: var(--color-brand-from); }
 .tiptap > :first-child { margin-top: 0; }
-.tiptap ul { list-style: disc; padding-left: 1.4em; }
-.tiptap ol { list-style: decimal; padding-left: 1.4em; }
+.tiptap ul { list-style: disc; padding-left: 1.3em; }
+.tiptap ol { list-style: decimal; padding-left: 1.3em; }
 .tiptap li > p { margin: 0; }
-.tiptap li::marker { color: var(--color-brand-to); }
-.tiptap strong { color: #fff; }
-.tiptap u { text-decoration-color: var(--color-brand-to); text-underline-offset: 3px; }
+.tiptap li::marker { color: var(--color-brand-from); }
+.tiptap strong { color: var(--color-fg); font-weight: 700; }
+.tiptap u { text-decoration-color: var(--color-brand-from); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
@@ -85,8 +202,8 @@ body {
   pointer-events: none;
 }
 
-/* Tables */
-.tiptap .tableWrapper { overflow-x: auto; margin: 1em 0; }
+/* Tables: pencil grid */
+.tiptap .tableWrapper { overflow-x: auto; margin: var(--rule) 0; }
 .tiptap table {
   border-collapse: collapse;
   table-layout: fixed;
@@ -96,7 +213,8 @@ body {
 .tiptap th,
 .tiptap td {
   border: 1px solid var(--color-line);
-  padding: 0.45em 0.6em;
+  padding: 0 0.6em;
+  background: var(--color-surface); /* tables cover the ruled lines */
   vertical-align: top;
   min-width: 4em;
   position: relative;
@@ -112,7 +230,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: color-mix(in oklab, var(--color-brand-from) 22%, transparent);
+  background: var(--color-magenta-hl);
   pointer-events: none;
 }
 .tiptap .column-resize-handle {
@@ -121,7 +239,7 @@ body {
   top: 0;
   bottom: -2px;
   width: 4px;
-  background: var(--color-brand-to);
+  background: var(--color-brand-from);
   pointer-events: none;
 }
 .tiptap.resize-cursor { cursor: col-resize; }
