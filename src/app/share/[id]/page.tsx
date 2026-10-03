@@ -95,8 +95,8 @@ export default async function SharedMatchupPage({ params }: Props) {
             </div>
           )}
 
-          <StageSelector matchupId={matchup.id} initialStages={data.stages} readOnly />
           <PresetReminder matchupId={matchup.id} initialText={matchup.preset_reminder ?? null} readOnly />
+          <StageSelector matchupId={matchup.id} initialStages={data.stages} readOnly />
           <NoteEditor matchupId={matchup.id} initialContent={matchup.content} readOnly />
           <VideoResources matchupId={matchup.id} initialVideos={data.videos ?? []} readOnly />
         </div>

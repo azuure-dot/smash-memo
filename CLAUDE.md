@@ -82,7 +82,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 5. **Page matchup** (`/matchups/[id]`), dans cet ordre :
    - **Stages :** clic = cycle Neutral → Prefer → Avoid ; ajout et suppression de stages custom.
      - **Repliable** (aussi en lecture seule) : titre + compteurs « preferred / avoided » toujours visibles, bouton « Show / Hide stagelist » avec chevron. Replié par défaut sous 768 px, ouvert au-dessus. Avant l'hydratation, c'est le CSS (`md:`) qui décide, pour éviter tout flash ; ensuite le hook `src/lib/use-media-query.ts` (`useSyncExternalStore` + `matchMedia`) prend le relais, et le clic de l'utilisateur prime. Animation : `grid-template-rows` 0fr ↔ 1fr, contenu replié rendu `inert`.
-   - **Pre-Set Reminder** (depuis 0009, `preset-reminder.tsx`, remplace les anciennes Quick Notes) : un seul `<textarea>` en texte simple (colonne `matchups.preset_reminder`, 5000 caractères max), juste sous les stages, encadré magenta. Autosave à 800 ms, au blur et quand l'app passe en arrière-plan. En lecture seule : bloc citation (barre magenta), masqué s'il est vide.
+   - **Pre-Set Reminder** (depuis 0009, `preset-reminder.tsx`, remplace les anciennes Quick Notes) : un seul `<textarea>` en texte simple (colonne `matchups.preset_reminder`, 5000 caractères max), premier bloc sous le titre (au-dessus des stages), encadré magenta. Autosave à 800 ms, au blur et quand l'app passe en arrière-plan. En lecture seule : bloc citation (barre magenta), masqué s'il est vide.
    - **Notes :** éditeur Tiptap avec H1–H3, gras, italique, souligné, listes, tableaux (barre d'outils dédiée quand le curseur est dans un tableau), undo/redo. Autosave à 800 ms et sauvegarde quand l'app passe en arrière-plan.
    - **Video Resources** (depuis 0008, `video-resources.tsx`) : liens YouTube collés → lecteurs 16:9. `src/lib/youtube.ts` extrait l'id (watch, youtu.be, embed, shorts, live, m./music./nocookie, avec ou sans https) et le temps de départ (`t=95`, `1m35s`…). L'action serveur `matchups/[id]/video-actions.ts` vérifie la vidéo via l'oEmbed public de YouTube (existe, intégration autorisée), récupère le titre, et limite à 20 vidéos par note. Affichage : miniature (i.ytimg.com) puis iframe `youtube-nocookie.com` seulement au clic sur lecture. En lecture seule : pas de formulaire ni de suppression, et la section est masquée s'il n'y a aucune vidéo.
    - Bouton de suppression du matchup.
@@ -236,7 +236,7 @@ Ces points n'ont pas été confirmés par le propriétaire :
 
 1. **Stagelist Melee** : garder la liste Melee actuelle ou utiliser la même liste que pour Ultimate ?
 2. **Connexion Discord / Google** en plus de l'email ?
-3. ~~Ordre des sections~~ : tranché le 2026-10-03, l'ordre est Stages → Pre-Set Reminder → Notes → Video Resources.
+3. ~~Ordre des sections~~ : tranché le 2026-10-03, l'ordre est **Pre-Set Reminder → Stages → Notes → Video Resources** (le Reminder est le premier bloc sous le titre ; sur la vue partagée, les boutons Save / Duplicate restent dans l'en-tête, au-dessus).
 
 ## 12. Pistes pour la suite (par priorité)
 

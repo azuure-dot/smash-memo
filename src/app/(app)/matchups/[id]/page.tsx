@@ -86,11 +86,11 @@ export default async function MatchupPage({ params }: Props) {
         </div>
       </div>
 
-      {/* A. Stage preferences */}
-      <StageSelector matchupId={matchup.id} initialStages={(stagesRes.data ?? []) as MatchupStage[]} />
-
-      {/* B. Pre-set reminder — the first text you see, read right before the set */}
+      {/* A. Pre-set reminder — the very first thing under the title, read right before the set */}
       <PresetReminder matchupId={matchup.id} initialText={matchup.preset_reminder ?? null} />
+
+      {/* B. Stage preferences */}
+      <StageSelector matchupId={matchup.id} initialStages={(stagesRes.data ?? []) as MatchupStage[]} />
 
       {/* C. Rich text notes */}
       <NoteEditor matchupId={matchup.id} initialContent={matchup.content} />
