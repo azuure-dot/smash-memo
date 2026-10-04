@@ -1,5 +1,6 @@
 -- Smash Memo — Video Resources accept Twitch VODs and highlights, next to YouTube videos.
 -- Run in the Supabase SQL editor after 0009_preset_reminder.sql, BEFORE pushing the matching code.
+-- Safe to run again if it was interrupted.
 --
 -- Same rule as before: only an id is stored, never a raw URL. A Twitch video id is a number
 -- (twitch.tv/videos/2873706344). Twitch thumbnails can't be built from the id, so their address is stored too,
@@ -7,11 +8,11 @@
 
 -- 1. Which site the video comes from (existing rows are YouTube videos).
 alter table public.matchup_videos
-  add column provider text not null default 'youtube' check (provider in ('youtube', 'twitch'));
+  add column if not exists provider text not null default 'youtube' check (provider in ('youtube', 'twitch'));
 
 -- 2. Twitch thumbnail (null for YouTube, whose thumbnail is derived from the id).
 alter table public.matchup_videos
-  add column thumbnail_url text check (
+  add column if not exists thumbnail_url text check (
     thumbnail_url is null
     or (char_length(thumbnail_url) <= 500 and thumbnail_url ~ '^https://static-cdn\.jtvnw\.net/[A-Za-z0-9_./%-]+$')
   );
