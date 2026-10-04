@@ -5,7 +5,7 @@
  * - Never touches cross-origin requests (Supabase API/auth always go to the network).
  * Bump VERSION whenever you change this file's caching logic.
  */
-const VERSION = "v7";
+const VERSION = "v8";
 const STATIC_CACHE = `sn-static-${VERSION}`;
 const PAGE_CACHE = `sn-pages-${VERSION}`;
 const OFFLINE_URL = "/offline";

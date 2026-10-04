@@ -11,7 +11,7 @@ const INK = {
   paper: hex("#f6f1e7"),
   ink: hex("#1e2433"), // blue-black pen
   magenta: hex("#b3246f"),
-  postit: hex("#b3246f"), // magenta post-it, same as the app buttons (bg-brand)
+  postit: hex("#ff76c6"), // pink post-it chosen by the owner
   chalk: hex("#e9e4d8"), // dark-mode "ink"
   magentaDark: hex("#f06bb4"),
 };
@@ -91,7 +91,7 @@ async function inkSmall() {
     penLayer[p * 4 + 3] = grown[p] ? 255 : Math.round(pen[p] * 255);
   }
 
-  // Background: off-white desk with a magenta post-it, slightly askew, held by masking tape.
+  // Background: off-white desk with a pink post-it, slightly askew, held by masking tape.
   const [pr, pg, pb] = INK.paper;
   const [lr, lg, lb] = INK.postit;
   const side = Math.round(W * 0.72);
