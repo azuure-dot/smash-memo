@@ -107,6 +107,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
        - **Vue en grand** (`ImageLightbox`) : `<dialog>` modal rendu en portail dans `body`, ouvert par clic en lecture seule, double-clic ou bouton en édition ; ferme avec ×, Échap ou clic à côté ; lien « Open on <site> ». Le gestionnaire `onClose` ignore un événement `close` arrivé après réouverture (Strict Mode de React en dev rejoue les effets : sans ça, la vue se refermait aussitôt).
        - Limite connue : les liens `cdn.discordapp.com` expirent au bout d'environ 24 h, ces images finissent en « Image unavailable ».
    - **Video Resources** (depuis 0008, `video-resources.tsx`) : liens YouTube collés → lecteurs 16:9. `src/lib/youtube.ts` extrait l'id (watch, youtu.be, embed, shorts, live, m./music./nocookie, avec ou sans https) et le temps de départ (`t=95`, `1m35s`…). L'action serveur `matchups/[id]/video-actions.ts` vérifie la vidéo via l'oEmbed public de YouTube (existe, intégration autorisée), récupère le titre, et limite à 20 vidéos par note. Affichage : miniature (i.ytimg.com) puis iframe `youtube-nocookie.com` seulement au clic sur lecture. En lecture seule : pas de formulaire ni de suppression, et la section est masquée s'il n'y a aucune vidéo.
+     - **Twitch** (depuis 0010, 2026-10-04) : VODs et highlights (`twitch.tv/videos/ID`, `m.`, anciens `/<chaîne>/v/ID`, `player.twitch.tv/?video=`, temps `?t=1h2m3s`) via `src/lib/twitch.ts` ; `src/lib/videos.ts` choisit YouTube ou Twitch (`parseVideoUrl`, `videoEmbedUrl`, `videoWatchUrl`, `videoThumbnailUrl`). Les **clips ne sont pas gérés** (message dédié).
+       - Pas d'API publique sans clé chez Twitch : l'action serveur lit les balises Open Graph de la page `twitch.tv/videos/ID` (User-Agent `SmashMemo/1.0`), comme les aperçus Discord. Pas de `og:video` = vidéo inexistante, supprimée ou réservée aux abonnés → refus. Titre (sans « on Twitch ») et miniature (`static-cdn.jtvnw.net` uniquement, colonne `thumbnail_url`) ; panne réseau = ajout sans titre. **Fragile** : si Twitch change ses pages, il faudra passer par l'API Helix (application Twitch + client id / secret en variables d'environnement Vercel).
+       - Lecteur `player.twitch.tv` avec `parent=<window.location.hostname>` (obligatoire chez Twitch, lu au clic sur lecture). Miniature morte (VOD expirée) → cadre noir + bouton lecture. Badge « Twitch » / « YouTube » sur chaque vignette. Twitch supprime les VODs de diffusions après 7 à 60 jours selon la chaîne ; les highlights restent (rappelé sous le champ).
    - Bouton de suppression du matchup.
 6. **Compte** (`/account`) : profil, changement de mot de passe, lien Privacy, **suppression du compte** (taper `DELETE`). Vide aussi le cache du service worker.
 7. **Privacy** (`/privacy`) : page publique en anglais. Les valeurs variables viennent de `src/lib/site-config.ts`.
@@ -152,6 +155,10 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - le trigger `updated_at` inclut désormais `preset_reminder` ;
   - table `quick_notes` renommée `quick_notes_legacy` et rendue inaccessible (grants retirés), à supprimer quand le propriétaire a vérifié : `drop table public.quick_notes_legacy;` ;
   - `get_shared_matchup()` renvoie `matchup.preset_reminder` (plus de `quick_notes`) ; `duplicate_shared_matchup()` copie le reminder.
+- `supabase/migrations/0010_twitch_videos.sql` (**à exécuter avant de pousser le code Twitch**, sinon l'ajout et l'affichage des vidéos échouent)
+  - colonnes `matchup_videos.provider` (`youtube` par défaut | `twitch`) et `thumbnail_url` (contrôlée : `https://static-cdn.jtvnw.net/…` seulement) ;
+  - les anciennes contraintes sur `video_id` sont retrouvées par leur définition puis remplacées : format selon le site (11 caractères YouTube, chiffres Twitch), unicité `(matchup_id, provider, video_id)` ;
+  - `get_shared_matchup()` et `duplicate_shared_matchup()` transmettent / copient `provider` et `thumbnail_url`.
 - **Ajouter un jeu :** valeur d'enum + branche dans `seed_matchup_stages()` (nouvelle migration), puis dans `src/lib/game-data.ts` : `GAMES`, `GAME_LABELS`, `CHARACTER_EXAMPLES`, `CHARACTERS`, et les `STAGE_LAYOUTS` des nouveaux stages. Le type `Game` est dans `src/lib/types.ts`. Le formulaire, les filtres et la validation se basent sur `GAMES` / `isGame()`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
@@ -197,7 +204,7 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
 ## 8. Arborescence
 
 ```
-supabase/migrations/          0001_init.sql … 0004_profiles.sql
+supabase/migrations/          0001_init.sql … 0010_twitch_videos.sql
 public/sw.js                  service worker (incrémenter VERSION si la logique de cache change)
 public/icons/                 icônes PWA (générées par scripts/make-icons.mjs)
 public/brand/logo-long.png    logo Long transparent (généré)
@@ -228,6 +235,7 @@ src/lib/
   game-data.ts                rosters, layouts de stages, stageFloorPaths()
   site-config.ts              opérateur, email de contact, région des données (page Privacy)
   image-url.ts                 validation des liens d'images des notes (safeImageUrl, probeImage)
+  youtube.ts, twitch.ts, videos.ts  liens vidéo YouTube / Twitch (lecture des liens, lecteurs, miniatures)
   types.ts, cn.ts
 ```
 

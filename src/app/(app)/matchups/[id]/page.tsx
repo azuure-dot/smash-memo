@@ -50,7 +50,7 @@ export default async function MatchupPage({ params }: Props) {
     supabase.from("profiles").select("username, avatar_url").maybeSingle(),
     supabase
       .from("matchup_videos")
-      .select("id, matchup_id, video_id, title, start_seconds, created_at")
+      .select("id, matchup_id, provider, video_id, title, thumbnail_url, start_seconds, created_at")
       .eq("matchup_id", id)
       .order("created_at"),
   ]);

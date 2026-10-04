@@ -76,6 +76,11 @@ export default function PrivacyPage() {
             (youtube-nocookie.com); from then on, YouTube&apos;s own privacy policy applies to that video.
           </p>
           <p>
+            Notes can also include Twitch videos. Until you press play, only the video&apos;s thumbnail image is
+            loaded from Twitch. Pressing play loads Twitch&apos;s player; from then on, Twitch&apos;s own privacy
+            policy applies to that video.
+          </p>
+          <p>
             Notes can also show images from other websites. Smash Memo only stores the image&apos;s link, never the
             image itself. When you view a note with such an image, your browser loads it directly from the website
             that hosts it, which can see your IP address like for any image on the web. If that website removes

@@ -20,11 +20,17 @@ export type Matchup = {
 };
 
 /** A YouTube video attached to a matchup note (only the video id is stored). */
+export type VideoProvider = "youtube" | "twitch";
+
 export type MatchupVideo = {
   id: string;
   matchup_id: string;
+  provider: VideoProvider;
+  /** YouTube: 11-character id. Twitch: numeric VOD / highlight id. */
   video_id: string;
   title: string | null;
+  /** Twitch only (YouTube thumbnails are derived from the id). */
+  thumbnail_url: string | null;
   start_seconds: number | null;
   created_at: string;
 };
