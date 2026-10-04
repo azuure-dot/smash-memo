@@ -11,6 +11,7 @@ import { ShareButton } from "@/components/matchup/share-button";
 import { StageSelector } from "@/components/matchup/stage-selector";
 import { VideoResources } from "@/components/matchup/video-resources";
 import { GameStamp } from "@/components/game-stamp";
+import { MatchupLabel } from "@/components/matchup-label";
 import { dashboardHref } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { Matchup, MatchupStage, MatchupVideo, Profile } from "@/lib/types";
@@ -70,11 +71,16 @@ export default async function MatchupPage({ params }: Props) {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <GameStamp game={matchup.game} />
-            <h1 className="mt-3 text-balance break-words font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
-              {matchup.my_character}
-              <span className="mx-2.5 font-hand text-[1.15em] font-bold text-brand">vs</span>
-              {matchup.opponent_character}
-            </h1>
+            {/* The page title is the matchup's post-it, with the character icons. */}
+            <MatchupLabel
+              as="h1"
+              variant="title"
+              id={matchup.id}
+              game={matchup.game}
+              mine={matchup.my_character}
+              opponent={matchup.opponent_character}
+              className="mt-5"
+            />
             {/* What visitors of the share link see. */}
             {matchup.is_shared && <AuthorBadge author={profileRes.data as Profile | null} isYou />}
           </div>

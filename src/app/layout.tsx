@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Geist, Literata } from "next/font/google";
+import Script from "next/script";
 import { InstallPrompt } from "@/components/install-prompt";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import { SITE } from "@/lib/site-config";
@@ -44,7 +45,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // suppressHydrationWarning: data-theme is set by the inline script before React hydrates.
     <html lang="en" className={`${geist.variable} ${literata.variable} ${caveat.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* Runs before hydration so the right theme paints first (no flash). */}
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
       </head>
       <body className="min-h-dvh bg-bg font-sans text-fg antialiased">
         {children}

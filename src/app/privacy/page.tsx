@@ -153,8 +153,8 @@ export default function PrivacyPage() {
           <p>
             Smash Memo is an independent fan-made tool. It is not affiliated with, endorsed or sponsored by Nintendo,
             HAL Laboratory, Sora Ltd. or Aether Studios. Super Smash Bros. Ultimate, Super Smash Bros. Melee and
-            Rivals of Aether II, and their logos, are trademarks of their respective owners and are only used to
-            identify which game a note is about.
+            Rivals of Aether II, their logos and character icons are trademarks or copyrights of their respective
+            owners, and are only used to identify which game and characters a note is about.
           </p>
         </Section>
 

@@ -12,6 +12,7 @@ import { SharedNoteActions } from "@/components/matchup/shared-note-actions";
 import { StageSelector } from "@/components/matchup/stage-selector";
 import { VideoResources } from "@/components/matchup/video-resources";
 import { GameStamp } from "@/components/game-stamp";
+import { MatchupLabel } from "@/components/matchup-label";
 import { dashboardHref, DEFAULT_GAME } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { SharedMatchup } from "@/lib/types";
@@ -73,11 +74,15 @@ export default async function SharedMatchupPage({ params }: Props) {
                 <Eye className="size-3.5" aria-hidden /> Shared, read-only
               </span>
             </div>
-            <h1 className="mt-3 text-balance break-words font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
-              {matchup.my_character}
-              <span className="mx-2.5 font-hand text-[1.15em] font-bold text-brand">vs</span>
-              {matchup.opponent_character}
-            </h1>
+            <MatchupLabel
+              as="h1"
+              variant="title"
+              id={matchup.id}
+              game={matchup.game}
+              mine={matchup.my_character}
+              opponent={matchup.opponent_character}
+              className="mt-5"
+            />
             <AuthorBadge author={data.author} />
           </div>
 

@@ -28,6 +28,12 @@
   --color-magenta-hl: rgb(240 130 190 / 0.4);
   --color-success: #2f7a4f;   /* green ink */
 
+  /* Post-it label with the characters (cards, matchup title): pale pink paper, dark magenta in dark mode. */
+  --color-label: #f4dce3;
+  --color-label-ink: #1e2433;
+  --color-label-accent: #b3246f;
+  --color-tape: rgb(239 228 200 / 0.75);
+
   /* Notebook details */
   --color-rule: rgb(84 129 196 / 0.22); /* ruled lines */
   --color-margin: rgb(214 82 82 / 0.45); /* red margin line */
@@ -81,6 +87,10 @@
     --color-avoid-hl: rgb(255 110 100 / 0.25);
     --color-magenta-hl: rgb(240 107 180 / 0.28);
     --color-success: #7fd3a1;
+    --color-label: #5e1d44;        /* dark magenta post-it */
+    --color-label-ink: #fbeef5;    /* off-white ink (no pure white) */
+    --color-label-accent: #f7a9d1;
+    --color-tape: rgb(239 228 200 / 0.5);
     --color-rule: rgb(140 170 220 / 0.14);
     --color-margin: rgb(255 120 120 / 0.35);
     --color-dot: rgb(233 228 216 / 0.1);

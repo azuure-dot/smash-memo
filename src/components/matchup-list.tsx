@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Bookmark, CopyPlus, Link2, NotebookPen } from "lucide-react";
+import { MatchupLabel } from "@/components/matchup-label";
 import { cn } from "@/lib/cn";
 import { GAME_LABELS } from "@/lib/game-data";
 import type { Game, Matchup, SavedMatchup } from "@/lib/types";
@@ -85,17 +86,13 @@ export function MatchupList({
                   // An index card on the desk: lifts slightly on hover, no glow.
                   className="paper group block rounded-lg p-4 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-fg/30 active:scale-[0.99] motion-reduce:transition-none"
                 >
-                  <div className="mb-3 flex min-h-5 items-center justify-between gap-2">
+                  <div className="mb-4 flex min-h-5 items-center justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-1.5">{badges}</div>
                     <span className="shrink-0 text-xs text-muted" suppressHydrationWarning>
                       {timeAgo(m.updated_at)}
                     </span>
                   </div>
-                  <p className="truncate font-serif text-lg font-semibold">
-                    {m.my_character}
-                    <span className="mx-2 font-hand text-xl font-bold text-brand">vs</span>
-                    {m.opponent_character}
-                  </p>
+                  <MatchupLabel id={m.id} game={m.game} mine={m.my_character} opponent={m.opponent_character} />
                 </Link>
               </li>
             );

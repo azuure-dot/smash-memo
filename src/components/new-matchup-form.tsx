@@ -3,12 +3,9 @@
 import { ArrowLeftRight, Plus, X } from "lucide-react";
 import { useActionState, useState } from "react";
 import { createMatchup, type CreateMatchupState } from "@/app/(app)/actions";
-import { CHARACTER_EXAMPLES, CHARACTERS, GAME_LABELS } from "@/lib/game-data";
+import { CHARACTER_EXAMPLES, GAME_LABELS } from "@/lib/game-data";
 import type { Game } from "@/lib/types";
-
-/** A line to write on: no box, the pencil line turns to ink while you type. */
-const inputClass =
-  "w-full border-0 border-b border-line bg-transparent px-1 py-2 font-serif text-base outline-none transition-colors placeholder:text-muted focus:border-fg/60";
+import { CharacterCombobox } from "./character-combobox";
 
 /** The game comes from the dashboard's global game selector: the form only asks for the two characters. */
 export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defaultOpen?: boolean }) {
@@ -48,20 +45,14 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
       <input type="hidden" name="game" value={game} />
 
       <div className="grid items-end gap-4 sm:grid-cols-[1fr_auto_1fr]">
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-muted">My character</span>
-          <input
-            name="my_character"
-            list={`chars-${game}`}
-            value={mine}
-            onChange={(e) => setMine(e.target.value)}
-            placeholder={`e.g. ${CHARACTER_EXAMPLES[game][0]}…`}
-            required
-            autoComplete="off"
-            spellCheck={false}
-            className={inputClass}
-          />
-        </label>
+        <CharacterCombobox
+          game={game}
+          name="my_character"
+          label="My character"
+          value={mine}
+          onChange={setMine}
+          placeholder={`e.g. ${CHARACTER_EXAMPLES[game][0]}…`}
+        />
 
         <button
           type="button"
@@ -76,27 +67,15 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
           <ArrowLeftRight className="size-4" aria-hidden />
         </button>
 
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-muted">Opponent</span>
-          <input
-            name="opponent_character"
-            list={`chars-${game}`}
-            value={opp}
-            onChange={(e) => setOpp(e.target.value)}
-            placeholder={`e.g. ${CHARACTER_EXAMPLES[game][1]}…`}
-            required
-            autoComplete="off"
-            spellCheck={false}
-            className={inputClass}
-          />
-        </label>
+        <CharacterCombobox
+          game={game}
+          name="opponent_character"
+          label="Opponent"
+          value={opp}
+          onChange={setOpp}
+          placeholder={`e.g. ${CHARACTER_EXAMPLES[game][1]}…`}
+        />
       </div>
-
-      <datalist id={`chars-${game}`}>
-        {CHARACTERS[game].map((c) => (
-          <option key={c} value={c} />
-        ))}
-      </datalist>
 
       {state.error && (
         <p className="mt-3 text-sm text-avoid" role="alert">
