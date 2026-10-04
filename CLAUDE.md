@@ -100,6 +100,12 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
      - **Repliable** (aussi en lecture seule) : titre + compteurs « preferred / avoided » toujours visibles, bouton « Show / Hide stagelist » avec chevron. Replié par défaut sous 768 px, ouvert au-dessus. Avant l'hydratation, c'est le CSS (`md:`) qui décide, pour éviter tout flash ; ensuite le hook `src/lib/use-media-query.ts` (`useSyncExternalStore` + `matchMedia`) prend le relais, et le clic de l'utilisateur prime. Animation : `grid-template-rows` 0fr ↔ 1fr, contenu replié rendu `inert`.
    - **Pre-Set Reminder** (depuis 0009, `preset-reminder.tsx`, remplace les anciennes Quick Notes) : un seul `<textarea>` en texte simple (colonne `matchups.preset_reminder`, 5000 caractères max), premier bloc sous le titre (au-dessus des stages), encadré magenta. Autosave à 800 ms, au blur et quand l'app passe en arrière-plan. En lecture seule : bloc citation (barre magenta), masqué s'il est vide.
    - **Notes :** éditeur Tiptap avec H1–H3, gras, italique, souligné, listes, tableaux (barre d'outils dédiée quand le curseur est dans un tableau), undo/redo. Autosave à 800 ms et sauvegarde quand l'app passe en arrière-plan.
+     - **Images par lien** (2026-10-04, `note-image.tsx` + `src/lib/image-url.ts`), façon Discord : **seul le lien est stocké** dans le JSON de la note (nœud `image`, attrs `src` / `alt`), rien n'est envoyé dans Supabase Storage (choix du propriétaire après discussion des quotas, de la bande passante et du statut d'hébergeur). Pas de migration.
+       - Ajout : coller un lien qui pointe visiblement vers une image (`.png/.jpg/.gif/.webp/.avif`, ou `?format=jpg` façon Twitter) l'intègre directement ; « Copier l'image » d'un navigateur aussi (`<img>` collé) ; bouton **Insert image from a link** de la barre d'outils, qui vérifie dans le navigateur que le lien affiche bien une image (`probeImage`). `insertImage()` n'écrase jamais un bloc sélectionné et place le curseur sous l'image.
+       - Sécurité : `safeImageUrl()` (https seulement, ≤ 2048 caractères, sans identifiants) est vérifié **à l'affichage**, pas seulement à l'insertion : les notes sont enregistrées depuis le navigateur et peuvent être partagées. `referrerPolicy="no-referrer"`. La page Privacy le mentionne.
+       - Rendu : **post-it droit (sans rotation)** `bg-label` + scotch, hauteur max 26rem ; la hauteur totale du bloc est arrondie à un nombre entier de lignes (`ResizeObserver`) pour que le texte reste sur les lignes du cahier. Lien mort → « Image unavailable » + nom du site. Édition : clic = sélection (trait crayon), boutons « View full size » et × au survol ou à la sélection.
+       - **Vue en grand** (`ImageLightbox`) : `<dialog>` modal rendu en portail dans `body`, ouvert par clic en lecture seule, double-clic ou bouton en édition ; ferme avec ×, Échap ou clic à côté ; lien « Open on <site> ». Le gestionnaire `onClose` ignore un événement `close` arrivé après réouverture (Strict Mode de React en dev rejoue les effets : sans ça, la vue se refermait aussitôt).
+       - Limite connue : les liens `cdn.discordapp.com` expirent au bout d'environ 24 h, ces images finissent en « Image unavailable ».
    - **Video Resources** (depuis 0008, `video-resources.tsx`) : liens YouTube collés → lecteurs 16:9. `src/lib/youtube.ts` extrait l'id (watch, youtu.be, embed, shorts, live, m./music./nocookie, avec ou sans https) et le temps de départ (`t=95`, `1m35s`…). L'action serveur `matchups/[id]/video-actions.ts` vérifie la vidéo via l'oEmbed public de YouTube (existe, intégration autorisée), récupère le titre, et limite à 20 vidéos par note. Affichage : miniature (i.ytimg.com) puis iframe `youtube-nocookie.com` seulement au clic sur lecture. En lecture seule : pas de formulaire ni de suppression, et la section est masquée s'il n'y a aucune vidéo.
    - Bouton de suppression du matchup.
 6. **Compte** (`/account`) : profil, changement de mot de passe, lien Privacy, **suppression du compte** (taper `DELETE`). Vide aussi le cache du service worker.
@@ -215,12 +221,13 @@ src/app/
     account/                  compte + profil (profile-form.tsx) + suppression
 src/components/
   app-header.tsx, auth-shell.tsx, avatar.tsx, brand-logo.tsx, dashboard.tsx, game-selector.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
-  matchup/                    stage-selector, stage-glyph, note-editor, quick-notes, delete-matchup-button,
+  matchup/                    stage-selector, stage-glyph, note-editor, note-image, quick-notes, delete-matchup-button,
                               share-button, shared-note-actions, author-badge
 src/lib/
   supabase/{client,server,proxy}.ts
   game-data.ts                rosters, layouts de stages, stageFloorPaths()
   site-config.ts              opérateur, email de contact, région des données (page Privacy)
+  image-url.ts                 validation des liens d'images des notes (safeImageUrl, probeImage)
   types.ts, cn.ts
 ```
 

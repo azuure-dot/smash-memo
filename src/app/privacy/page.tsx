@@ -75,6 +75,12 @@ export default function PrivacyPage() {
             from YouTube. Pressing play loads YouTube&apos;s player in its privacy-enhanced mode
             (youtube-nocookie.com); from then on, YouTube&apos;s own privacy policy applies to that video.
           </p>
+          <p>
+            Notes can also show images from other websites. Smash Memo only stores the image&apos;s link, never the
+            image itself. When you view a note with such an image, your browser loads it directly from the website
+            that hosts it, which can see your IP address like for any image on the web. If that website removes
+            the image, it stops showing in the note.
+          </p>
         </Section>
 
         <Section title="Who can see your data">

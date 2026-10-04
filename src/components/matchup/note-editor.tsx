@@ -4,12 +4,14 @@ import { EditorContent, useEditor, useEditorState, type Editor, type JSONContent
 import StarterKit from "@tiptap/starter-kit";
 import { TableKit } from "@tiptap/extension-table";
 import {
-  Bold, Heading1, Heading2, Heading3, Italic, List, ListOrdered, Pilcrow,
+  Bold, Heading1, Heading2, Heading3, ImagePlus, Italic, List, ListOrdered, Pilcrow,
   Redo2, Table as TableIcon, Underline as UnderlineIcon, Undo2,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { probeImage, safeImageUrl } from "@/lib/image-url";
 import { createClient } from "@/lib/supabase/client";
+import { insertImage, NoteImage } from "./note-image";
 
 type SaveState = "idle" | "dirty" | "saving" | "saved" | "error";
 
@@ -58,6 +60,7 @@ export function NoteEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }), // includes Bold, Italic, Underline, lists, undo
       TableKit.configure({ table: { resizable: true } }),
+      NoteImage,
     ],
     content: initialContent ?? "",
     editorProps: {
@@ -136,6 +139,8 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         : null,
   });
 
+  const [imageForm, setImageForm] = useState(false);
+
   if (!editor || !s) return <div className="mt-3 h-12 border-y border-line" />;
   const chain = () => editor.chain().focus();
 
@@ -178,6 +183,9 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         >
           <TableIcon />
         </ToolButton>
+        <ToolButton label="Insert image from a link" active={imageForm} onClick={() => setImageForm((v) => !v)}>
+          <ImagePlus />
+        </ToolButton>
         <Divider />
         <ToolButton label="Undo" disabled={!s.canUndo} onClick={() => chain().undo().run()}>
           <Undo2 />
@@ -198,7 +206,67 @@ function Toolbar({ editor }: { editor: Editor | null }) {
           <TextButton danger onClick={() => chain().deleteTable().run()}>Delete table</TextButton>
         </div>
       )}
+
+      {imageForm && <ImageLinkForm editor={editor} onClose={() => setImageForm(false)} />}
     </div>
+  );
+}
+
+/** "Paste an image link": checks that the link really opens an image, then embeds it at the cursor. */
+function ImageLinkForm({ editor, onClose }: { editor: Editor; onClose: () => void }) {
+  const [url, setUrl] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    const src = safeImageUrl(url);
+    if (!src) return setError("Use an https:// link to an image.");
+    setChecking(true);
+    setError(null);
+    const ok = await probeImage(src);
+    setChecking(false);
+    if (!ok) return setError("This link doesn't open an image. Try “Copy image address” instead.");
+    insertImage(editor.view, editor.schema.nodes.image.create({ src }));
+    onClose();
+  }
+
+  return (
+    <form onSubmit={add} className="border-t border-line px-3 py-2 sm:px-5">
+      <div className="flex items-center gap-2">
+        <input
+          autoFocus
+          type="url"
+          inputMode="url"
+          value={url}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            setError(null);
+          }}
+          onKeyDown={(e) => e.key === "Escape" && onClose()}
+          placeholder="Paste an image link…"
+          aria-label="Image link"
+          aria-invalid={!!error}
+          aria-describedby={error ? "image-link-error" : undefined}
+          autoComplete="off"
+          spellCheck={false}
+          className="min-w-0 flex-1 border-0 border-b border-line bg-transparent px-1 py-1.5 font-serif text-[15px] outline-none transition-colors placeholder:text-muted focus:border-fg/60"
+        />
+        <button
+          type="submit"
+          disabled={checking || !url.trim()}
+          className="shrink-0 rounded-md bg-brand px-3 py-1.5 font-sans text-sm font-medium text-on-brand transition disabled:opacity-50"
+        >
+          {checking ? "Checking…" : "Add"}
+        </button>
+        <TextButton onClick={onClose}>Cancel</TextButton>
+      </div>
+      {error && (
+        <p id="image-link-error" className="mt-1.5 text-xs text-avoid" role="alert">
+          {error}
+        </p>
+      )}
+    </form>
   );
 }
 
