@@ -11,6 +11,7 @@ const INK = {
   paper: hex("#f6f1e7"),
   ink: hex("#1e2433"), // blue-black pen
   magenta: hex("#b3246f"),
+  postit: hex("#f4dce3"), // same pale pink as the matchup post-its
   chalk: hex("#e9e4d8"), // dark-mode "ink"
   magentaDark: hex("#f06bb4"),
 };
@@ -68,7 +69,7 @@ async function inkSmall() {
     if (y > 0) push(p - W);
     if (y < H - 1) push(p + W);
   }
-  // Letter mask, grown by 3 px so the anti-aliased pen edge around the letters blends to magenta, not cream.
+  // Letter mask, grown by 3 px so the anti-aliased pen edge around the letters blends to the letter colour.
   const letter = new Uint8Array(n);
   for (let p = 0; p < n; p++) if (!bg[p] && pen[p] < 0.5) letter[p] = 1;
   const grown = Uint8Array.from(letter);
@@ -82,13 +83,39 @@ async function inkSmall() {
         }
     }
 
-  const out = Buffer.alloc(n * 3);
+  // Pen layer (transparent around it): blue-black ink, "SM" cut out in the same off-white as the background.
+  const penLayer = Buffer.alloc(n * 4);
   for (let p = 0; p < n; p++) {
-    const base = grown[p] ? INK.magenta : INK.paper;
-    const [r, g, b] = mix(base, INK.ink, pen[p]);
-    out[p * 3] = r; out[p * 3 + 1] = g; out[p * 3 + 2] = b;
+    const [r, g, b] = grown[p] ? mix(INK.paper, INK.ink, pen[p]) : INK.ink;
+    penLayer[p * 4] = r; penLayer[p * 4 + 1] = g; penLayer[p * 4 + 2] = b;
+    penLayer[p * 4 + 3] = grown[p] ? 255 : Math.round(pen[p] * 255);
   }
-  return sharp(out, { raw: { width: W, height: H, channels: 3 } }).png().toBuffer();
+
+  // Background: off-white desk with a pale pink post-it, slightly askew, held by masking tape.
+  const [pr, pg, pb] = INK.paper;
+  const [lr, lg, lb] = INK.postit;
+  const side = Math.round(W * 0.72);
+  const x0 = Math.round((W - side) / 2);
+  const tapeW = Math.round(side * 0.26), tapeH = Math.round(side * 0.08);
+  const backdrop = Buffer.from(
+    `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${W * 0.018}"/></filter>
+        <linearGradient id="curl" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.07"/>
+        </linearGradient>
+      </defs>
+      <rect width="${W}" height="${H}" fill="rgb(${pr},${pg},${pb})"/>
+      <g transform="rotate(-6 ${W / 2} ${H / 2})">
+        <rect x="${x0}" y="${x0 + W * 0.02}" width="${side}" height="${side}" fill="#3c2d14" opacity="0.18" filter="url(#soft)"/>
+        <rect x="${x0}" y="${x0}" width="${side}" height="${side}" fill="rgb(${lr},${lg},${lb})"/>
+        <rect x="${x0}" y="${x0}" width="${side}" height="${side}" fill="url(#curl)"/>
+        <rect x="${W / 2 - tapeW / 2}" y="${x0 - tapeH * 0.55}" width="${tapeW}" height="${tapeH}" fill="rgb(239,228,200)" opacity="0.85" transform="rotate(4 ${W / 2} ${x0})"/>
+      </g>
+    </svg>`,
+  );
+  const penPng = await sharp(penLayer, { raw: { width: W, height: H, channels: 4 } }).png().toBuffer();
+  return sharp(backdrop).composite([{ input: penPng }]).png().toBuffer();
 }
 
 /** Rounded-corner mask (iOS-like radius) for icons shown as-is (tab, "any" PWA icons). */
