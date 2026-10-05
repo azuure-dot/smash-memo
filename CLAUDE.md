@@ -84,7 +84,12 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 1. **Auth :** inscription et connexion par email + mot de passe (`/login`), déconnexion, garde des routes privées dans `src/proxy.ts`.
 2. **Mot de passe oublié :** `/forgot-password` envoie l'email ; le lien passe par `/auth/callback?next=/reset-password` puis arrive sur `/reset-password`.
-3. **Dashboard** (`/`) : un **sélecteur de jeu global** (`game-selector.tsx`, 3 cartes avec les logos et le nombre de notes) sous le titre définit le jeu actif pour toute la page. Pas d'option « All ». Le composant client `dashboard.tsx` lit le jeu et l'onglet dans l'URL (`?game=melee&tab=saved`, Ultimate par défaut, sans paramètre) via `useSearchParams` et les met à jour avec `history.replaceState`, sans aller-retour serveur (toutes les notes sont chargées une fois puis filtrées). Onglets **My Notes** / **Saved Notes** (`matchup-list.tsx`) filtrés sur le jeu actif. Badges Shared / Copy / Saved. Les liens retour (page note, vue partagée → `tab=saved`, suppression) ramènent au jeu de la note via `dashboardHref(game)`.
+3. **Dashboard** (`/`, grand titre « My memos » depuis le 2026-10-05) : un **sélecteur de jeu global** (`game-selector.tsx`, 3 cartes avec les logos et le nombre de notes) sous le titre définit le jeu actif pour toute la page. Pas d'option « All ». Le composant client `dashboard.tsx` lit le jeu et l'onglet dans l'URL (`?game=melee&tab=notes|saved`, Ultimate et My Matchups par défaut, sans paramètre) via `useSearchParams` et les met à jour avec `history.replaceState`, sans aller-retour serveur (toutes les notes sont chargées une fois puis filtrées). Onglets **My Matchups** / **My Notes** (notes simples) / **Saved Notes** (les deux types) dans `matchup-list.tsx`, filtrés sur le jeu actif (choix du propriétaire, 2026-10-05). Boutons **New <Jeu> Matchup** (aplat magenta) et **New <Jeu> Note** (contour magenta) côte à côte ; le dashboard ouvre l'un des deux formulaires à la place des boutons. Badges Shared / Copy / Saved. Les liens retour (page note, vue partagée → `tab=saved`, suppression) ramènent au jeu et à l'onglet de la note via `dashboardHref(game, tab?)`.
+11. **Notes simples** (depuis 0011, 2026-10-05) : notes d'un jeu qui ne portent pas sur un matchup (tech, habitudes, préparation de tournoi…).
+   - **Même table que les matchups** (`matchups.kind` = `matchup` | `note`, `matchups.title`) : Pre-Set Reminder, Notes (Tiptap + images), Video Resources, partage, Save / Duplicate et suppression de compte fonctionnent sans code en plus. Même URL `/matchups/[id]` et `/share/[id]`, la page s'adapte au type.
+   - Création : `new-note-form.tsx` + action `createNote` (titre seul, 1 à 100 caractères après nettoyage des espaces, `src/lib/note-title.ts`, même limite en base). Pas de doublon cherché, pas de stagelist (le trigger `seed_matchup_stages` ignore `kind = 'note'`).
+   - Page : pas de section Stages ; titre sur le post-it (`NoteLabel`, petite icône post-it pour le distinguer d'un matchup) avec crayon **Rename** (`note-title.tsx`, action `renameNote`, renommer modifie `updated_at`). Retour, suppression → onglet My Notes.
+   - `EntryLabel` (`matchup-label.tsx`) choisit l'étiquette selon le type ; `noteTitle()` (`game-data.ts`) donne le titre d'onglet du navigateur.
 4. **Création de matchup :** le jeu est celui du sélecteur global (pas de choix dans le formulaire, titre « New <Jeu> matchup ») ; « My character » vs « Opponent » avec autocomplétion des rosters et bouton d'échange. Redirige directement vers la note. Si le matchup existe déjà pour ce jeu, ouvre le plus récent (les doublons sont autorisés depuis 0003, à cause de la duplication).
 9. **Partage de notes** (depuis 0003) :
    - Bouton **Share** sur la page matchup (`share-button.tsx`) : passe `is_shared` à true et copie `https://<site>/share/<id>` ; **Stop sharing** désactive le lien.
@@ -159,6 +164,10 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - colonnes `matchup_videos.provider` (`youtube` par défaut | `twitch`) et `thumbnail_url` (contrôlée : `https://static-cdn.jtvnw.net/…` seulement) ;
   - les anciennes contraintes sur `video_id` sont retrouvées par leur définition puis remplacées : format selon le site (11 caractères YouTube, chiffres Twitch), unicité `(matchup_id, provider, video_id)` ;
   - `get_shared_matchup()` et `duplicate_shared_matchup()` transmettent / copient `provider` et `thumbnail_url`.
+- `supabase/migrations/0011_simple_notes.sql` (**à exécuter avant de pousser le code des notes simples** : le dashboard lit `kind` et `title`)
+  - colonnes `matchups.kind` (`matchup` par défaut | `note`) et `matchups.title` ; `my_character` / `opponent_character` deviennent facultatifs, contrainte `matchups_kind_shape` (matchup = deux persos sans titre, note = titre sans persos) ;
+  - trigger `updated_at` étendu à `title` ; `seed_matchup_stages()` ne crée pas de stages pour une note ;
+  - `get_shared_matchup()` renvoie `kind` / `title`, `list_saved_matchups()` aussi (fonction supprimée puis recréée car ses colonnes changent, droits remis), `duplicate_shared_matchup()` les copie.
 - **Ajouter un jeu :** valeur d'enum + branche dans `seed_matchup_stages()` (nouvelle migration), puis dans `src/lib/game-data.ts` : `GAMES`, `GAME_LABELS`, `CHARACTER_EXAMPLES`, `CHARACTERS`, et les `STAGE_LAYOUTS` des nouveaux stages. Le type `Game` est dans `src/lib/types.ts`. Le formulaire, les filtres et la validation se basent sur `GAMES` / `isGame()`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
@@ -204,7 +213,7 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
 ## 8. Arborescence
 
 ```
-supabase/migrations/          0001_init.sql … 0010_twitch_videos.sql
+supabase/migrations/          0001_init.sql … 0011_simple_notes.sql
 public/sw.js                  service worker (incrémenter VERSION si la logique de cache change)
 public/icons/                 icônes PWA (générées par scripts/make-icons.mjs)
 public/brand/logo-long.png    logo Long transparent (généré)
@@ -223,12 +232,12 @@ src/app/
   auth/callback, auth/signout routes Supabase
   (app)/                      zone connectée (header commun)
     page.tsx                  dashboard
-    actions.ts                createMatchup / deleteMatchup
+    actions.ts                createMatchup / createNote / renameNote / deleteMatchup
     matchups/[id]/            page matchup
     account/                  compte + profil (profile-form.tsx) + suppression
 src/components/
-  app-header.tsx, auth-shell.tsx, avatar.tsx, brand-logo.tsx, dashboard.tsx, game-selector.tsx, matchup-list.tsx, new-matchup-form.tsx, sign-out-button.tsx, sw-register.tsx
-  matchup/                    stage-selector, stage-glyph, note-editor, note-image, quick-notes, delete-matchup-button,
+  app-header.tsx, auth-shell.tsx, avatar.tsx, brand-logo.tsx, dashboard.tsx, game-selector.tsx, matchup-list.tsx, matchup-label.tsx, new-matchup-form.tsx, new-note-form.tsx, sign-out-button.tsx, sw-register.tsx
+  matchup/                    stage-selector, stage-glyph, note-editor, note-image, note-title, quick-notes, delete-matchup-button,
                               share-button, shared-note-actions, author-badge
 src/lib/
   supabase/{client,server,proxy}.ts
@@ -236,6 +245,7 @@ src/lib/
   site-config.ts              opérateur, email de contact, région des données (page Privacy)
   image-url.ts                 validation des liens d'images des notes (safeImageUrl, probeImage)
   youtube.ts, twitch.ts, videos.ts  liens vidéo YouTube / Twitch (lecture des liens, lecteurs, miniatures)
+  note-title.ts               limite et nettoyage du titre des notes simples
   types.ts, cn.ts
 ```
 

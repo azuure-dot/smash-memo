@@ -12,8 +12,8 @@ import { SharedNoteActions } from "@/components/matchup/shared-note-actions";
 import { StageSelector } from "@/components/matchup/stage-selector";
 import { VideoResources } from "@/components/matchup/video-resources";
 import { GameStamp } from "@/components/game-stamp";
-import { MatchupLabel } from "@/components/matchup-label";
-import { dashboardHref, DEFAULT_GAME } from "@/lib/game-data";
+import { EntryLabel } from "@/components/matchup-label";
+import { dashboardHref, noteTitle } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { SharedMatchup } from "@/lib/types";
 
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const data = UUID.test(id) ? await getShared(id) : null;
   return {
-    title: data ? `${data.matchup.my_character} vs ${data.matchup.opponent_character}` : "Shared note",
+    title: data ? noteTitle(data.matchup) : "Shared note",
     robots: { index: false, follow: false }, // share links shouldn't end up in search engines
   };
 }
@@ -61,10 +61,10 @@ export default async function SharedMatchupPage({ params }: Props) {
           <div>
             {signedIn && (
               <Link
-                href={`${dashboardHref(matchup.game)}${matchup.game === DEFAULT_GAME ? "?" : "&"}tab=saved`}
+                href={dashboardHref(matchup.game, "saved")}
                 className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-fg"
               >
-                <ArrowLeft className="size-4" aria-hidden /> Matchups
+                <ArrowLeft className="size-4" aria-hidden /> Saved notes
               </Link>
             )}
 
@@ -74,15 +74,7 @@ export default async function SharedMatchupPage({ params }: Props) {
                 <Eye className="size-3.5" aria-hidden /> Shared, read-only
               </span>
             </div>
-            <MatchupLabel
-              as="h1"
-              variant="title"
-              id={matchup.id}
-              game={matchup.game}
-              mine={matchup.my_character}
-              opponent={matchup.opponent_character}
-              className="mt-5"
-            />
+            <EntryLabel as="h1" variant="title" id={matchup.id} entry={matchup} className="mt-5" />
             <AuthorBadge author={data.author} />
           </div>
 
@@ -103,7 +95,7 @@ export default async function SharedMatchupPage({ params }: Props) {
           )}
 
           <PresetReminder matchupId={matchup.id} initialText={matchup.preset_reminder ?? null} readOnly />
-          <StageSelector matchupId={matchup.id} initialStages={data.stages} readOnly />
+          {matchup.kind !== "note" && <StageSelector matchupId={matchup.id} initialStages={data.stages} readOnly />}
           <NoteEditor matchupId={matchup.id} initialContent={matchup.content} readOnly />
           <VideoResources matchupId={matchup.id} initialVideos={data.videos ?? []} readOnly />
         </div>

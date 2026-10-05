@@ -1,16 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Bookmark, CopyPlus, Link2, NotebookPen } from "lucide-react";
-import { MatchupLabel } from "@/components/matchup-label";
+import { Bookmark, CopyPlus, Link2, NotebookPen, StickyNote } from "lucide-react";
+import { EntryLabel } from "@/components/matchup-label";
 import { cn } from "@/lib/cn";
 import { GAME_LABELS } from "@/lib/game-data";
 import type { Game, Matchup, SavedMatchup } from "@/lib/types";
 
-export type Tab = "mine" | "saved";
+/** My Matchups / My Notes (simple notes) / Saved Notes (both kinds, from other people). */
+export type Tab = "matchups" | "notes" | "saved";
 export type MatchupSummary = Pick<
   Matchup,
-  "id" | "game" | "my_character" | "opponent_character" | "updated_at" | "is_shared" | "copied_from"
+  "id" | "game" | "kind" | "title" | "my_character" | "opponent_character" | "updated_at" | "is_shared" | "copied_from"
 >;
 
 function timeAgo(iso: string) {
@@ -26,28 +27,31 @@ function timeAgo(iso: string) {
   return "just now";
 }
 
-/** "My Notes" / "Saved Notes" for the game picked in the dashboard's game selector (already filtered). */
+/** The dashboard's three tabs for the game picked in the game selector (lists already filtered). */
 export function MatchupList({
   game,
   tab,
   onTabChange,
   matchups,
+  notes,
   saved,
 }: {
   game: Game;
   tab: Tab;
   onTabChange: (tab: Tab) => void;
   matchups: MatchupSummary[];
+  notes: MatchupSummary[];
   saved: SavedMatchup[];
 }) {
-  const visible = tab === "mine" ? matchups : saved;
+  const visible = tab === "matchups" ? matchups : tab === "notes" ? notes : saved;
 
   return (
     <>
-      <nav className="flex gap-1 border-b border-line" aria-label="Notes">
+      <nav className="flex gap-0.5 border-b border-line sm:gap-1" aria-label="Notes">
         {(
           [
-            { key: "mine", label: "My Notes", count: matchups.length },
+            { key: "matchups", label: "My Matchups", count: matchups.length },
+            { key: "notes", label: "My Notes", count: notes.length },
             { key: "saved", label: "Saved Notes", count: saved.length },
           ] as const
         ).map((t) => (
@@ -57,7 +61,7 @@ export function MatchupList({
             onClick={() => onTabChange(t.key)}
             aria-pressed={tab === t.key}
             className={cn(
-              "-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors",
+              "-mb-px flex shrink-0 items-center gap-1 whitespace-nowrap border-b-2 px-2 py-2.5 text-sm font-semibold transition-colors sm:gap-1.5 sm:px-3",
               tab === t.key ? "border-brand-from text-fg" : "border-transparent text-muted hover:text-fg",
             )}
           >
@@ -92,7 +96,7 @@ export function MatchupList({
                       {timeAgo(m.updated_at)}
                     </span>
                   </div>
-                  <MatchupLabel id={m.id} game={m.game} mine={m.my_character} opponent={m.opponent_character} />
+                  <EntryLabel id={m.id} entry={m} />
                 </Link>
               </li>
             );
@@ -114,17 +118,15 @@ function Badge({ icon, children }: { icon: React.ReactNode; children: React.Reac
 
 function EmptyState({ tab, game }: { tab: Tab; game: Game }) {
   const label = GAME_LABELS[game];
-  const text =
-    tab === "mine"
-      ? `No ${label} notes yet. Create your first one above.`
-      : `No saved ${label} notes yet. Open a note someone shared with you and tap “Save to my workspace”.`;
+  const text = {
+    matchups: `No ${label} matchups yet. Create your first one above.`,
+    notes: `No ${label} notes yet. Use “New ${label} Note” for anything that isn't about one matchup: tech, habits, tournament prep…`,
+    saved: `No saved ${label} notes yet. Open a note someone shared with you and tap “Save to my workspace”.`,
+  }[tab];
+  const Icon = { matchups: NotebookPen, notes: StickyNote, saved: Bookmark }[tab];
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-line px-6 py-14 text-center">
-      {tab === "mine" ? (
-        <NotebookPen className="size-7 text-muted" aria-hidden />
-      ) : (
-        <Bookmark className="size-7 text-muted" aria-hidden />
-      )}
+      <Icon className="size-7 text-muted" aria-hidden />
       <p className="max-w-sm text-balance font-serif text-[15px] italic text-muted">{text}</p>
     </div>
   );

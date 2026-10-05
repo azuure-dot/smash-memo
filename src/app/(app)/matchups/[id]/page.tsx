@@ -12,7 +12,8 @@ import { StageSelector } from "@/components/matchup/stage-selector";
 import { VideoResources } from "@/components/matchup/video-resources";
 import { GameStamp } from "@/components/game-stamp";
 import { MatchupLabel } from "@/components/matchup-label";
-import { dashboardHref } from "@/lib/game-data";
+import { NoteTitle } from "@/components/matchup/note-title";
+import { dashboardHref, noteTitle } from "@/lib/game-data";
 import { createClient } from "@/lib/supabase/server";
 import type { Matchup, MatchupStage, MatchupVideo, Profile } from "@/lib/types";
 
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   if (!UUID.test(id)) return {};
   const data = await getMatchup(id);
-  return data ? { title: `${data.my_character} vs ${data.opponent_character}` } : {};
+  return data ? { title: noteTitle(data) } : {};
 }
 
 export default async function MatchupPage({ params }: Props) {
@@ -57,36 +58,42 @@ export default async function MatchupPage({ params }: Props) {
 
   // Not one of yours: it may be someone else's shared note, whose read-only view lives at /share/[id].
   if (!matchup) redirect(`/share/${id}`);
+  const isNote = matchup.kind === "note";
 
   return (
     <div className="space-y-5">
       <div>
         <Link
-          href={dashboardHref(matchup.game)}
+          href={dashboardHref(matchup.game, isNote ? "notes" : undefined)}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-fg"
         >
-          <ArrowLeft className="size-4" /> Matchups
+          <ArrowLeft className="size-4" /> {isNote ? "Notes" : "Matchups"}
         </Link>
 
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <GameStamp game={matchup.game} />
-            {/* The page title is the matchup's post-it, with the character icons. */}
-            <MatchupLabel
-              as="h1"
-              variant="title"
-              id={matchup.id}
-              game={matchup.game}
-              mine={matchup.my_character}
-              opponent={matchup.opponent_character}
-              className="mt-5"
-            />
+            {isNote ? (
+              // A simple note: its title on the post-it, renamable.
+              <NoteTitle id={matchup.id} initialTitle={matchup.title ?? "Untitled note"} />
+            ) : (
+              // The page title is the matchup's post-it, with the character icons.
+              <MatchupLabel
+                as="h1"
+                variant="title"
+                id={matchup.id}
+                game={matchup.game}
+                mine={matchup.my_character ?? "?"}
+                opponent={matchup.opponent_character ?? "?"}
+                className="mt-5"
+              />
+            )}
             {/* What visitors of the share link see. */}
             {matchup.is_shared && <AuthorBadge author={profileRes.data as Profile | null} isYou />}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <ShareButton id={matchup.id} initialShared={matchup.is_shared} />
-            <DeleteMatchupButton id={matchup.id} />
+            <DeleteMatchupButton id={matchup.id} kind={matchup.kind} />
           </div>
         </div>
       </div>
@@ -94,8 +101,10 @@ export default async function MatchupPage({ params }: Props) {
       {/* A. Pre-set reminder — the very first thing under the title, read right before the set */}
       <PresetReminder matchupId={matchup.id} initialText={matchup.preset_reminder ?? null} />
 
-      {/* B. Stage preferences */}
-      <StageSelector matchupId={matchup.id} initialStages={(stagesRes.data ?? []) as MatchupStage[]} />
+      {/* B. Stage preferences (matchups only) */}
+      {!isNote && (
+        <StageSelector matchupId={matchup.id} initialStages={(stagesRes.data ?? []) as MatchupStage[]} />
+      )}
 
       {/* C. Rich text notes */}
       <NoteEditor matchupId={matchup.id} initialContent={matchup.content} />

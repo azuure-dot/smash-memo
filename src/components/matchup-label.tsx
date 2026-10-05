@@ -1,5 +1,6 @@
+import { StickyNote } from "lucide-react";
 import { cn } from "@/lib/cn";
-import type { Game } from "@/lib/types";
+import type { Game, NoteKind } from "@/lib/types";
 import { CharacterIcon } from "./character-icon";
 
 /** Small tilts for the labels. Listed in full so Tailwind generates every class. */
@@ -19,6 +20,7 @@ const VARIANTS = {
     name: "text-[17px]",
     vs: "text-xl",
     icon: "md",
+    noteIcon: "size-4",
     tape: "-top-2 h-4 w-12",
     tilts: TILTS,
   },
@@ -27,33 +29,22 @@ const VARIANTS = {
     name: "text-2xl sm:text-3xl",
     vs: "text-3xl sm:text-4xl",
     icon: "lg",
+    noteIcon: "size-6",
     tape: "-top-2.5 h-5 w-16",
     tilts: TITLE_TILTS,
   },
 } as const;
 
-/**
- * "[icon] Marth vs [icon] Fox" on a post-it stuck down with masking tape: pale pink paper in light mode,
- * dark magenta in dark mode. Used on the dashboard cards and as the matchup page title.
- */
-export function MatchupLabel({
-  id,
-  game,
-  mine,
-  opponent,
-  variant = "card",
-  as: Tag = "div",
-  className,
-}: {
+type LabelProps = {
   id: string;
-  game: Game;
-  mine: string;
-  opponent: string;
   variant?: keyof typeof VARIANTS;
-  /** "h1" on the matchup page, where the label is the page title. */
+  /** "h1" on the note page, where the label is the page title. */
   as?: "div" | "h1";
   className?: string;
-}) {
+};
+
+/** The post-it itself: pale pink paper in light mode, dark magenta in dark mode, held by masking tape. */
+function PostIt({ id, variant = "card", as: Tag = "div", className, children }: LabelProps & { children: React.ReactNode }) {
   const v = VARIANTS[variant];
   return (
     <Tag
@@ -68,6 +59,66 @@ export function MatchupLabel({
     >
       {/* Masking tape holding the post-it. */}
       <span aria-hidden className={cn("absolute left-1/2 -translate-x-1/2 rotate-2 bg-tape shadow-[0_1px_1px_rgb(0_0_0/0.08)]", v.tape)} />
+      {children}
+    </Tag>
+  );
+}
+
+/**
+ * A simple note's title on the same post-it, with a small sticky-note mark so it can't be mistaken for a matchup
+ * (the Saved Notes tab mixes both). Clamped to two lines on the dashboard cards, in full as the page title.
+ */
+export function NoteLabel({ title, ...props }: LabelProps & { title: string }) {
+  const v = VARIANTS[props.variant ?? "card"];
+  return (
+    <PostIt {...props}>
+      <span className="flex min-w-0 max-w-full items-start gap-2">
+        <StickyNote className={cn("mt-[0.3em] shrink-0 text-label-accent", v.noteIcon)} aria-hidden />
+        <span
+          className={cn(
+            "min-w-0 break-words font-serif font-semibold leading-snug",
+            v.name,
+            props.variant !== "title" && "line-clamp-2",
+          )}
+        >
+          {title}
+        </span>
+      </span>
+    </PostIt>
+  );
+}
+
+/** The right label for a row of the matchups table: characters for a matchup, title for a simple note. */
+export function EntryLabel({
+  entry,
+  ...props
+}: LabelProps & {
+  entry: { game: Game; kind?: NoteKind | null; title: string | null; my_character: string | null; opponent_character: string | null };
+}) {
+  return entry.kind === "note" ? (
+    <NoteLabel {...props} title={entry.title ?? "Untitled note"} />
+  ) : (
+    <MatchupLabel {...props} game={entry.game} mine={entry.my_character ?? "?"} opponent={entry.opponent_character ?? "?"} />
+  );
+}
+
+/**
+ * "[icon] Marth vs [icon] Fox" on a post-it stuck down with masking tape: pale pink paper in light mode,
+ * dark magenta in dark mode. Used on the dashboard cards and as the matchup page title.
+ */
+export function MatchupLabel({
+  game,
+  mine,
+  opponent,
+  ...props
+}: LabelProps & {
+  game: Game;
+  mine: string;
+  opponent: string;
+}) {
+  const v = VARIANTS[props.variant ?? "card"];
+  return (
+    <PostIt {...props}>
       {/* "Name vs" stay together so a wrap never leaves "vs" alone at the start of a line. */}
       <span className="flex min-w-0 max-w-full items-center gap-1.5">
         <CharacterIcon game={game} name={mine} size={v.icon} />
@@ -78,6 +129,6 @@ export function MatchupLabel({
         <CharacterIcon game={game} name={opponent} size={v.icon} />
         <span className={cn("truncate font-serif font-semibold", v.name)}>{opponent}</span>
       </span>
-    </Tag>
+    </PostIt>
   );
 }

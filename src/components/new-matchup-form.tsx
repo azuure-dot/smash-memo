@@ -1,30 +1,20 @@
 "use client";
 
-import { ArrowLeftRight, Plus, X } from "lucide-react";
+import { ArrowLeftRight, X } from "lucide-react";
 import { useActionState, useState } from "react";
 import { createMatchup, type CreateMatchupState } from "@/app/(app)/actions";
 import { CHARACTER_EXAMPLES, GAME_LABELS } from "@/lib/game-data";
 import type { Game } from "@/lib/types";
 import { CharacterCombobox } from "./character-combobox";
 
-/** The game comes from the dashboard's global game selector: the form only asks for the two characters. */
-export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defaultOpen?: boolean }) {
-  const [open, setOpen] = useState(defaultOpen);
+/**
+ * The game comes from the dashboard's global game selector: the form only asks for the two characters.
+ * Opened and closed by the dashboard (which also offers "New … Note").
+ */
+export function NewMatchupForm({ game, onClose }: { game: Game; onClose: () => void }) {
   const [mine, setMine] = useState("");
   const [opp, setOpp] = useState("");
   const [state, formAction, pending] = useActionState<CreateMatchupState, FormData>(createMatchup, {});
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
-      >
-        <Plus className="size-4" aria-hidden /> New {GAME_LABELS[game]} Matchup
-      </button>
-    );
-  }
 
   return (
     <form action={formAction} className="paper rounded-lg p-4 sm:p-6">
@@ -34,7 +24,7 @@ export function NewMatchupForm({ game, defaultOpen = false }: { game: Game; defa
         </h2>
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={onClose}
           className="grid size-9 place-items-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-fg"
           aria-label="Close"
         >

@@ -23,8 +23,22 @@ export function isGame(value: unknown): value is Game {
 }
 
 /** Dashboard URL with that game selected (the default game needs no parameter). */
-export function dashboardHref(game: Game) {
-  return game === DEFAULT_GAME ? "/" : `/?game=${game}`;
+/** Browser-tab title of a note: "Marth vs Fox" for a matchup, its title for a simple note. */
+export function noteTitle(m: {
+  kind?: string | null;
+  title: string | null;
+  my_character: string | null;
+  opponent_character: string | null;
+}) {
+  return m.kind === "note" ? (m.title ?? "Note") : `${m.my_character} vs ${m.opponent_character}`;
+}
+
+export function dashboardHref(game: Game, tab?: "notes" | "saved") {
+  const qs = new URLSearchParams();
+  if (game !== DEFAULT_GAME) qs.set("game", game);
+  if (tab) qs.set("tab", tab);
+  const query = qs.toString();
+  return query ? `/?${query}` : "/";
 }
 
 /** Example names for the "My character" / "Opponent" fields of the new-matchup form. */

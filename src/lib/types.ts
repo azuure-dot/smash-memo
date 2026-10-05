@@ -3,12 +3,19 @@ import type { JSONContent } from "@tiptap/react";
 export type Game = "ultimate" | "melee" | "roa2";
 export type StageStatus = "neutral" | "prefer" | "avoid";
 
+/** "matchup" = [My character] vs [Opponent] with a stagelist; "note" = simple note with a title (0011). */
+export type NoteKind = "matchup" | "note";
+
 export type Matchup = {
   id: string;
   user_id: string;
   game: Game;
-  my_character: string;
-  opponent_character: string;
+  kind: NoteKind;
+  /** Simple notes only (1 to 100 characters). */
+  title: string | null;
+  /** Matchups only (null on simple notes). */
+  my_character: string | null;
+  opponent_character: string | null;
   content: JSONContent | null;
   /** Short plain-text TL;DR shown above the notes (replaced the old Quick Notes in 0009). */
   preset_reminder: string | null;
@@ -43,7 +50,10 @@ export type Profile = {
 
 /** A note opened through its share link (shape returned by the get_shared_matchup() SQL function). */
 export type SharedMatchup = {
-  matchup: Pick<Matchup, "id" | "game" | "my_character" | "opponent_character" | "content" | "updated_at"> & {
+  matchup: Pick<
+    Matchup,
+    "id" | "game" | "kind" | "title" | "my_character" | "opponent_character" | "content" | "updated_at"
+  > & {
     /** Missing until migration 0009 has been run. */
     preset_reminder?: string | null;
   };
@@ -56,7 +66,10 @@ export type SharedMatchup = {
 };
 
 /** A row of the "Saved Notes" tab (list_saved_matchups()). */
-export type SavedMatchup = Pick<Matchup, "id" | "game" | "my_character" | "opponent_character" | "updated_at"> & {
+export type SavedMatchup = Pick<
+  Matchup,
+  "id" | "game" | "kind" | "title" | "my_character" | "opponent_character" | "updated_at"
+> & {
   saved_at: string;
 };
 

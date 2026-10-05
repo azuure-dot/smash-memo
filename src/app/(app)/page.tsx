@@ -9,7 +9,7 @@ export default async function DashboardPage() {
   const [{ data }, { data: savedData }] = await Promise.all([
     supabase
       .from("matchups")
-      .select("id, game, my_character, opponent_character, updated_at, is_shared, copied_from")
+      .select("id, game, kind, title, my_character, opponent_character, updated_at, is_shared, copied_from")
       .order("updated_at", { ascending: false }),
     supabase.rpc("list_saved_matchups"),
   ]);
@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Your matchups</h1>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">My memos</h1>
         <p className="mt-1.5 text-sm text-muted">Stage picks, game plans and mid-set reminders.</p>
       </div>
 
