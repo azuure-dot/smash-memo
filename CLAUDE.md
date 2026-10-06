@@ -48,6 +48,9 @@ Document de reprise du projet pour Claude Code. À lire en entier avant toute mo
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+# Facultatives, serveur seulement (jamais NEXT_PUBLIC_) : application Twitch, voir §5 Video Resources
+TWITCH_CLIENT_ID=...
+TWITCH_CLIENT_SECRET=...
 ```
 
 ## 4. Design
@@ -113,7 +116,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
        - Limite connue : les liens `cdn.discordapp.com` expirent au bout d'environ 24 h, ces images finissent en « Image unavailable ».
    - **Video Resources** (depuis 0008, `video-resources.tsx`) : liens YouTube collés → lecteurs 16:9. `src/lib/youtube.ts` extrait l'id (watch, youtu.be, embed, shorts, live, m./music./nocookie, avec ou sans https) et le temps de départ (`t=95`, `1m35s`…). L'action serveur `matchups/[id]/video-actions.ts` vérifie la vidéo via l'oEmbed public de YouTube (existe, intégration autorisée), récupère le titre, et limite à 20 vidéos par note. Affichage : miniature (i.ytimg.com) puis iframe `youtube-nocookie.com` seulement au clic sur lecture. En lecture seule : pas de formulaire ni de suppression, et la section est masquée s'il n'y a aucune vidéo.
      - **Twitch** (depuis 0010, 2026-10-04) : VODs et highlights (`twitch.tv/videos/ID`, `m.`, anciens `/<chaîne>/v/ID`, `player.twitch.tv/?video=`, temps `?t=1h2m3s`) via `src/lib/twitch.ts` ; `src/lib/videos.ts` choisit YouTube ou Twitch (`parseVideoUrl`, `videoEmbedUrl`, `videoWatchUrl`, `videoThumbnailUrl`). Les **clips ne sont pas gérés** (message dédié).
-       - Pas d'API publique sans clé chez Twitch : l'action serveur lit les balises Open Graph de la page `twitch.tv/videos/ID` (User-Agent `SmashMemo/1.0`), comme les aperçus Discord. Pas de `og:video` = vidéo inexistante, supprimée ou réservée aux abonnés → refus. Titre (sans « on Twitch ») et miniature (`static-cdn.jtvnw.net` uniquement, colonne `thumbnail_url`) ; panne réseau = ajout sans titre. **Fragile** : si Twitch change ses pages, il faudra passer par l'API Helix (application Twitch + client id / secret en variables d'environnement Vercel).
+       - Vérification côté serveur dans `src/lib/twitch-lookup.ts` :
+         1. **API Helix** si `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` sont définies (application créée sur dev.twitch.tv/console, variables dans Vercel) : jeton d'application mis en cache, `GET /helix/videos?id=` → titre (« titre - chaîne »), miniature (`%{width}x%{height}` → 640x360). Réponse vide ou 404 = vidéo inexistante, supprimée ou réservée aux abonnés → refus.
+         2. Sinon, balises Open Graph de `twitch.tv/videos/ID` (User-Agent `SmashMemo/1.0`). **Constaté le 2026-10-06** : depuis les serveurs Vercel, Twitch renvoie la page sans ces balises (un highlight public était refusé, alors que tout passait depuis le PC du propriétaire). Une page sans `og:video` **ne bloque donc plus** : la vidéo est ajoutée sans titre ni miniature (affichée « Twitch video », cadre noir) ; le lecteur Twitch affiche lui-même son message si la vidéo n'existe pas.
        - Lecteur `player.twitch.tv` avec `parent=<window.location.hostname>` (obligatoire chez Twitch, lu au clic sur lecture). Miniature morte (VOD expirée) → cadre noir + bouton lecture. Badge « Twitch » / « YouTube » sur chaque vignette. Twitch supprime les VODs de diffusions après 7 à 60 jours selon la chaîne ; les highlights restent (rappelé sous le champ).
    - Bouton de suppression du matchup.
 6. **Compte** (`/account`) : profil, changement de mot de passe, lien Privacy, **suppression du compte** (taper `DELETE`). Vide aussi le cache du service worker.
@@ -245,6 +250,7 @@ src/lib/
   site-config.ts              opérateur, email de contact, région des données (page Privacy)
   image-url.ts                 validation des liens d'images des notes (safeImageUrl, probeImage)
   youtube.ts, twitch.ts, videos.ts  liens vidéo YouTube / Twitch (lecture des liens, lecteurs, miniatures)
+  twitch-lookup.ts            vérification serveur des vidéos Twitch (API Helix, sinon Open Graph)
   note-title.ts               limite et nettoyage du titre des notes simples
   types.ts, cn.ts
 ```

@@ -1,7 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { isTwitchClipUrl, safeTwitchThumbnail } from "@/lib/twitch";
+import { isTwitchClipUrl } from "@/lib/twitch";
+import { lookUpTwitch } from "@/lib/twitch-lookup";
 import type { MatchupVideo } from "@/lib/types";
 import { parseVideoUrl } from "@/lib/videos";
 
@@ -30,48 +31,6 @@ async function lookUpYouTube(videoId: string): Promise<Lookup> {
     if (!res.ok) return { ok: true, title: null, thumbnail: null };
     const data = (await res.json()) as { title?: unknown };
     return { ok: true, title: typeof data.title === "string" ? data.title.slice(0, 200) : null, thumbnail: null };
-  } catch {
-    return { ok: true, title: null, thumbnail: null };
-  }
-}
-
-const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", "#39": "'" };
-const decode = (s: string) =>
-  s.replace(/&(amp|lt|gt|quot|apos|#39|#x([0-9a-f]+)|#(\d+));/gi, (m, name: string, hex?: string, dec?: string) =>
-    hex ? String.fromCodePoint(parseInt(hex, 16)) : dec ? String.fromCodePoint(Number(dec)) : (ENTITIES[name.toLowerCase()] ?? m),
-  );
-
-/** <meta property="og:…" content="…"> tags of a page, whatever the attribute order. */
-function openGraph(html: string) {
-  const tags: Record<string, string> = {};
-  for (const [tag] of html.matchAll(/<meta\b[^>]*>/gi)) {
-    const attrs: Record<string, string> = {};
-    for (const m of tag.matchAll(/([a-z:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) attrs[m[1].toLowerCase()] = m[2] ?? m[3];
-    const key = attrs.property ?? attrs.name;
-    if (key?.startsWith("og:") && attrs.content !== undefined && !(key in tags)) tags[key] = decode(attrs.content);
-  }
-  return tags;
-}
-
-/**
- * Twitch has no keyless API, but its video pages carry Open Graph tags (what Discord uses for link previews):
- * title, thumbnail and player. A video that doesn't exist, was deleted or is subscriber-only gets a generic
- * "VOD - Twitch" page with no player. A network problem doesn't block adding the video.
- */
-async function lookUpTwitch(videoId: string): Promise<Lookup> {
-  try {
-    const res = await fetch(`https://www.twitch.tv/videos/${videoId}`, {
-      signal: AbortSignal.timeout(5000),
-      cache: "no-store",
-      headers: { "User-Agent": "SmashMemo/1.0 (+https://smashmemo.fr)", "Accept-Language": "en" },
-    });
-    if (!res.ok) return { ok: true, title: null, thumbnail: null };
-    const og = openGraph((await res.text()).slice(0, 400_000));
-    if (!og["og:video"] && !og["og:video:secure_url"]) {
-      return { ok: false, error: "This Twitch video doesn't exist (anymore), or it's subscriber-only." };
-    }
-    const title = og["og:title"]?.replace(/ on Twitch$/, "").trim().slice(0, 200) || null;
-    return { ok: true, title, thumbnail: safeTwitchThumbnail(og["og:image"]) };
   } catch {
     return { ok: true, title: null, thumbnail: null };
   }
