@@ -7,7 +7,7 @@ import {
   Bold, Heading1, Heading2, Heading3, ImagePlus, Italic, List, ListOrdered, Pilcrow,
   Redo2, Table as TableIcon, Underline as UnderlineIcon, Undo2,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { probeImage, safeImageUrl } from "@/lib/image-url";
 import { createClient } from "@/lib/supabase/client";
@@ -27,13 +27,26 @@ export function NoteEditor({
   matchupId,
   initialContent,
   readOnly = false,
+  onSave,
+  heading = "Notes",
+  description,
+  wrapToolbar = false,
 }: {
-  matchupId: string;
+  /** The matchup whose notes are edited (not needed when `onSave` is given). */
+  matchupId?: string;
   initialContent: JSONContent | null;
   /** Shared view: no toolbar, no typing, nothing is saved. */
   readOnly?: boolean;
+  /** Saves somewhere else than matchups.content (the Account page's matchup template). Resolves false on error. */
+  onSave?: (content: JSONContent) => Promise<boolean>;
+  heading?: string;
+  /** Shown under the heading. */
+  description?: React.ReactNode;
+  /** Narrow pages (Account): the buttons go onto a second row instead of scrolling sideways. */
+  wrapToolbar?: boolean;
 }) {
   const supabase = createClient();
+  const headingId = useId();
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pending = useRef<JSONContent | null>(null);
@@ -45,14 +58,16 @@ export function NoteEditor({
     if (!content) return;
     pending.current = null;
     setSaveState("saving");
-    const { error } = await supabase.from("matchups").update({ content }).eq("id", matchupId);
-    if (error) {
+    const ok = onSave
+      ? await onSave(content)
+      : !(await supabase.from("matchups").update({ content }).eq("id", matchupId!)).error;
+    if (!ok) {
       pending.current ??= content; // keep it for the next attempt
       setSaveState("error");
     } else {
       setSaveState(pending.current ? "dirty" : "saved");
     }
-  }, [matchupId, supabase]);
+  }, [matchupId, onSave, supabase]);
 
   const editor = useEditor({
     immediatelyRender: false, // required with SSR
@@ -89,22 +104,23 @@ export function NoteEditor({
   }, [flush]);
 
   return (
-    <section className="paper rounded-lg" aria-labelledby="notes-title">
-      <div className="flex items-center justify-between px-4 pt-4 sm:px-6">
-        <h2 id="notes-title" className="font-serif text-lg font-semibold">Notes</h2>
+    <section className="paper rounded-lg" aria-labelledby={headingId}>
+      <div className="flex items-center justify-between gap-3 px-4 pt-4 sm:px-6">
+        <h2 id={headingId} className="font-serif text-lg font-semibold">{heading}</h2>
         <span
-          className={cn("text-xs", saveState === "error" ? "text-avoid" : "text-muted")}
+          className={cn("shrink-0 text-xs", saveState === "error" ? "text-avoid" : "text-muted")}
           aria-live="polite"
         >
           {SAVE_LABEL[saveState]}
         </span>
       </div>
+      {description && <div className="px-4 pt-1 text-sm text-muted sm:px-6">{description}</div>}
       {readOnly ? (
         <div className="mt-3 border-t border-line" />
       ) : editor ? (
         // Mounted only once the editor exists: useEditorState captures its editor on mount and would
         // otherwise stay empty until the first transaction (toolbar missing until the first click).
-        <Toolbar editor={editor} />
+        <Toolbar editor={editor} wrap={wrapToolbar} />
       ) : (
         <div className="mt-3 h-12 border-y border-line" />
       )}
@@ -117,7 +133,7 @@ export function NoteEditor({
   );
 }
 
-function Toolbar({ editor }: { editor: Editor | null }) {
+function Toolbar({ editor, wrap = false }: { editor: Editor | null; wrap?: boolean }) {
   const s = useEditorState({
     editor,
     selector: ({ editor }) =>
@@ -146,7 +162,11 @@ function Toolbar({ editor }: { editor: Editor | null }) {
 
   return (
     <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 mt-3 border-y border-line bg-surface/95 backdrop-blur">
-      <div className="flex items-center gap-0.5 overflow-x-auto px-2 py-1.5 sm:px-4" role="toolbar" aria-label="Formatting">
+      <div
+        className={cn("flex items-center gap-0.5 px-2 py-1.5 sm:px-4", wrap ? "flex-wrap [&>button]:size-8" : "overflow-x-auto")}
+        role="toolbar"
+        aria-label="Formatting"
+      >
         <ToolButton label="Paragraph" active={s.p} onClick={() => chain().setParagraph().run()}>
           <Pilcrow />
         </ToolButton>

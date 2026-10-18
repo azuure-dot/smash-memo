@@ -4,7 +4,9 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { ResetPasswordForm } from "@/app/reset-password/reset-password-form";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
+import type { JSONContent } from "@tiptap/react";
 import { DeleteAccountForm } from "./delete-account-form";
+import { MatchupTemplate } from "./matchup-template";
 import { ProfileForm } from "./profile-form";
 import { ThemeSetting } from "./theme-setting";
 
@@ -33,9 +35,11 @@ export default async function AccountPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ count }, { data: profile }] = await Promise.all([
+  const [{ count }, { data: profile }, { data: template }] = await Promise.all([
     supabase.from("matchups").select("id", { count: "exact", head: true }),
     supabase.from("profiles").select("username, avatar_url").eq("id", user.id).maybeSingle(),
+    // Separate query: if migration 0012 hasn't been run, only the template is missing (not the profile).
+    supabase.from("profiles").select("matchup_template").eq("id", user.id).maybeSingle(),
   ]);
   const memberSince = new Date(user.created_at).toLocaleDateString("en", { dateStyle: "long" });
 
@@ -55,6 +59,12 @@ export default async function AccountPage({
       <Card title="Appearance">
         <ThemeSetting />
       </Card>
+
+      {/* Its own sheet of ruled paper, like a matchup's Notes. */}
+      <MatchupTemplate
+        userId={user.id}
+        initialTemplate={(template?.matchup_template as JSONContent | null | undefined) ?? null}
+      />
 
       <Card title="Account details">
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">

@@ -121,7 +121,10 @@ TWITCH_CLIENT_SECRET=...
          2. Sinon, balises Open Graph de `twitch.tv/videos/ID` (User-Agent `SmashMemo/1.0`). **Constaté le 2026-10-06** : depuis les serveurs Vercel, Twitch renvoie la page sans ces balises (un highlight public était refusé, alors que tout passait depuis le PC du propriétaire). Une page sans `og:video` **ne bloque donc plus** : la vidéo est ajoutée sans titre ni miniature (affichée « Twitch video », cadre noir) ; le lecteur Twitch affiche lui-même son message si la vidéo n'existe pas.
        - Lecteur `player.twitch.tv` avec `parent=<window.location.hostname>` (obligatoire chez Twitch, lu au clic sur lecture). Miniature morte (VOD expirée) → cadre noir + bouton lecture. Badge « Twitch » / « YouTube » sur chaque vignette. Twitch supprime les VODs de diffusions après 7 à 60 jours selon la chaîne ; les highlights restent (rappelé sous le champ).
    - Bouton de suppression du matchup.
-6. **Compte** (`/account`) : profil, changement de mot de passe, lien Privacy, **suppression du compte** (taper `DELETE`). Vide aussi le cache du service worker.
+6. **Compte** (`/account`) : profil, apparence, **Matchup template**, changement de mot de passe, lien Privacy, **suppression du compte** (taper `DELETE`). Vide aussi le cache du service worker.
+   - **Matchup template** (depuis 0012, 2026-10-18, `account/matchup-template.tsx`) : les Notes avec lesquelles démarre **chaque nouveau matchup** (titres habituels, etc.). Choix du propriétaire : un seul template, **matchups seulement** (pas les notes simples), **Notes seulement** (pas le Pre-Set Reminder).
+     - Même `NoteEditor` que la page matchup, avec les props `onSave` (enregistre ailleurs que `matchups.content`), `heading`, `description` et `wrapToolbar` (barre d'outils resserrée et sur deux lignes si besoin, la page Compte étant étroite). Autosave dans `profiles.matchup_template` par `upsert` (la ligne profil peut ne pas exister) ; éditeur vide = `null`.
+     - `createMatchup` recopie le template dans `content` **à la création seulement** (pas quand un matchup existant est rouvert) ; modifier le template ne change jamais les notes déjà écrites. Duplication et notes simples ne l'utilisent pas. Sans la migration, la requête échoue sans bruit et les notes démarrent vides.
 7. **Privacy** (`/privacy`) : page publique en anglais. Les valeurs variables viennent de `src/lib/site-config.ts`.
 8. **PWA :** manifest, icônes (any + maskable), page `/offline`, cache network-first des pages et cache-first des assets `/_next/static`. Les requêtes Supabase ne sont jamais mises en cache.
    - **Popup d'installation** (`src/components/install-prompt.tsx` + hook `src/lib/use-pwa-install.ts`, monté dans le layout racine) : uniquement sur écran ≤ 768 px, si l'app n'est pas déjà installée (`display-mode: standalone` / `navigator.standalone`), affiché après 3 s.
@@ -173,6 +176,8 @@ Les migrations sont à exécuter **à la main dans Supabase → SQL Editor**, da
   - colonnes `matchups.kind` (`matchup` par défaut | `note`) et `matchups.title` ; `my_character` / `opponent_character` deviennent facultatifs, contrainte `matchups_kind_shape` (matchup = deux persos sans titre, note = titre sans persos) ;
   - trigger `updated_at` étendu à `title` ; `seed_matchup_stages()` ne crée pas de stages pour une note ;
   - `get_shared_matchup()` renvoie `kind` / `title`, `list_saved_matchups()` aussi (fonction supprimée puis recréée car ses colonnes changent, droits remis), `duplicate_shared_matchup()` les copie.
+- `supabase/migrations/0012_matchup_template.sql`
+  - colonne `profiles.matchup_template` (jsonb, objet, 200 000 caractères max) ; protégée par la policy « Own profile » existante, jamais exposée par `get_shared_matchup()` (qui ne lit que pseudo et avatar).
 - **Ajouter un jeu :** valeur d'enum + branche dans `seed_matchup_stages()` (nouvelle migration), puis dans `src/lib/game-data.ts` : `GAMES`, `GAME_LABELS`, `CHARACTER_EXAMPLES`, `CHARACTERS`, et les `STAGE_LAYOUTS` des nouveaux stages. Le type `Game` est dans `src/lib/types.ts`. Le formulaire, les filtres et la validation se basent sur `GAMES` / `isGame()`.
 
 Pour toute nouvelle évolution du schéma, crée `0003_...sql`, etc., garde RLS activée sur toute nouvelle table, et donne au propriétaire le SQL à coller.
@@ -218,7 +223,7 @@ Changer ces listes ne touche que les nouveaux matchups. Les stages déjà créé
 ## 8. Arborescence
 
 ```
-supabase/migrations/          0001_init.sql … 0011_simple_notes.sql
+supabase/migrations/          0001_init.sql … 0012_matchup_template.sql
 public/sw.js                  service worker (incrémenter VERSION si la logique de cache change)
 public/icons/                 icônes PWA (générées par scripts/make-icons.mjs)
 public/brand/logo-long.png    logo Long transparent (généré)
@@ -239,7 +244,7 @@ src/app/
     page.tsx                  dashboard
     actions.ts                createMatchup / createNote / renameNote / deleteMatchup
     matchups/[id]/            page matchup
-    account/                  compte + profil (profile-form.tsx) + suppression
+    account/                  compte + profil (profile-form.tsx) + template de matchup (matchup-template.tsx) + suppression
 src/components/
   app-header.tsx, auth-shell.tsx, avatar.tsx, brand-logo.tsx, dashboard.tsx, game-selector.tsx, matchup-list.tsx, matchup-label.tsx, new-matchup-form.tsx, new-note-form.tsx, search-bar.tsx, sign-out-button.tsx, sw-register.tsx
   matchup/                    stage-selector, stage-glyph, note-editor, note-image, note-title, quick-notes, delete-matchup-button,

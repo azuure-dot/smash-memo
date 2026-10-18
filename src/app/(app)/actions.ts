@@ -38,9 +38,12 @@ export async function createMatchup(
   let id: string | undefined = existing?.id;
 
   if (!id) {
+    // New matchup: its Notes start as a copy of the user's matchup template (Account page), if any.
+    // Before migration 0012 the column doesn't exist: the query fails quietly and the notes start empty.
+    const { data: profile } = await supabase.from("profiles").select("matchup_template").maybeSingle();
     const { data, error } = await supabase
       .from("matchups")
-      .insert({ game, my_character: mine, opponent_character: opp })
+      .insert({ game, my_character: mine, opponent_character: opp, content: profile?.matchup_template ?? null })
       .select("id")
       .single();
     if (error || !data) return { error: error?.message ?? "Couldn't create the matchup." };
