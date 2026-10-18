@@ -4,11 +4,13 @@ import { Plus, StickyNote } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { DEFAULT_GAME, GAME_LABELS, GAMES, isGame } from "@/lib/game-data";
+import { matchesSearch } from "@/lib/search";
 import type { Game, SavedMatchup } from "@/lib/types";
 import { GameSelector } from "./game-selector";
 import { MatchupList, type MatchupSummary, type Tab } from "./matchup-list";
 import { NewMatchupForm } from "./new-matchup-form";
 import { NewNoteForm } from "./new-note-form";
+import { SearchBar } from "./search-bar";
 
 const TABS: Tab[] = ["matchups", "notes", "saved"];
 const isTab = (v: string | null): v is Tab => TABS.includes(v as Tab);
@@ -29,14 +31,18 @@ export function Dashboard({ matchups, saved }: { matchups: MatchupSummary[]; sav
   const [creating, setCreating] = useState<"matchup" | "note" | null>(
     matchups.length === 0 && saved.length === 0 ? "matchup" : null,
   );
+  // Search text (?q=…): kept in state so typing stays instant, mirrored in the URL for the Back button.
+  const [search, setSearch] = useState(() => params.get("q") ?? "");
 
   // replaceState keeps Next's useSearchParams in sync without a server round trip.
-  function update(next: { game?: Game; tab?: Tab }) {
+  function update(next: { game?: Game; tab?: Tab; q?: string }) {
     const g = next.game ?? game;
     const t = next.tab ?? tab;
+    const q = (next.q ?? search).trim();
     const qs = new URLSearchParams();
     if (g !== DEFAULT_GAME) qs.set("game", g);
     if (t !== "matchups") qs.set("tab", t);
+    if (q) qs.set("q", q);
     const query = qs.toString();
     window.history.replaceState(null, "", query ? `${pathname}?${query}` : pathname);
   }
@@ -45,7 +51,9 @@ export function Dashboard({ matchups, saved }: { matchups: MatchupSummary[]; sav
     Game,
     number
   >;
-  const ofGame = matchups.filter((m) => m.game === game);
+  // The search applies to the current game, in every tab (the tab counts show the matches).
+  const ofGame = matchups.filter((m) => m.game === game && matchesSearch(m, search));
+  const savedOfGame = saved.filter((m) => m.game === game && matchesSearch(m, search));
 
   return (
     <>
@@ -77,10 +85,24 @@ export function Dashboard({ matchups, saved }: { matchups: MatchupSummary[]; sav
       <MatchupList
         game={game}
         tab={tab}
+        search={search.trim()}
+        searchBar={
+          <SearchBar
+            value={search}
+            onChange={(q) => {
+              setSearch(q);
+              update({ q });
+            }}
+          />
+        }
         onTabChange={(t) => update({ tab: t })}
+        onClearSearch={() => {
+          setSearch("");
+          update({ q: "" });
+        }}
         matchups={ofGame.filter((m) => m.kind !== "note")}
         notes={ofGame.filter((m) => m.kind === "note")}
-        saved={saved.filter((m) => m.game === game)}
+        saved={savedOfGame}
       />
     </>
   );

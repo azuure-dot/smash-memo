@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bookmark, CopyPlus, Link2, NotebookPen, StickyNote } from "lucide-react";
+import { Bookmark, CopyPlus, Link2, NotebookPen, SearchX, StickyNote } from "lucide-react";
 import { EntryLabel } from "@/components/matchup-label";
 import { cn } from "@/lib/cn";
 import { GAME_LABELS } from "@/lib/game-data";
@@ -27,18 +27,29 @@ function timeAgo(iso: string) {
   return "just now";
 }
 
-/** The dashboard's three tabs for the game picked in the game selector (lists already filtered). */
+/**
+ * The dashboard's three tabs for the game picked in the game selector. Lists arrive already filtered
+ * (game + search), so the tab counts are the search results.
+ */
 export function MatchupList({
   game,
   tab,
+  search,
+  searchBar,
   onTabChange,
+  onClearSearch,
   matchups,
   notes,
   saved,
 }: {
   game: Game;
   tab: Tab;
+  /** Current search text, trimmed ("" = no search). */
+  search: string;
+  /** The dashboard's search field, shown between the tabs and the cards. */
+  searchBar: React.ReactNode;
   onTabChange: (tab: Tab) => void;
+  onClearSearch: () => void;
   matchups: MatchupSummary[];
   notes: MatchupSummary[];
   saved: SavedMatchup[];
@@ -71,8 +82,15 @@ export function MatchupList({
         ))}
       </nav>
 
+      {/* The search bar, right under the tabs. */}
+      {searchBar}
+
       {visible.length === 0 ? (
-        <EmptyState tab={tab} game={game} />
+        search ? (
+          <NoResults tab={tab} game={game} search={search} onClear={onClearSearch} />
+        ) : (
+          <EmptyState tab={tab} game={game} />
+        )
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((m) => {
@@ -113,6 +131,26 @@ function Badge({ icon, children }: { icon: React.ReactNode; children: React.Reac
       {icon}
       {children}
     </span>
+  );
+}
+
+/** A search with nothing in this tab (the other tabs' counts show if it matched something there). */
+function NoResults({ tab, game, search, onClear }: { tab: Tab; game: Game; search: string; onClear: () => void }) {
+  const what = { matchups: "matchup", notes: "note", saved: "saved note" }[tab];
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-line px-6 py-14 text-center">
+      <SearchX className="size-7 text-muted" aria-hidden />
+      <p className="max-w-sm text-balance font-serif text-[15px] italic text-muted">
+        No {GAME_LABELS[game]} {what} matches “{search}”.
+      </p>
+      <button
+        type="button"
+        onClick={onClear}
+        className="rounded-md px-3 py-1.5 text-sm font-semibold text-brand transition-colors hover:bg-[var(--color-magenta-hl)]"
+      >
+        Clear search
+      </button>
+    </div>
   );
 }
 
